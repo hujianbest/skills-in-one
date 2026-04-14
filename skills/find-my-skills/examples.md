@@ -12,6 +12,16 @@
 我刚改了 REPO_LSIT.md，重新整理一下本地 skill 目录并更新索引。
 ```
 
+## Find Local Skill Paths
+
+```text
+把我本地已经收录的 skills 路径都列出来。
+```
+
+```text
+帮我找和 PPT 相关的 skill 路径，我要能直接继续读文件。
+```
+
 ## Recommend Skills For A Task
 
 ```text

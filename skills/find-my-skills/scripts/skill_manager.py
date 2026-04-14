@@ -565,6 +565,54 @@ def command_index(config: dict[str, Any]) -> int:
     return 0
 
 
+def rank_entries(entries: list[dict[str, Any]], query_tokens: list[str]) -> list[tuple[int, dict[str, Any], list[str]]]:
+    scored_entries: list[tuple[int, dict[str, Any], list[str]]] = []
+    for entry in entries:
+        score, reasons = score_entry(entry, query_tokens)
+        if score > 0:
+            scored_entries.append((score, entry, reasons))
+
+    scored_entries.sort(key=lambda item: (-item[0], item[1].get("repo_name", ""), item[1].get("title", "")))
+    return scored_entries
+
+
+def command_find_skills(config: dict[str, Any], query: str | None, top_k: int | None) -> int:
+    catalog = load_catalog(config)
+    if not catalog:
+        eprint("Catalog missing. Run the index command first.")
+        return 1
+
+    entries = list(catalog.get("entries", []))
+    if not entries:
+        eprint("Catalog is empty. Run the index command again after syncing repos.")
+        return 1
+
+    if query:
+        query_tokens = tokenize(query)
+        if not query_tokens:
+            eprint("No searchable English keywords were found in the query.")
+            return 1
+
+        ranked_entries = rank_entries(entries, query_tokens)
+        if not ranked_entries:
+            eprint("No matching skills found in the local catalog.")
+            return 0
+
+        limit = top_k or config["recommend_top_k"]
+        for _, entry, _ in ranked_entries[:limit]:
+            print(entry["file_path"])
+        return 0
+
+    entries.sort(key=lambda entry: (entry.get("repo_name", ""), entry.get("relative_path", ""), entry.get("title", "")))
+    if top_k:
+        entries = entries[:top_k]
+
+    for entry in entries:
+        print(entry["file_path"])
+
+    return 0
+
+
 def score_entry(entry: dict[str, Any], query_tokens: list[str]) -> tuple[int, list[str]]:
     title = entry.get("title", "").lower()
     description = entry.get("description", "").lower()
@@ -613,13 +661,7 @@ def command_recommend(config: dict[str, Any], query: str, top_k: int | None) -> 
         eprint("No searchable English keywords were found in the query.")
         return 1
 
-    scored_entries: list[tuple[int, dict[str, Any], list[str]]] = []
-    for entry in catalog.get("entries", []):
-        score, reasons = score_entry(entry, query_tokens)
-        if score > 0:
-            scored_entries.append((score, entry, reasons))
-
-    scored_entries.sort(key=lambda item: (-item[0], item[1].get("repo_name", ""), item[1].get("title", "")))
+    scored_entries = rank_entries(list(catalog.get("entries", [])), query_tokens)
     limit = top_k or config["recommend_top_k"]
 
     print(f"Query tokens: {', '.join(query_tokens)}")
@@ -652,6 +694,21 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("status", help="Show current repo and catalog status.")
     subparsers.add_parser("sync", help="Clone missing repos and pull existing repos.")
     subparsers.add_parser("index", help="Build the local skill catalog from cloned repos.")
+    find_skills = subparsers.add_parser(
+        "find-skills",
+        help="Print full local skill paths, optionally filtered by query.",
+    )
+    find_skills.add_argument(
+        "--query",
+        default=None,
+        help="Optional English search keywords to filter matching skill paths.",
+    )
+    find_skills.add_argument(
+        "--top-k",
+        type=int,
+        default=None,
+        help="Limit the number of printed paths.",
+    )
 
     recommend = subparsers.add_parser("recommend", help="Recommend skills from the local catalog.")
     recommend.add_argument("--query", required=True, help="English search keywords for the desired task.")
@@ -672,6 +729,8 @@ def main(argv: list[str] | None = None) -> int:
             return command_sync(config)
         if args.command == "index":
             return command_index(config)
+        if args.command == "find-skills":
+            return command_find_skills(config, args.query, args.top_k)
         if args.command == "recommend":
             return command_recommend(config, args.query, args.top_k)
         parser.error(f"Unknown command: {args.command}")

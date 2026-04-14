@@ -39,8 +39,18 @@ The script writes two files under `state_root`:
 python ".cursor/skills/find-my-skills/scripts/skill_manager.py" status
 python ".cursor/skills/find-my-skills/scripts/skill_manager.py" sync
 python ".cursor/skills/find-my-skills/scripts/skill_manager.py" index
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" find-skills
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" find-skills --query "ppt presentation"
 python ".cursor/skills/find-my-skills/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
 ```
+
+## Find Skills Output
+
+`find-skills` prints full local file paths, one path per line.
+
+- Without `--query`, it prints all indexed entries.
+- With `--query`, it prints the best matching paths using the same ranking logic as `recommend`.
+- The output is designed to be directly usable in file-reading workflows.
 
 ## Repo List Format
 

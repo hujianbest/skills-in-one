@@ -19,6 +19,7 @@
 - 把外部 skills 仓库统一存放到工作区外
 - 只在你明确要求时执行同步或更新
 - 扫描 `SKILL.md`、`AGENTS.md` 和必要的 `README`
+- 直接输出本地 skill 文件路径，方便继续读文件
 - 生成本地 catalog，并按任务关键词推荐 skill
 
 ## Preview
@@ -27,6 +28,7 @@
 
 - `sync` 后的仓库整理效果
 - `index` 生成的 catalog 摘要
+- `find-skills` 输出的可直接使用路径
 - `recommend` 输出的推荐结果
 
 > Preview placeholder: add a screenshot or terminal GIF here later.
@@ -93,7 +95,19 @@ python "skills/find-my-skills/scripts/skill_manager.py" sync
 python "skills/find-my-skills/scripts/skill_manager.py" index
 ```
 
-### 5. 推荐 skill
+### 5. 列出 skill 路径
+
+```bash
+python "skills/find-my-skills/scripts/skill_manager.py" find-skills
+```
+
+如果只想看某类 skill：
+
+```bash
+python "skills/find-my-skills/scripts/skill_manager.py" find-skills --query "ppt presentation"
+```
+
+### 6. 推荐 skill
 
 ```bash
 python "skills/find-my-skills/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
@@ -108,6 +122,7 @@ python "skills/find-my-skills/scripts/skill_manager.py" recommend --query "ppt c
 | `status` | 查看当前同步状态和 catalog 是否存在 |
 | `sync` | clone 缺失仓库，或 pull 已有仓库 |
 | `index` | 扫描本地仓库并生成 catalog |
+| `find-skills` | 输出本地 skill 路径，可直接继续读文件 |
 | `recommend --query "..."` | 根据任务关键词推荐 skill |
 
 ## Config
@@ -166,6 +181,14 @@ skills/
 
 ```text
 我刚改了 REPO_LSIT.md，重新整理一下本地 skill 目录并更新索引。
+```
+
+```text
+把我本地已经收录的 skills 路径都列出来。
+```
+
+```text
+帮我找和 PPT 相关的 skill 路径，我要能直接继续读文件。
 ```
 
 ```text

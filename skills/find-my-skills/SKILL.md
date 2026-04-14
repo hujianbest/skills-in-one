@@ -13,7 +13,8 @@ Use this skill to keep a curated skill library usable over time:
 2. Clone missing skill repositories to an external directory.
 3. Update cloned repositories only when the user explicitly asks.
 4. Build a local catalog of discovered skills and repo overviews.
-5. Recommend the most relevant skills for a task the user describes.
+5. Print full local skill paths when the user wants a raw list.
+6. Recommend the most relevant skills for a task the user describes.
 
 ## First Step
 
@@ -33,7 +34,7 @@ Copy this checklist when the task is more than a quick lookup:
 
 ```text
 Task Progress:
-- [ ] Confirm the intent: sync, index, recommend, or status
+- [ ] Confirm the intent: sync, index, find-skills, recommend, or status
 - [ ] Read config.json
 - [ ] Run the matching script command
 - [ ] Summarize results or recommendations
@@ -69,7 +70,21 @@ Use this to see whether repos are cloned and whether the catalog exists:
 python ".cursor/skills/find-my-skills/scripts/skill_manager.py" status
 ```
 
-### 4. Recommend Skills
+### 4. Print Local Skill Paths
+
+Use this when the user wants the raw local skill list, or wants paths that can be read directly.
+
+```bash
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" find-skills
+```
+
+If the user wants only matching paths, filter by short English keywords:
+
+```bash
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" find-skills --query "ppt presentation"
+```
+
+### 5. Recommend Skills
 
 When the user describes a task:
 
