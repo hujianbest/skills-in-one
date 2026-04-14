@@ -1,0 +1,12 @@
+{
+  "repo_list_path": "REPO_LSIT.md",
+  "clone_root": "~/.cursor/managed-skill-repos/repos",
+  "state_root": "~/.cursor/managed-skill-repos/state",
+  "scan_files": [
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "include_root_readme": true,
+  "recommend_top_k": 6,
+  "max_file_bytes": 20000
+}
