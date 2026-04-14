@@ -72,14 +72,14 @@ def detect_workspace_root() -> Path:
     candidates: list[Path] = []
     parents = SCRIPT_PATH.parents
 
-    # Source repo layout: <repo>/skills/skill-steward/scripts/skill_manager.py
-    if len(parents) >= 4 and parents[1].name == "skill-steward" and parents[2].name == "skills":
+    # Source repo layout: <repo>/skills/find-my-skills/scripts/skill_manager.py
+    if len(parents) >= 4 and parents[1].name == "find-my-skills" and parents[2].name == "skills":
         candidates.append(parents[3])
 
-    # Installed project skill layout: <workspace>/.cursor/skills/skill-steward/scripts/skill_manager.py
+    # Installed project skill layout: <workspace>/.cursor/skills/find-my-skills/scripts/skill_manager.py
     if (
         len(parents) >= 5
-        and parents[1].name == "skill-steward"
+        and parents[1].name == "find-my-skills"
         and parents[2].name == "skills"
         and parents[3].name == ".cursor"
     ):

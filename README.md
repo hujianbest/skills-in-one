@@ -1,8 +1,8 @@
-# Skill Steward
+# Find My Skills
 
 *A skill for curating, syncing, indexing, and recommending external skill repositories.*
 
-`Skill Steward` 是一个给 Agent 用的 skill 管家，适合已经收藏了很多 skills 仓库、但越来越难管理的人。它会读取 `REPO_LSIT.md` 中的仓库清单，把这些仓库统一 clone 到工作区外，整理成可搜索的本地 catalog，并在你描述任务时推荐更合适的 skill。
+`Find My Skills` 是一个给 Agent 用的 skill 管家，适合已经收藏了很多 skills 仓库、但越来越难管理的人。它会读取 `REPO_LSIT.md` 中的仓库清单，把这些仓库统一 clone 到工作区外，整理成可搜索的本地 catalog，并在你描述任务时推荐更合适的 skill。
 
 ## Why
 
@@ -40,16 +40,16 @@
 
 ### 目录位置
 
-这个仓库的源码放在 `skills/skill-steward`。如果你要把它作为 Cursor skill 使用，建议把这个目录复制或链接到以下任一位置：
+这个仓库的源码放在 `skills/find-my-skills`。如果你要把它作为 Cursor skill 使用，建议把这个目录复制或链接到以下任一位置：
 
 ```text
-.cursor/skills/skill-steward
+.cursor/skills/find-my-skills
 ```
 
 或：
 
 ```text
-~/.cursor/skills/skill-steward
+~/.cursor/skills/find-my-skills
 ```
 
 如果你把它作为项目 skill 使用，默认配置会更顺手，因为 `REPO_LSIT.md` 通常就在项目根目录。
@@ -72,31 +72,31 @@
 在源码仓库中直接运行：
 
 ```bash
-python "skills/skill-steward/scripts/skill_manager.py" status
+python "skills/find-my-skills/scripts/skill_manager.py" status
 ```
 
 如果已经安装成项目 skill：
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" status
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" status
 ```
 
 ### 3. 同步仓库
 
 ```bash
-python "skills/skill-steward/scripts/skill_manager.py" sync
+python "skills/find-my-skills/scripts/skill_manager.py" sync
 ```
 
 ### 4. 生成索引
 
 ```bash
-python "skills/skill-steward/scripts/skill_manager.py" index
+python "skills/find-my-skills/scripts/skill_manager.py" index
 ```
 
 ### 5. 推荐 skill
 
 ```bash
-python "skills/skill-steward/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
+python "skills/find-my-skills/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
 ```
 
 `recommend` 当前更适合英文关键词，所以当用户是中文描述时，建议先提炼成 3 到 6 个简短英文词组再查询。
@@ -112,7 +112,7 @@ python "skills/skill-steward/scripts/skill_manager.py" recommend --query "ppt co
 
 ## Config
 
-源码仓库中的默认配置文件是 `skills/skill-steward/config.json`：
+源码仓库中的默认配置文件是 `skills/find-my-skills/config.json`：
 
 ```json
 {
@@ -147,7 +147,7 @@ python "skills/skill-steward/scripts/skill_manager.py" recommend --query "ppt co
 README.md
 REPO_LSIT.md
 skills/
-  skill-steward/
+  find-my-skills/
     SKILL.md
     config.json
     reference.md

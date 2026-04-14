@@ -1,8 +1,8 @@
-# Skill Steward Reference
+# Find My Skills Reference
 
 ## Config Keys
 
-The default config lives in `.cursor/skills/skill-steward/config.json`.
+The default config lives in `.cursor/skills/find-my-skills/config.json`.
 
 ```json
 {
@@ -36,10 +36,10 @@ The script writes two files under `state_root`:
 ## Supported Commands
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" status
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" sync
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" index
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" status
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" sync
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" index
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
 ```
 
 ## Repo List Format

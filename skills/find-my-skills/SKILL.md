@@ -1,9 +1,9 @@
 ---
-name: skill-steward
+name: find-my-skills
 description: Manage curated external skill repositories: clone or pull them outside the workspace, build a local catalog, and recommend matching skills for a described task. Use when the user mentions skill repos, syncing or updating skills, organizing many skills, 推荐 skill, 找 skill, or asks which skill fits a task.
 ---
 
-# Skill Steward
+# Find My Skills
 
 ## Purpose
 
@@ -17,7 +17,7 @@ Use this skill to keep a curated skill library usable over time:
 
 ## First Step
 
-Always read `.cursor/skills/skill-steward/config.json` before running commands.
+Always read `.cursor/skills/find-my-skills/config.json` before running commands.
 
 ## Rules
 
@@ -44,13 +44,13 @@ Task Progress:
 Use this only when the user explicitly wants network changes.
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" sync
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" sync
 ```
 
 After syncing, rebuild the catalog if the user wants the library organized or wants recommendations from the new repos:
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" index
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" index
 ```
 
 ### 2. Rebuild The Local Catalog
@@ -58,7 +58,7 @@ python ".cursor/skills/skill-steward/scripts/skill_manager.py" index
 Use this after local repo changes or when the catalog is missing:
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" index
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" index
 ```
 
 ### 3. Check Current State
@@ -66,7 +66,7 @@ python ".cursor/skills/skill-steward/scripts/skill_manager.py" index
 Use this to see whether repos are cloned and whether the catalog exists:
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" status
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" status
 ```
 
 ### 4. Recommend Skills
@@ -78,7 +78,7 @@ When the user describes a task:
 3. Explain the best matches in plain language.
 
 ```bash
-python ".cursor/skills/skill-steward/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
+python ".cursor/skills/find-my-skills/scripts/skill_manager.py" recommend --query "ppt corporate presentation deck"
 ```
 
 If the catalog is missing, rebuild it first. Do not sync repos unless the user asked for syncing.
