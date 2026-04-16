@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "prompt": "我新开一个需求：结果页支持按 harness/status 筛选并导出 CSV，先帮我走 HF。",
+    "expected": "识别为 public entry，做 direct invoke vs route-first 判断；在 clear case 下直接把入口指向 hf-specify。"
+  },
+  {
+    "id": 2,
+    "prompt": "继续推进上次任务，刚做完 code review，下一步该做什么？",
+    "expected": "识别这属于 runtime recovery，而不是 entry shell；明确交给 hf-workflow-router。"
+  }
+]
