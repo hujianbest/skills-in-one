@@ -74,16 +74,17 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 
 | Skill | Core methodology |
 |-------|------------------|
-| `hf-product-discovery` | Problem Framing, Hypothesis-Driven Discovery, Opportunity / Wedge Mapping, Assumption Surfacing |
+| `hf-product-discovery` | Problem Framing, Hypothesis-Driven Discovery, Opportunity / Wedge Mapping, Assumption Surfacing, JTBD / Jobs Stories, Opportunity Solution Tree, RICE / ICE / Kano, Desired Outcome / North Star Framing |
 | `hf-discovery-review` | Structured Walkthrough, Checklist-Based Review, Separation of Author/Reviewer Roles, Evidence-Based Verdict |
+| `hf-experiment` (Phase 0) | Hypothesis-Driven Development, Build-Measure-Learn, Four Types of Assumptions (D/V/F/U), Smallest Testable Probe, Pre-registered Success Threshold |
 
 ### Authoring
 
 | Skill | Core methodology |
 |-------|------------------|
-| `hf-specify` | EARS, BDD / Gherkin, MoSCoW Prioritization, Socratic Elicitation, INVEST |
+| `hf-specify` | EARS, BDD / Gherkin, MoSCoW Prioritization, Socratic Elicitation, INVEST, ISO/IEC 25010 + Quality Attribute Scenarios, Success Metrics & Key Hypotheses Framing, RICE / ICE / Kano (carried from discovery) |
 | `hf-spec-review` | Structured Walkthrough, Checklist-Based Review, Separation of Author/Reviewer Roles, Evidence-Based Verdict |
-| `hf-design` | ADR, C4 Model, Risk-Driven Architecture, YAGNI + Complexity Matching, ARC42 |
+| `hf-design` | ADR, C4 Model, Risk-Driven Architecture, YAGNI + Complexity Matching, ARC42, DDD Strategic Modeling (Bounded Context / Ubiquitous Language / Context Map), Event Storming (spec→design bridge), Quality Attribute Scenarios (NFR uptake), Lightweight STRIDE Threat Modeling |
 | `hf-design-review` | ATAM, Structured Walkthrough, Separation of Author/Reviewer Roles, Traceability to Spec |
 | `hf-ui-design` | Information Architecture, Atomic Design, Design System / Design Tokens, Nielsen Heuristics, WCAG 2.2 AA, Interaction State Inventory, ADR |
 | `hf-ui-review` | ATAM (adapted to UI), Nielsen Heuristic Evaluation, Structured Walkthrough, Separation of Author/Reviewer Roles, Traceability to Spec |
@@ -283,9 +284,11 @@ A typical full flow looks like this:
 using-hf-workflow
   -> hf-product-discovery
   -> hf-discovery-review
+  -> (optional) hf-experiment     # inserted when blocking / low-confidence hypotheses exist
   -> hf-workflow-router
   -> hf-specify
   -> hf-spec-review
+  -> (optional) hf-experiment     # inserted when the spec has unresolved blocking hypotheses
   -> hf-design  (|| hf-ui-design if the spec declares a UI surface)
   -> hf-design-review  (|| hf-ui-review)
   -> hf-tasks
@@ -298,6 +301,8 @@ using-hf-workflow
   -> hf-completion-gate
   -> hf-finalize
 ```
+
+`hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
 
 When the spec declares a UI surface, the router activates `hf-ui-design` as a **conditional peer inside the design stage**. `hf-design` covers architecture, modules, API contracts, data models, and backend NFRs; `hf-ui-design` covers information architecture, user flows, interaction states, visual tokens, Atomic component mapping, and frontend a11y / i18n / responsive concerns. Both drafts go through their own independent review, and a joint `设计真人确认` is only opened after both `hf-design-review` and `hf-ui-review` return `通过`. See `skills/hf-workflow-router/references/ui-surface-activation.md` for the activation rules and Design Execution Modes (`parallel` / `architecture-first` / `ui-first`).
 
