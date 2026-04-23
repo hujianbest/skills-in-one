@@ -2,22 +2,28 @@
 
 [English](README.md) | [Chinese](README.zh-CN.md)
 
-High-quality engineering workflows for AI agents.
+**From idea to shipped product: high-quality engineering workflows for AI agents.**
 
-HarnessFlow is a skill pack for AI agents that brings structure, quality discipline, and clear handoffs to software engineering work. It combines a spec-anchored SDD model with a gated TDD execution loop so agents can move through planning, implementation, review, verification, and closeout with explicit stages instead of ad hoc prompt chains.
+HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
 
 ## Overview
 
-This repository currently focuses on the HarnessFlow coding workflow pack. The current pack covers:
+HarnessFlow's primary path covers the full **idea-to-product** arc:
 
-- public entry and workflow discovery
-- upstream product discovery authoring and review
-- runtime routing and recovery
-- spec, design, and task authoring
-- task-by-task test-driven implementation
-- test, code, and traceability reviews
-- regression and completion gates
-- hotfix, increment, and finalize flows
+- **Upstream product discovery**: problem framing, JTBD, Opportunity Solution Tree, RICE / ICE, Desired Outcome / North Star
+- **Hypothesis validation**: `hf-experiment` — minimal probes when blocking or low-confidence hypotheses exist
+- **Specification**: EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
+- **Architecture design**: DDD Strategic Modeling + Event Storming + C4 + ADR + ARC42 + NFR QAS uptake + lightweight STRIDE
+- **UI design** (activated when the spec declares a UI surface): IA + Atomic Design + Design Tokens + Nielsen + WCAG 2.2 AA + interaction state inventory
+- **Task breakdown**: WBS + INVEST + dependency graph / critical path + Definition of Done
+- **Single-task TDD implementation**: Canon TDD + Walking Skeleton + Two Hats + Clean Architecture conformance + fresh evidence
+- **Independent reviews**: Fagan-style role separation for test / code / traceability / UI / discovery / spec / design / tasks reviews
+- **Regression and completion gates**: impact-based regression + evidence bundle + Definition of Done
+- **Formal closeout**: PMBOK-style task closeout and workflow closeout
+- **Runtime routing and recovery**: `using-hf-workflow` / `hf-workflow-router` resume orchestration from artifacts, not chat memory
+- **Side branches and learning loops**: `hf-hotfix` / `hf-increment` / `hf-bug-patterns`
+
+Further evolution toward commercial-grade delivery (release, ops, metrics feedback, team collaboration, long-term architecture health, data / AI product tracks) is mapped in `docs/todo/hf-staged-implementation-plan.md` (Phase 0 landed; Phases 1–5 planned).
 
 Internally, the current skill family uses the `hf-*` naming convention.
 
@@ -353,14 +359,17 @@ If you want to understand the pack quickly, read these files first:
 
 ## Who It Is For
 
-HarnessFlow is for teams and builders who want AI agents to do real engineering work with more rigor. It is especially useful when you want:
+HarnessFlow is for teams and builders who want AI agents to carry **idea-to-product** engineering work with real rigor. It is especially useful when you want:
 
-- stronger workflow boundaries
-- reviewable intermediate states
-- better traceability across artifacts
-- safer multi-step execution in real repositories
-- clearer recovery between sessions
+- structured product insight at idea stage (JTBD / OST / Desired Outcome), not gut calls
+- thick architecture design — Bounded Context / Ubiquitous Language / Event Storming / NFR QAS / lightweight threat modeling all captured as reviewable artifacts
+- stronger workflow boundaries and reviewable intermediate states
+- better traceability across artifacts (discovery → spec → design → tasks → code → tests)
+- safer and more recoverable multi-step execution in real repositories
+- cross-session recovery driven by artifacts rather than chat memory
 
 ## Current Status
 
-HarnessFlow is currently centered on a coding workflow pack. The repository contains the current HF skill family, shared docs, templates, and supporting principles for that pack.
+HarnessFlow is currently centered on a coding workflow pack. Phase 0 has thickened the product-insight and architecture-design layers (JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`). The path toward commercial-grade delivery is mapped in `docs/todo/hf-staged-implementation-plan.md` (Phases 1–5 cover release, operations, metrics feedback, collaboration, long-term architecture health, and data / AI product tracks).
+
+The repository contains the current HF skill family, shared docs, templates, and supporting principles (including the methodology coherence / phase / profile activation map in `docs/principles/methodology-coherence.md`).

@@ -2,22 +2,28 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-面向 AI Agent 的高质量工程工作流。
+**从一个 idea 到产品落地：面向 AI Agent 的高质量工程工作流。**
 
-HarnessFlow 是一个面向 AI Agent 的 skill pack，用来把结构化流程、质量纪律和清晰交接带入软件工程工作。它将以 spec 为锚点的 SDD 模型与带门禁的 TDD 执行回路结合起来，让 agent 在规划、实现、评审、验证和收尾之间按照显式阶段推进，而不是依赖临时拼接的 prompt 链路。
+HarnessFlow 是一个面向 AI Agent 的 skill pack，用来把**从产品洞察到架构设计、再到实现与交付**的完整工程节奏落到结构化工件、质量纪律和清晰交接上。它把产品发现、规格澄清、架构设计、任务拆解、带门禁的 TDD 实现、多道独立评审、回归与完成门禁、正式收尾都当作一等阶段，让 agent 沿着显式阶段推进"一个 idea → 可评审方向 → 可评审设计 → 可执行任务 → 可落地产品"，而不是依赖临时拼接的 prompt 链路。
 
 ## 项目概览
 
-当前仓库主要聚焦于 HarnessFlow 的 coding workflow pack。当前这套 pack 覆盖：
+HarnessFlow 当前的主路径覆盖「**从一个 idea 到产品落地**」全程：
 
-- 公开入口与工作流发现
-- 上游 product discovery 编写与评审
-- 运行时路由与恢复编排
-- spec、design 和 tasks 编写
-- 逐任务的测试驱动实现
-- test、code 与 traceability review
-- regression 与 completion gates
-- hotfix、increment 与 finalize 流程
+- 上游 **产品洞察**：problem framing、JTBD、Opportunity Solution Tree、RICE / ICE、Desired Outcome / North Star
+- **假设验证**：`hf-experiment` 在 Blocking 或低 confidence 关键假设下插入的最小 probe
+- **规格澄清**：EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
+- **架构设计**：DDD 战略建模 + Event Storming + C4 + ADR + ARC42 + NFR QAS 承接 + 轻量 STRIDE
+- **UI 设计**（规格声明 UI surface 时激活）：IA + Atomic Design + Design Tokens + Nielsen + WCAG 2.2 AA + 交互状态清单
+- **任务拆解**：WBS + INVEST + 依赖图 / 关键路径 + Definition of Done
+- **单任务 TDD 实现**：Canon TDD + Walking Skeleton + Two Hats + Clean Architecture conformance + fresh evidence
+- **多道独立评审**：test / code / traceability / ui / discovery / spec / design / tasks review 的 Fagan 式角色分离
+- **回归与完成门禁**：impact-based regression + evidence bundle + Definition of Done
+- **正式收尾**：task closeout 与 workflow closeout 的 PMBOK 式闭环
+- **运行时路由与恢复**：`using-hf-workflow` / `hf-workflow-router`，按工件证据恢复编排
+- **支线与经验沉淀**：`hf-hotfix` / `hf-increment` / `hf-bug-patterns`
+
+向下继续演进（当前为 Phase 0 已落地；Phase 1–5 规划详见 `docs/todo/hf-staged-implementation-plan.md`）将覆盖发布 / 运维 / 度量回流 / 协作 / 长期架构健康 / 数据与 AI 产品等商用级交付能力。
 
 在内部命名上，这套 skill family 目前使用 `hf-*` 约定。
 
@@ -346,14 +352,17 @@ docs/principles/
 
 ## 适合谁
 
-HarnessFlow 面向那些希望让 AI Agent 承担更严肃工程工作的团队和开发者。它尤其适合这些场景：
+HarnessFlow 面向那些希望让 AI Agent 承担**从一个 idea 到产品落地**的严肃工程工作的团队和开发者。它尤其适合这些场景：
 
-- 你希望工作流边界更清晰
-- 你希望中间状态可评审
-- 你希望不同工件之间更可追溯
-- 你希望 agent 在真实仓库里的多步执行更安全
-- 你希望跨会话恢复更容易
+- 你希望 agent 在 idea 阶段就进行结构化产品洞察（JTBD / OST / Desired Outcome），而不是凭感觉上手
+- 你希望架构设计做得**厚**——Bounded Context / Ubiquitous Language / Event Storming / NFR QAS / 轻量威胁建模都落在可评审工件上
+- 你希望工作流边界更清晰，中间状态可评审
+- 你希望不同工件之间更可追溯（discovery → spec → design → tasks → code → tests）
+- 你希望 agent 在真实仓库里的多步执行更安全、更可恢复
+- 你希望跨会话恢复更容易；router 能从磁盘工件恢复编排，而不是靠聊天记忆
 
 ## 当前状态
 
-目前 HarnessFlow 主要围绕 coding workflow pack 展开。这个仓库包含当前 HF skill family、共享文档、模板，以及支撑这套 pack 的原则文档。
+HarnessFlow 当前以 coding workflow pack 为主体，Phase 0 已把产品洞察与架构设计两层打厚（JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`）。向「商用级交付」方向的后续演进路线见 `docs/todo/hf-staged-implementation-plan.md`（Phase 1–5 覆盖发布、运维、度量、协作、长期架构健康、数据 / AI 产品分支）。
+
+这个仓库包含当前 HF skill family、共享文档、模板，以及支撑这套 pack 的原则文档（含方法论协作与 phase / profile 激活地图 `docs/principles/methodology-coherence.md`）。
