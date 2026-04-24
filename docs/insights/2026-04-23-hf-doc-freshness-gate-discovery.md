@@ -162,7 +162,12 @@
 | **U1** lightweight 不退化 | 在 spec / design 内置一份"lightweight 5 行 checklist 样例"，让 1 个真实 lightweight 项目跑一次 dry run | P1（design 阶段） | 跑一次耗时 ≤ 5 分钟，且 verdict 可被冷读 |
 | **U2** 责任边界稳定 | 在 spec 中显式列 `hf-doc-freshness-gate` vs `hf-finalize` vs `hf-increment` 的责任矩阵；评审时 reviewer 必须能逐项判 `pass` | P0（spec 阶段） | reviewer 评审无"哪条该哪个 skill 管"歧义 |
 
-P0 假设（**A1** + **U2**）任一不通过，应回到 discovery 修订；不强行进入 spec。
+P0 假设状态：
+
+- **A1**：✅ 已通过（见 `docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/probe-result.md`）
+- **U2**：⏳ 仍为 P0 → 留给 spec 阶段通过显式责任矩阵 + reviewer 判定关闭
+
+任一未来反向证伪应回到 discovery 修订；不强行进入 spec。
 
 ## 9. 成功度量（Desired Outcome / North Star / Success Threshold）
 
