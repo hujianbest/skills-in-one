@@ -18,7 +18,8 @@
 - **FR-001..FR-008**（输入消费 / verdict 输出 / sync-on-presence / profile 分级 / 与 completion-gate 衔接 / 与 finalize 不重叠 / 与 increment 不重叠 / reviewer dispatch）
 - **NFR-001..NFR-004**（一致性 / lightweight 性能 ≤ 5 分钟 / ≤ 30 行 / 不依赖外部工具链 / sync-on-presence 容错）
 - **CON-001..CON-007**（不破坏既有合同 / 不引入新工具链 / 遵循 sync-on-presence / 遵循角色分离 / 三 profile 支持 / readonly reviewer / 既有 evidence 路径约定）
-- **HYP-003 / HYP-004 design 阶段 dry run**：HYP-003 在 ADR-0003 通过（新增 5 ≤ 6）；HYP-004 在 §16 测试与验证策略 / §10 lightweight checklist 草样验证。
+- **HYP-003 design 阶段关闭**：通过 ADR-0003 关闭。计数口径 = **logical canonical transition 数（5 ≤ 6）**；按 per-profile 行展开 = 5 × 3 profile = 15 条，仍在 router 既有 ≥ 60 行 transition 总规模的可维护区间内（口径详见 §10.2 / ADR-0003）。
+- **HYP-004 preliminarily closed by estimation**：design §10.3 提供 5 行 lightweight checklist 模板 + ≤ 4 分钟时间估算，逻辑自洽且符合 NFR-002 阈值。但 spec §4 Validation Plan 明文要求 "在 `lightweight` 项目做一次 dry run"——estimation ≠ dry-run。**final validation deferred to `hf-test-driven-dev` 阶段 §16 T-NFR-002-lightweight-time**（针对本 feature 自身做 dogfooding 实跑）；T7 walking skeleton 任务已为此预留落地点。
 
 ## 3. 需求覆盖与追溯
 
@@ -195,7 +196,8 @@ dry run 估算：reviewer subagent 读 spec / tasks（≤ 1 分钟）+ 看 READM
 **Boundary Constraints**（来自 spec CON-001..CON-007 + §6.2）：
 
 - 本 skill 不修改 `hf-finalize` / `hf-completion-gate` / `hf-code-review` / `hf-traceability-review` / `hf-increment` 的 SKILL.md
-- 本 skill 修改：(1) `hf-workflow-router/references/profile-node-and-transition-map.md`（按 ADR-0003 加入 5 条 transition）；(2) `hf-completion-gate/SKILL.md`（在 evidence bundle 部分新增一项 reference，prose-only，不改 verdict 逻辑）
+- 本 skill 修改：(1) `hf-workflow-router/references/profile-node-and-transition-map.md`（按 ADR-0003 加入 logical canonical 5 条 transition；按 per-profile 行展开 = 5 × 3 = 15 行）；(2) `hf-completion-gate/SKILL.md`（在 evidence bundle 部分新增一项 reference，prose-only，不改 verdict 逻辑）
+- **completion-gate evidence bundle 消费规则**：仅 `pass` / `partial` / `N/A` 三档 verdict 进入 `hf-completion-gate` evidence bundle 作为 reference；`blocked` verdict 由本 gate 直接路由回 `hf-test-driven-dev`（spec FR-005 第三条 acceptance 的隐含路径），不进入 completion-gate。这与 "不改 completion-gate verdict 逻辑" 一致——completion-gate 只新增 evidence 引用，不引入 doc-freshness blocked 的额外判定分支
 - 修改范围最小化原则：每处修改不超过 prose-level 的 1–2 段插入
 
 ## 12. 数据流、控制流与关键交互
@@ -250,9 +252,9 @@ dry run 估算：reviewer subagent 读 spec / tasks（≤ 1 分钟）+ 看 READM
 | NFR ID | ISO 25010 维度 | 规格 QAS 摘要 (Source→Stimulus→Env→Response→Measure) | 设计承接模块 / 机制 | 可观测手段（logs/metrics/traces） | 验证方法 | 失败模式 & 缓解 | ADR 锚点 |
 |---|---|---|---|---|---|---|---|
 | NFR-001 | Functional Suitability / Correctness | 同一输入 / 两次 reviewer dispatch / 同环境 / verdict 与 breakdown 一致 / 抽样 ≥ 5 次 100% 一致 | reviewer subagent prompt（`SKILL.md` Workflow 段）+ `references/profile-rubric.md` 判定优先级表 | logs: subagent invocation log；可手动检查 verdict file 内容 hash | §16 测试用例 NFR-001 一致性回归（同一 spec/tasks/commits 输入下两次派发，diff verdict 文件） | 主观性导致漂移 → 缓解：判定优先级表 + verdict-record-template metadata 字段强制要求 reviewer 列出"判定时 consume 了哪些 input file" | ADR-0002 |
-| NFR-002 | Performance Efficiency / Time behavior | 父会话（lightweight profile）/ dispatch reviewer / lightweight 项目 / 完成 verdict / ≤ 5 分钟 + ≤ 30 行 | `references/profile-rubric.md` lightweight 段：仅 row 1 + Conventional Commits 自检 | 手动: verdict 文件行数；reviewer 自报耗时（subagent prompt 要求） | §16 测试用例 NFR-002 dry run（按 §10.3 5 行 checklist 模板手动跑一次） | 项目 docs 极大 → 缓解：lightweight 不强制全表，按 row 1 优先；rower 自报超时 → escalate to standard | ADR-0002 |
+| NFR-002 | Performance Efficiency / Time behavior | 父会话（lightweight profile）/ dispatch reviewer / lightweight 项目 / 完成 verdict / ≤ 5 分钟 + ≤ 30 行 | `references/profile-rubric.md` lightweight 段：仅 row 1 + Conventional Commits 自检 | 手动: verdict 文件行数；reviewer 自报耗时（subagent prompt 要求） | §16 测试用例 NFR-002 dry run（按 §10.3 5 行 checklist 模板手动跑一次） | 项目 docs 极大 → 缓解：lightweight 不强制全表，按 row 1 优先；rower 自报超时 → escalate to standard | ADR-0002 + ADR-0003（router 落点直接决定 lightweight 路径上的 reviewer dispatch 总开销） |
 | NFR-003 | Maintainability / Modularity | 项目（无任何外部 docs lint 工具链）/ 启用本 gate / 任一环境 / gate 仍能 verdict / 缺失工具不构成 blocked | `SKILL.md` 显式声明 "可选工具由 `AGENTS.md` 声明"；reviewer 仅基于文件内容冷读判定 | 无（跳过工具 = 默认通路） | §16 测试用例 NFR-003 在无任何 lint 工具的最小项目跑一次（本仓库自身就是 baseline） | 项目方误以为强制工具链 → 缓解：`SKILL.md` Red Flags 显式列出 "误以为强制 lint 工具" | ADR-0002 |
-| NFR-004 | Reliability / Fault tolerance | 项目（未启用某文档载体）/ gate 判定该维度 / 任一 profile / N/A + 显式标注 / 不构成 blocked | `references/profile-rubric.md` "判定流程" 段：先文件系统检测，再判定；`templates/verdict-record-template.md` 显式 N/A 行 | 无 | §16 测试用例 NFR-004 在缺失模块 README 的项目跑一次（本仓库自身就是 baseline，无 packages/ / src/ 子目录）| 误判 N/A 为 blocked → 缓解：reviewer subagent prompt 显式列出 "未启用 ≠ blocked" 警句 | ADR-0002 |
+| NFR-004 | Reliability / Fault tolerance | 项目（未启用某文档载体）/ gate 判定该维度 / 任一 profile / N/A + 显式标注 / 不构成 blocked | `references/profile-rubric.md` "判定流程" 段：先文件系统检测，再判定；`templates/verdict-record-template.md` 显式 N/A 行 | 无 | §16 测试用例 NFR-004 在缺失模块 README 的项目跑一次（本仓库自身就是 baseline，无 packages/ / src/ 子目录）| 误判 N/A 为 blocked → 缓解：reviewer subagent prompt 显式列出 "未启用 ≠ blocked" 警句 | ADR-0002 + ADR-0003（router 路径上 N/A verdict 仍需进入 completion-gate evidence bundle，与 router 节点位置直接相关） |
 
 ## 15. Threat Model (STRIDE 轻量版)
 
@@ -317,7 +319,20 @@ dry run 估算：reviewer subagent 读 spec / tasks（≤ 1 分钟）+ 看 READM
 
 - **ADR-0001 启用 ADR pool**（元决策）→ `docs/adr/0001-record-architecture-decisions.md`
 - **ADR-0002 hf-doc-freshness-gate 作为独立 gate 节点**（vs 扩 finalize / 嵌 review）→ `docs/adr/0002-hf-doc-freshness-gate-as-independent-node.md`
-- **ADR-0003 router 位置：regression 之后、completion 之前**（HYP-003 dry run 通过，新增 5 transitions ≤ 6）→ `docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md`
+- **ADR-0003 router 位置：regression 之后、completion 之前**（HYP-003 计数口径 = logical canonical 5 ≤ 6）→ `docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md`
+
+### 19.1 ADR-0002 ↔ ADR-0003 reconcile 注
+
+ADR-0002 决策段 "**与 hf-regression-gate / hf-completion-gate 同 tier**" 与 ADR-0003 决策 "P3：regression 之后、completion 之前 sequential" 在不同维度上各自成立，不矛盾：
+
+- **ADR-0002 "同 tier" = logical gate tier**：指本 skill 与既有 `hf-regression-gate` / `hf-completion-gate` 同属"gate 类型节点"逻辑档位（与 review / authoring / closeout 节点档位区分），共享三段合同（Hard Gates + Verification + fresh evidence）+ reviewer dispatch + readonly subagent 等通用形态
+- **ADR-0003 P3 sequential = topology position**：指在 router transition map 上的具体拓扑位置——**位于** regression 之后、completion 之前，**不与** 二者并行
+
+cold reader 读 ADR 顺序应为：先 ADR-0002（确定本 skill 是 gate 类节点）→ 再 ADR-0003（确定具体 sequential 拓扑位置）。design §10.2 C4 Container 图与 §5 Event Storming Snapshot 均按 ADR-0003 P3 sequential 拓扑绘制，是设计的最终落地形态。
+
+### 19.2 ADR-0003 文件 slug 命名遗留注
+
+ADR-0003 文件 slug `0003-doc-freshness-gate-router-position-parallel-tier.md` 含 "parallel-tier" 字样，系起草中途从候选 P2（与 regression / completion 平行同 tier）切换到 P3（sequential 在 regression 与 completion 之间）后未同步的命名遗留。按 `sdd-artifact-layout.md` *ADR 永不删除、永不重新编号、不复用、不改名* 约定，文件名不动；以 ADR-0003 决策段（P3 sequential）为准。
 
 ## 20. 明确排除与延后项
 
@@ -334,7 +349,7 @@ dry run 估算：reviewer subagent 读 spec / tasks（≤ 1 分钟）+ 看 READM
 
 无。
 
-（HYP-003 通过 ADR-0003 关闭；HYP-004 通过 §10.3 + §16 关闭；本设计无新增 Blocking 假设。）
+（HYP-003 通过 ADR-0003 关闭，计数口径 = logical canonical 5 ≤ 6；HYP-004 **preliminarily closed by estimation in design §10.3，final validation deferred to T-NFR-002 in `hf-test-driven-dev` 阶段**；本设计无新增 Blocking 假设。）
 
 ### 非阻塞（保留至 hf-tasks 或后续阶段处理）
 

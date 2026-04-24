@@ -26,7 +26,14 @@ ADR-0002 决定 `hf-doc-freshness-gate` 作为独立 gate；spec §13 Q1 把"具
     -> ...
 ```
 
-Standard / lightweight profile 主链亦在相同位置插入。HYP-003 dry run：新增 transition 数 = **5**（每 profile 1 进入 + 1 通过 / 1 需修改 / 1 阻塞回 hf-test-driven-dev / 1 阻塞回 router；按既有 gate 的 4 + 1 跨 profile 复用算法），≤ 6 阈值通过。
+Standard / lightweight profile 主链亦在相同位置插入。
+
+**HYP-003 计数口径与 closure**：
+
+- **logical canonical transition 数 = 5**：1 进入（regression-gate=通过 → doc-freshness-gate）+ 1 通过（doc-freshness-gate=pass/partial/N/A → completion-gate）+ 1 需修改 / 阻塞-content（doc-freshness-gate=blocked → hf-test-driven-dev）+ 1 阻塞-workflow（doc-freshness-gate=blocked(workflow) → hf-workflow-router）+ 1 reviewer dispatch transition（按 review-dispatch-protocol，父会话 → reviewer subagent → 父会话）。HYP-003 阈值 ≤ 6 → **通过**。
+- **per-profile 行数展开 = 5 × 3 = 15**：full / standard / lightweight 三个 profile 迁移表各自新增 5 行；总规模仍在 router 既有 ≥ 60 行 transition 总表的可维护区间内（既有 full 表 ≈ 30 行，standard ≈ 17 行，lightweight ≈ 14 行）。
+
+⚠ **文件 slug 命名遗留注**：本文件 slug 含 "parallel-tier" 字样，系起草中途从候选 P2（与 regression / completion 平行同 tier）切换到 P3（sequential）后未同步的命名遗留。按 `docs/principles/sdd-artifact-layout.md` *ADR 永不删除、永不重新编号、不复用、不改名* 约定，文件名不动；**以本决策段（P3 sequential）为准**，不要按 slug 字面理解为 P2 平行方案。
 
 ## 被考虑的备选方案
 

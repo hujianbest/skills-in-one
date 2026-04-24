@@ -44,12 +44,16 @@
   - `features/001-hf-doc-freshness-gate/design.md`（design 草稿，21 章）
   - `docs/adr/0001-record-architecture-decisions.md`（status: proposed，元决策启用 ADR pool）
   - `docs/adr/0002-hf-doc-freshness-gate-as-independent-node.md`（status: proposed）
-  - `docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md`（status: proposed）
-- Session Log: 父会话按 hf-product-discovery → hf-discovery-review (subagent ID: 4d5926b5-...) → hf-experiment (HYP-001 Pass) → hf-specify → hf-spec-review (subagent ID: 1fb2f95f-..., 通过 + 4 LLM-FIXABLE) → 规格真人确认 (auto-mode follow-up 授权) → hf-design (3 ADR + 21 章 design.md)
+  - `docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md`（status: proposed；含 P3 sequential closure 段 + slug 命名遗留注）
+  - `features/001-hf-doc-freshness-gate/reviews/design-review-2026-04-23.md`（design review 需修改 + 6 LLM-FIXABLE 全部已回修；按 reviewer 协议无需重派）
+  - `features/001-hf-doc-freshness-gate/approvals/design-approval-2026-04-23.md`（auto-mode follow-up 授权 approval）
+  - `features/001-hf-doc-freshness-gate/tasks.md`（draft，T1..T7）
+- Session Log: discovery → discovery-review (4d5926b5...) → experiment (HYP-001 Pass) → specify → spec-review (1fb2f95f..., 通过+4回修) → 规格真人确认 (auto) → design (3 ADR) → design-review (0876f73f..., 需修改+6回修，无需重派) → 设计真人确认 (auto) → tasks
 - Open Risks:
   - HYP-001 desk-research 单方法 probe；future Phase 1+ 真实用户访谈如有反向证据，应通过 hf-increment 修订
-  - 设计 §16 walking skeleton 计划在 hf-test-driven-dev 阶段一次跑通三个 manual dry run（T-NFR-002 / 003 / 004），属 dogfooding 性质（design Q2 非阻塞）
-  - hf-test-driven-dev 阶段实际修改 hf-workflow-router transition map 与 hf-completion-gate evidence bundle reference 时，需注意 review 角色分离（不在同一 commit / 同一 task 中又改又审）
+  - HYP-004 final closure 在 T7 dogfooding dry run 完成 (preliminarily closed by estimation in design)
+  - T5 / T6 修改既有 skill (router / completion-gate)：必须严守 design §11 Boundary Constraints；hf-code-review 重点检查 git diff "删除行" = 0
+  - T7 dogfooding 启动语义：本 gate 评估自己 (chicken-and-egg)；dry run 应明确声明被测对象 = 本 feature 自身
 
 ## Optional Coordination Fields
 

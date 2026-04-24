@@ -41,10 +41,10 @@
 | discovery-review | `../../docs/reviews/discovery-review-hf-doc-freshness-gate.md` | 通过 | 2026-04-23 |
 | spec-review | `reviews/spec-review-2026-04-23.md` | 通过（Reviewer Agent ID: 1fb2f95f-bad4-48c0-b0be-7932b3d093eb） | 2026-04-23 |
 | spec-approval（规格真人确认） | `approvals/spec-approval-2026-04-23.md` | approved (auto-mode follow-up 授权落盘) | 2026-04-23 |
-| design-review | `reviews/design-review-2026-04-23.md` | pending（reviewer subagent 待派发） | |
+| design-review | `reviews/design-review-2026-04-23.md` | 需修改 → 6 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: 0876f73f-23da-4f99-9cfa-305c1d62ca78) | 2026-04-23 |
 | ui-review（如适用） | N/A（无 UI surface） | | |
-| design-approval | `approvals/design-approval-YYYY-MM-DD.md` | | |
-| tasks-review | `reviews/tasks-review-YYYY-MM-DD.md` | | |
+| design-approval | `approvals/design-approval-2026-04-23.md` | approved (auto-mode follow-up; reviewer 协议允许 LLM-FIXABLE post-fix 直接 approve) | 2026-04-23 |
+| tasks-review | `reviews/tasks-review-2026-04-23.md` | pending（reviewer subagent 待派发） | |
 | tasks-approval | `approvals/tasks-approval-YYYY-MM-DD.md` | | |
 | code-review（每任务） | `reviews/code-review-task-NNN.md` | | |
 | test-review（每任务） | `reviews/test-review-task-NNN.md` | | |
