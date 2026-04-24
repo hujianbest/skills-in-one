@@ -12,16 +12,16 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-specify
+- Current Stage: 规格真人确认（pending; auto mode 不可跳）
 - Current Active Task:
-- Pending Reviews And Gates: hf-spec-review
+- Pending Reviews And Gates: 规格真人确认 → hf-design / hf-design-review → 设计真人确认 → hf-tasks → hf-tasks-review → 任务真人确认 → hf-test-driven-dev → 测试 / 代码 / 追溯评审 → 回归 / 完成 gate → 收尾
 - Closeout Type:
 
 ## Artifacts
 
 | 工件 | 路径 | 状态 |
 |---|---|---|
-| Spec | `spec.md` | draft |
+| Spec | `spec.md` | spec-review 通过 + 4 LLM-FIXABLE 已回修；待 规格真人确认 |
 | Design | `design.md` | N/A（待 spec 通过） |
 | UI Design（如适用） | `ui-design.md` | N/A（无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
@@ -39,8 +39,8 @@
 | 节点 | 记录路径 | 结论 | 日期 |
 |---|---|---|---|
 | discovery-review | `../../docs/reviews/discovery-review-hf-doc-freshness-gate.md` | 通过 | 2026-04-23 |
-| spec-review | `reviews/spec-review-2026-04-23.md` | pending | |
-| spec-approval（规格真人确认） | `approvals/spec-approval-YYYY-MM-DD.md` | pending（auto mode 不可跳） | |
+| spec-review | `reviews/spec-review-2026-04-23.md` | 通过（Reviewer Agent ID: 1fb2f95f-bad4-48c0-b0be-7932b3d093eb） | 2026-04-23 |
+| spec-approval（规格真人确认） | `approvals/spec-approval-YYYY-MM-DD.md` | **pending（auto mode 仍不可跳；等待真人确认）** | |
 | design-review | `reviews/design-review-YYYY-MM-DD.md` | | |
 | ui-review（如适用） | N/A（无 UI surface） | | |
 | design-approval | `approvals/design-approval-YYYY-MM-DD.md` | | |
