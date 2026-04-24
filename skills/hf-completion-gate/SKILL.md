@@ -78,6 +78,16 @@ full/standard 记录缺失/过旧 → `阻塞`。
 - `Conclusion`：`通过` / `需修改` / `阻塞` + 唯一 `Next Action Or Recommended Skill`
 - `Scope / Remaining Work Notes`：剩余任务判断、next-ready 候选是否唯一、限制与备注
 
+### 6.1 `hf-doc-freshness-gate` verdict 在 evidence bundle 中的承接（Phase 0 / ADR-0003）
+
+`hf-doc-freshness-gate` 是 router 主链上位于 `hf-regression-gate` 之后、本节点之前的独立 gate（ADR-0003 / `skills/hf-doc-freshness-gate/SKILL.md`）。其 verdict 路径必须作为 completion evidence bundle `Upstream Evidence Consumed` 段的一项被显式 reference。承接规则：
+
+- **`pass` / `partial` / `N/A` verdict**：reference 路径 = `features/<active>/verification/doc-freshness-YYYY-MM-DD.md`，作为 `Upstream Evidence Consumed` 一项，本节点继续按 §6A 完成判定闸门处理；本节点**不**对 doc-freshness verdict 做二次判定，也**不**新增"对外可见文档"维度的 verdict 判别分支
+- **`blocked` verdict**：本节点**不**应消费此 verdict——`hf-doc-freshness-gate=blocked` 时由 router 直接路由回 `hf-test-driven-dev`（或 `hf-increment` / `hf-traceability-review` / `hf-workflow-router`，按 doc-freshness gate 自身的 next 表）；本节点不会被进入。如果父会话误把 blocked verdict 强行带入本节点 evidence bundle，本节点应判 `阻塞` + next = `hf-workflow-router` 让 router 重派
+- **未通过 doc-freshness gate 的场景**：若 `Upstream Evidence Consumed` 中找不到 doc-freshness verdict 路径（既不是 pass/partial/N/A，又不是 blocked，而是缺失），说明 router 路径异常，本节点判 `阻塞` + next = `hf-workflow-router`
+
+本节既不修改本 SKILL 既有 verdict 词表（仍是 `通过` / `需修改` / `阻塞`），也不修改 §6A 完成判定闸门 5 行场景表；只是在 `Upstream Evidence Consumed` 段新增"必须含 doc-freshness verdict 路径"的承接条款。
+
 ### 6A. 完成判定闸门
 
 先把当前场景收敛成**唯一 verdict + 唯一下一步**，再写完成记录。不要把“感觉差不多完成了”写成 `通过`。
