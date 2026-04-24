@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-tasks（已起草）→ hf-tasks-review pending
-- Current Active Task: 待 tasks-approval 后由 router 锁定 T1
-- Pending Reviews And Gates: hf-tasks-review → 任务真人确认 → hf-test-driven-dev (T1..T7 闭环) → test/code/traceability review → regression-gate / doc-freshness-gate (dogfooding) / completion-gate → hf-finalize
+- Current Stage: hf-test-driven-dev（任务 T1..T7 单 session 闭环）
+- Current Active Task: T1（创建 skills/hf-doc-freshness-gate/SKILL.md）
+- Pending Reviews And Gates: T1..T7 各自 6-gate quality 链 (test-review / code-review / traceability-review / regression-gate (§7.1) / doc-freshness-gate (§7.2) / completion-gate) → hf-finalize
 - Closeout Type:
 
 ## Artifacts

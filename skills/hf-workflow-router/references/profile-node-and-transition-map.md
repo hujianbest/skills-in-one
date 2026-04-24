@@ -33,6 +33,7 @@
 - `hf-code-review`
 - `hf-traceability-review`
 - `hf-regression-gate`
+- `hf-doc-freshness-gate`（Phase 0 / ADR-0003：位于 `hf-regression-gate` 之后、`hf-completion-gate` 之前；本 gate verdict 作为 `hf-completion-gate` evidence bundle 一项被 reference）
 - `hf-completion-gate`
 - `hf-finalize`
 
@@ -52,6 +53,7 @@
 - `hf-code-review`
 - `hf-traceability-review`
 - `hf-regression-gate`
+- `hf-doc-freshness-gate`（Phase 0 / ADR-0003：位于 `hf-regression-gate` 之后、`hf-completion-gate` 之前）
 - `hf-completion-gate`
 - `hf-finalize`
 
@@ -62,6 +64,7 @@
 - `任务真人确认`
 - `hf-test-driven-dev`
 - `hf-regression-gate`
+- `hf-doc-freshness-gate`（Phase 0 / ADR-0003：lightweight 模式下使用 lightweight checklist template，≤ 5 分钟 / ≤ 30 行）
 - `hf-completion-gate`
 - `hf-finalize`
 
@@ -90,7 +93,7 @@ full (no UI surface):
   -> hf-design -> hf-design-review -> 设计真人确认
   -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
   -> hf-test-review -> hf-code-review
-  -> hf-traceability-review -> hf-regression-gate -> hf-completion-gate
+  -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
   -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
   -> else: hf-finalize
 
@@ -101,20 +104,20 @@ full (with UI surface, Design Execution Mode=parallel):
   -> 设计真人确认                                       # 两条 review 均 `通过` 后由父会话汇总发起
   -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
   -> hf-test-review -> hf-code-review
-  -> hf-traceability-review -> hf-regression-gate -> hf-completion-gate
+  -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
   -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
   -> else: hf-finalize
 
 standard:
   hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
   -> hf-test-review -> hf-code-review
-  -> hf-traceability-review -> hf-regression-gate -> hf-completion-gate
+  -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
   -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
   -> else: hf-finalize
 
 lightweight:
   hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
-  -> hf-regression-gate -> hf-completion-gate
+  -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
   -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
   -> else: hf-finalize
 
@@ -179,8 +182,13 @@ branches:
 | `hf-code-review` | `需修改` / `阻塞` | `hf-test-driven-dev` |
 | `hf-traceability-review` | `通过` | `hf-regression-gate` |
 | `hf-traceability-review` | `需修改` / `阻塞` | `hf-test-driven-dev` |
-| `hf-regression-gate` | `通过` | `hf-completion-gate` |
+| `hf-regression-gate` | `通过` | `hf-doc-freshness-gate` |
 | `hf-regression-gate` | `需修改` / `阻塞` | `hf-test-driven-dev` |
+| `hf-doc-freshness-gate` | `pass` / `partial` / `N/A` | `hf-completion-gate`（verdict 路径作为 evidence bundle 一项被 reference） |
+| `hf-doc-freshness-gate` | `blocked`（内容：关键文档维度漂移） | `hf-test-driven-dev`（补文档变更；spec FR-005 第三条 acceptance；blocked verdict 不进入 completion-gate evidence bundle） |
+| `hf-doc-freshness-gate` | `blocked`（spec ↔ commits 实质不一致） | `hf-increment`（FR-007 负路径） |
+| `hf-doc-freshness-gate` | `blocked`（user-visible change list 三类来源全缺） | `hf-traceability-review`（FR-001 负路径） |
+| `hf-doc-freshness-gate` | `blocked`（workflow：route/stage/profile/证据冲突） | `hf-workflow-router`（`reroute_via_router=true`） |
 | `hf-completion-gate` | `通过`（仍有唯一 next-ready task） | `hf-workflow-router` |
 | `hf-completion-gate` | `通过`（主链任务全部完成） | `hf-finalize` |
 | `hf-completion-gate` | `通过`（仍有剩余任务，但下一任务不唯一或 ready 判定冲突） | `hf-workflow-router` |
@@ -202,8 +210,13 @@ branches:
 | `hf-code-review` | `需修改` / `阻塞` | `hf-test-driven-dev` |
 | `hf-traceability-review` | `通过` | `hf-regression-gate` |
 | `hf-traceability-review` | `需修改` / `阻塞` | `hf-test-driven-dev` |
-| `hf-regression-gate` | `通过` | `hf-completion-gate` |
+| `hf-regression-gate` | `通过` | `hf-doc-freshness-gate` |
 | `hf-regression-gate` | `需修改` / `阻塞` | `hf-test-driven-dev` |
+| `hf-doc-freshness-gate` | `pass` / `partial` / `N/A` | `hf-completion-gate` |
+| `hf-doc-freshness-gate` | `blocked`（内容） | `hf-test-driven-dev` |
+| `hf-doc-freshness-gate` | `blocked`（spec ↔ commits 不一致） | `hf-increment` |
+| `hf-doc-freshness-gate` | `blocked`（input 全缺） | `hf-traceability-review` |
+| `hf-doc-freshness-gate` | `blocked`（workflow） | `hf-workflow-router`（`reroute_via_router=true`） |
 | `hf-completion-gate` | `通过`（仍有唯一 next-ready task） | `hf-workflow-router` |
 | `hf-completion-gate` | `通过`（主链任务全部完成） | `hf-finalize` |
 | `hf-completion-gate` | `通过`（仍有剩余任务，但下一任务不唯一或 ready 判定冲突） | `hf-workflow-router` |
@@ -219,8 +232,13 @@ branches:
 | 任务真人确认 | approval step 完成 | `hf-test-driven-dev` |
 | 任务真人确认 | 要求修改 / approval step 未完成 | `hf-tasks` |
 | `hf-test-driven-dev` | 实现完成 | `hf-regression-gate` |
-| `hf-regression-gate` | `通过` | `hf-completion-gate` |
+| `hf-regression-gate` | `通过` | `hf-doc-freshness-gate` |
 | `hf-regression-gate` | `需修改` / `阻塞` | `hf-test-driven-dev` |
+| `hf-doc-freshness-gate` | `pass` / `partial` / `N/A` | `hf-completion-gate`（lightweight 模式下使用 `templates/lightweight-checklist-template.md`，verdict 文件 ≤ 30 行） |
+| `hf-doc-freshness-gate` | `blocked`（内容） | `hf-test-driven-dev` |
+| `hf-doc-freshness-gate` | `blocked`（spec ↔ commits 不一致） | `hf-increment` |
+| `hf-doc-freshness-gate` | `blocked`（input 全缺） | `hf-traceability-review` |
+| `hf-doc-freshness-gate` | `blocked`（workflow） | `hf-workflow-router`（`reroute_via_router=true`） |
 | `hf-completion-gate` | `通过`（仍有唯一 next-ready task） | `hf-workflow-router` |
 | `hf-completion-gate` | `通过`（主链任务全部完成） | `hf-finalize` |
 | `hf-completion-gate` | `通过`（仍有剩余任务，但下一任务不唯一或 ready 判定冲突） | `hf-workflow-router` |

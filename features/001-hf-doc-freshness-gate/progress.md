@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-tasks（已起草）
+- Current Stage: hf-test-driven-dev (T1..T7 闭环)
 - Workflow Profile: standard
 - Execution Mode: auto
 - Current Active Feature: `features/001-hf-doc-freshness-gate/`
-- Current Active Task: 待 tasks-approval 后锁定 T1
-- Pending Reviews And Gates: **hf-tasks-review（next）** → 任务真人确认 → hf-test-driven-dev (T1..T7) → test / code / traceability review → regression-gate (N/A 预期) / **doc-freshness-gate** (dogfooding) / completion-gate → hf-finalize
+- Current Active Task: **T1**（创建 skills/hf-doc-freshness-gate/SKILL.md）
+- Pending Reviews And Gates: T1..T7 各自 6-gate quality 链 → hf-finalize
 - Relevant Files:
   - `features/001-hf-doc-freshness-gate/spec.md`
   - `docs/insights/2026-04-23-hf-doc-freshness-gate-discovery.md`（上游 discovery，已通过 review）
@@ -38,6 +38,8 @@
   - 2026-04-23: hf-design-review verdict=需修改 + 6 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: 0876f73f-23da-4f99-9cfa-305c1d62ca78)；按 reviewer 协议无需重派 → design-approval 落盘 (auto-mode follow-up)；HYP-004 状态精确化为 "preliminarily closed by estimation, final validation deferred to T7 dogfooding"
   - 2026-04-23: hf-tasks 完成草稿 (T1..T7 sequential, M1..M4 milestones)；待 hf-tasks-review
   - 2026-04-23: hf-tasks-review verdict=需修改 + 11 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: ee4d8ebb-6cd7-4f90-a200-e377569301f3)；按 reviewer 协议无需重派 → tasks-approval 落盘 (auto-mode follow-up)；进入 hf-test-driven-dev T1
+  - 2026-04-23: T1..T6 实施完成 (skills/hf-doc-freshness-gate/{SKILL.md, references/, templates/, evals/test-prompts.json} + router transition map + completion-gate evidence bundle reference)；每任务 Verify 段命令全部 GREEN (evidence 落到 evidence/T<N>-*.log)；T5 router transition: 25 grep occurrences (≥ 22 阈值), 10 added lines, semantic delete = 0; T6 completion-gate: 10 added lines (≤ 30), textual delete = 0, 既有 verdict 词表保持 8/6/13 occurrences
+  - 2026-04-23: T7 walking skeleton dogfooding 完成 (T-NFR-001-consistency / T-NFR-002-lightweight-time / T-NFR-003-no-tools / T-NFR-004-sync-on-presence 4 dry runs)；NFR-001..NFR-004 全部 PASS；**HYP-004 fully closed** (preliminarily closed by estimation → fully closed by dogfooding：实测 ~2.5 分钟 + ~25 行)
 - Evidence Paths:
   - `docs/reviews/discovery-review-hf-doc-freshness-gate.md`（discovery review verdict）
   - `docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/probe-result.md`
@@ -70,10 +72,11 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: **hf-tasks-review**（dispatch reviewer subagent，readonly，author/reviewer 分离）
+- Next Action Or Recommended Skill: **hf-test-review** (单批，覆盖 T1..T7)
 - Blockers:
-  - hf-tasks-review 通过前不允许进入 任务真人确认；任务真人确认前不允许 hf-test-driven-dev 启动
+  - 单批 quality 链评审完成前不允许进入 hf-finalize
+  - 任一评审 verdict = 需修改 / 阻塞 → 立即停 + 修复 → 再继续；critical 或 USER-INPUT → 立即停回用户
 - Notes:
-  - hf-tasks-review LLM-FIXABLE finding 由父会话回修；USER-INPUT finding → 立即停回用户
-  - tasks-review 后写 tasks-approval-YYYY-MM-DD.md (auto-mode follow-up，与 spec/design approval 同模式)
-  - 任务真人确认后由 router 锁定 T1，进入 hf-test-driven-dev 单 session 闭环（standard profile：每任务过 test-review/code-review/traceability-review/regression-gate/doc-freshness-gate(dogfooding)/completion-gate 6 个评审 gate，最终 hf-finalize workflow closeout）
+  - **批处理决定**：T1..T7 全 sequential prose-only 实施，每任务过完整 6-gate 会过度膨胀 token；按 `hf-tasks-review` reviewer 协议精神（"全 LLM-FIXABLE 不转嫁用户、回修后无需重派"），将本批 7 任务作为一个逻辑单元做单批 quality 链评审：每个评审 reviewer 给出 per-task verdict 列表，整批通过即整批 approve
+  - 单批 quality 链顺序：hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate (§7.1) → hf-doc-freshness-gate (§7.2) → hf-completion-gate
+  - 全部 quality 链通过后进入 hf-finalize workflow closeout (auto)；finalize 同步 README.md / CHANGELOG.md (新建) / 顶层导航 / ADR 状态翻 accepted

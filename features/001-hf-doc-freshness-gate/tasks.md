@@ -64,9 +64,21 @@
   - 主行为：reviewer subagent 冷读 SKILL.md，能在不打开其他文件的前提下知道"本 gate 何时激活、产出什么 verdict、写到哪里"
   - 关键边界：YAML frontmatter `description` 不超 1024 字符（HF 既有约束）
   - fail-first：验证不存在 SKILL.md 时，"reviewer 找不到 skill" — 在 RED 阶段刻意以缺文件状态跑一次冷读
-- Verify: `grep -c "^## " skills/hf-doc-freshness-gate/SKILL.md` ≥ 8（所有标准段齐全）；`wc -c < <(awk '/^---$/{f=!f;next}f' skills/hf-doc-freshness-gate/SKILL.md | head -10)` ≤ 1024
-- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T1-skill-md-created.log`（含 file size + section grep 结果）
-- 完成条件: 文件存在 + 8 段齐全 + frontmatter 合规 + `hf-test-review` + `hf-code-review` + `hf-traceability-review` 三链通过
+- Verify:
+  - `test -f skills/hf-doc-freshness-gate/SKILL.md`
+  - 8 标准段 anchor 逐项检查（cold-link `docs/principles/skill-anatomy.md`）：
+    ```bash
+    for s in "Methodology" "When to Use" "Hard Gates" "Workflow" "Output Contract" "Reference Guide" "Red Flags" "Verification"; do
+      grep -F "## $s" skills/hf-doc-freshness-gate/SKILL.md > /dev/null || echo "MISSING SECTION: $s"
+    done
+    ```
+    （全部存在则无输出）
+  - frontmatter `description` 字段 ≤ 1024 字符（精确锚定 description 字段，避免 `name` 等其他字段被计入）：
+    ```bash
+    python3 -c "import sys; t=open('skills/hf-doc-freshness-gate/SKILL.md').read(); blocks=t.split('---'); fm=blocks[1] if len(blocks)>=3 else ''; import re; m=re.search(r'^description:\s*(.+?)(?=^\w|^---)', fm, re.M|re.S); d=m.group(1).strip() if m else ''; assert len(d)<=1024, f'description length {len(d)} > 1024'; print(f'OK: description {len(d)} chars')"
+    ```
+- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T1-skill-md-created.log`（含 file size + section grep 结果 + description 字符数）
+- 完成条件: 文件存在 + 8 段齐全（anchor 逐项检查无 MISSING 输出）+ frontmatter description ≤ 1024 字符 + `hf-test-review` + `hf-code-review` + `hf-traceability-review` 三链通过
 
 ### T2. 创建 `skills/hf-doc-freshness-gate/references/`
 
@@ -85,9 +97,27 @@
   - 主行为：reviewer 按 profile-rubric 三档分别判定一次同一输入，verdict 强制维度数随 profile 升高而严格单增
   - 关键边界：profile=lightweight 时，强制维度数 = 2（row 1 + Commits 自检）
   - fail-first：故意把 standard 强制维度漏一项，确认 review 能发现
-- Verify: 3 个文件存在；SKILL.md 中 Reference Guide 表的路径列与 ls 输出一致
+- Verify:
+  - 3 个文件存在：
+    ```bash
+    for f in skills/hf-doc-freshness-gate/references/{responsibility-matrix,profile-rubric,reviewer-dispatch-handoff}.md; do
+      test -f "$f" || echo "MISSING: $f"
+    done
+    ```
+  - SKILL.md Reference Guide 段引用 3 个 references 路径全部存在：
+    ```bash
+    for f in responsibility-matrix profile-rubric reviewer-dispatch-handoff; do
+      grep -F "references/${f}.md" skills/hf-doc-freshness-gate/SKILL.md > /dev/null || echo "MISSING REFERENCE LINK: $f"
+    done
+    ```
+  - 三档强制维度数量验证（`profile-rubric.md` 内含 lightweight/standard/full 三档表）：
+    ```bash
+    grep -c "^|.*lightweight" skills/hf-doc-freshness-gate/references/profile-rubric.md  # 至少 1
+    grep -c "^|.*standard" skills/hf-doc-freshness-gate/references/profile-rubric.md     # 至少 1
+    grep -c "^|.*full" skills/hf-doc-freshness-gate/references/profile-rubric.md         # 至少 1
+    ```
 - 预期证据: `features/001-hf-doc-freshness-gate/evidence/T2-references-created.log`
-- 完成条件: 3 文件存在 + 与 SKILL.md 引用一致 + 三链通过
+- 完成条件: 3 文件存在 + SKILL.md 3 处引用全部 cold-link 通过 + profile-rubric 含三档 + 三链通过
 
 ### T3. 创建 `skills/hf-doc-freshness-gate/templates/`
 
@@ -104,9 +134,26 @@
   - 主行为：填一份 verdict-record 模板（手动），verify 5 行 lightweight-checklist 模板填完后整文件 ≤ 30 行
   - 关键边界：verdict 词表如果 reviewer 写了第 5 个值（非 pass/partial/N/A/blocked），模板应能让其立即看出 schema violation
   - fail-first：故意填一个超出词表的 verdict，verify reviewer 能发现
-- Verify: 2 个文件存在；按 lightweight checklist 填一次，wc -l 输出 ≤ 30
+- Verify:
+  - 2 个模板文件存在：
+    ```bash
+    for f in skills/hf-doc-freshness-gate/templates/{verdict-record-template,lightweight-checklist-template}.md; do
+      test -f "$f" || echo "MISSING: $f"
+    done
+    ```
+  - `verdict-record-template.md` 含 verdict 词表 4 值的引用（`pass` / `partial` / `N/A` / `blocked`）：
+    ```bash
+    for w in pass partial "N/A" blocked; do
+      grep -F "$w" skills/hf-doc-freshness-gate/templates/verdict-record-template.md > /dev/null || echo "MISSING VERDICT WORD: $w"
+    done
+    ```
+  - `lightweight-checklist-template.md` 模板自身行数硬上限（模板本体应已示范 ≤ 30 行）：
+    ```bash
+    test "$(wc -l < skills/hf-doc-freshness-gate/templates/lightweight-checklist-template.md)" -le 30 || echo "TEMPLATE TOO LONG"
+    ```
+  - **注意**：实测 lightweight 跑出的 verdict 文件 ≤ 30 行属于 NFR-002 dry run 范围，落到 T7 dogfooding，不在本任务 Verify 范围
 - 预期证据: `features/001-hf-doc-freshness-gate/evidence/T3-templates-created.log`
-- 完成条件: 2 文件存在 + lightweight 实测 ≤ 30 行 + 三链通过
+- 完成条件: 2 文件存在 + verdict-record 含 4 词表值 + lightweight-checklist 模板本体 ≤ 30 行 + 三链通过（dogfooding 实测延后到 T7）
 
 ### T4. 创建 `skills/hf-doc-freshness-gate/evals/test-prompts.json`
 
@@ -123,9 +170,24 @@
   - 主行为：5 scenario 各自跑一次（不强求实际派发，但 prompt 须自洽）
   - 关键边界：JSON schema 合法（与既有 30+ skill 的 evals.json / test-prompts.json 形态一致）
   - fail-first：故意让一个 scenario 期望与 spec FR 不对应，verify reviewer 能发现
-- Verify: `python3 -c "import json; json.load(open('skills/hf-doc-freshness-gate/evals/test-prompts.json'))"` 退出 0；5 scenario 数 = `jq length`
+- Verify:
+  - JSON 合法：
+    ```bash
+    python3 -c "import json; json.load(open('skills/hf-doc-freshness-gate/evals/test-prompts.json'))"
+    ```
+  - scenario 数 = 5：
+    ```bash
+    test "$(jq 'length' skills/hf-doc-freshness-gate/evals/test-prompts.json)" = "5"
+    ```
+  - 5 scenario id 与 design §16 测试策略表 5 行一一对应：
+    ```bash
+    expected=("T-FR-001-pass" "T-FR-001-blocked-traceability" "T-FR-003-N-A" "T-FR-005-partial" "T-FR-007-blocked-increment")
+    for id in "${expected[@]}"; do
+      jq -e ".[] | select(.id == \"$id\")" skills/hf-doc-freshness-gate/evals/test-prompts.json > /dev/null || echo "MISSING SCENARIO: $id"
+    done
+    ```
 - 预期证据: `features/001-hf-doc-freshness-gate/evidence/T4-evals-created.log`
-- 完成条件: JSON 合法 + 5 scenario + 三链通过
+- 完成条件: JSON 合法 + 5 scenario + 5 scenario id 全部命中 + 三链通过
 
 ### T5. 修改 `skills/hf-workflow-router/references/profile-node-and-transition-map.md`
 
@@ -186,9 +248,26 @@
   - 主行为：`hf-completion-gate` 在评估完成时能正确 reference doc-freshness verdict
   - 关键边界：blocked 不进入 bundle 的规则必须显式写出
   - fail-first：故意写"所有 doc-freshness verdict 都进入 bundle"，verify reviewer 能发现违反 spec FR-005 第三条 acceptance
-- Verify: `grep -c "doc-freshness" skills/hf-completion-gate/SKILL.md` ≥ 2（evidence bundle 段 + Reference Guide 段）；既有 verdict 词表段未被改动（diff -u 输出仅含新增段）
-- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T6-completion-gate-modified.log`（含 git diff 摘要）
-- 完成条件: prose 段新增 + 不改 verdict 逻辑 + 三链通过
+- Verify:
+  - prose 段引用本 gate verdict 至少 2 次（evidence bundle 段 + Reference Guide 或类似段）：
+    ```bash
+    test "$(grep -c "doc-freshness" skills/hf-completion-gate/SKILL.md)" -ge 2 || echo "doc-freshness REFERENCE COUNT < 2"
+    ```
+  - **boundary check (R1 缓解 cold-readable)**：git diff 删除行 = 0（不改既有 verdict 逻辑）：
+    ```bash
+    test "$(git diff skills/hf-completion-gate/SKILL.md | grep -E '^-[^-]' | wc -l)" = "0" || echo "DELETED LINES > 0 — VIOLATES CON-001 (不破坏既有合同)"
+    ```
+  - git diff 净增行数 ≤ 30（修改范围最小化原则；确保仅 prose-only 1–2 段插入）：
+    ```bash
+    test "$(git diff --numstat skills/hf-completion-gate/SKILL.md | awk '{print $1}')" -le 30 || echo "ADDED LINES > 30 — modification too large"
+    ```
+  - completion-gate 既有 verdict 词表段未被改动（grep 既有词表关键词数量稳定）：
+    ```bash
+    git diff skills/hf-completion-gate/SKILL.md | grep -E "verdict|完成|approve" > /tmp/t6-verdict-vocab-diff.log
+    test ! -s /tmp/t6-verdict-vocab-diff.log || echo "WARN: verdict vocabulary lines may have been touched — manual review required"
+    ```
+- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T6-completion-gate-modified.log`（含 git diff 摘要 + 删除行计数 + 净增行数）
+- 完成条件: prose 段新增 ≥ 2 处引用 + git diff 删除行 = 0（不改 verdict 逻辑）+ 净增 ≤ 30 行 + 三链通过
 
 ### T7. Walking Skeleton dogfooding dry run（HYP-004 final closure）
 
@@ -244,24 +323,53 @@ T2 (references) ── T3 (templates) ── T4 (evals)
                                   T7 (Walking Skeleton dogfooding)
 ```
 
-关键路径：T1 → T2 → T3 → T4 → T5 → T6 → T7（共 7 步，全部 sequential，无并行机会，因每步都依赖前一步的合同稳定）。
+关键路径：T1 → T2 → T3 → T4 → T5 → T6 → T7（共 7 步，全部 sequential）。
 
-T1, T2, T3 可在概念上并行（都是新建文件无相互引用），但 SKILL.md (T1) 的 Reference Guide 段会引用 references (T2) 与 templates (T3) 的具体路径——按 sequential 拆解可让每步评审更聚焦。
+### 6.1 Sequential vs parallel trade-off（显式称重）
+
+T2 / T3 / T4 在**文件层面**确实可并行（都是新建文件、互不引用），T1 的 Reference Guide 段只需占位路径即可解锁三者并行起步。当前选择 **全 sequential** 是 conservative 决策，trade-off 如下：
+
+| 维度 | sequential（当前选择） | parallel (T2/T3/T4) | 选择理由 |
+|---|---|---|---|
+| 评审聚焦 | ✅ 每个 task 单独走完 6-gate quality 链 | ⚠ 三任务并行时 reviewer 上下文需同时持有 3 份 draft | sequential 让每步 reviewer 只看一个 artifact，cold-read 成本最低 |
+| 时间总开销 | ⚠ 三任务串行，理论开销 = 3 × N | ✅ 三任务并行，理论开销 ≈ N | parallel 节省约 2/3 编排时间 |
+| 错误隔离 | ✅ 任一 task 评审失败不阻塞其他（已 done 的不退） | ⚠ 任一并行任务失败时，其他可能已经 review 过但需重审 | sequential 更容易回滚单 task |
+| router FSM 复杂度 | ✅ 单线性队列，next-ready 选择规则极简 | ⚠ 需要 fork/join 编排，router 当前不支持任务并行 | router 既有协议是单 active task，并行需要扩展 |
+| 与 HF 既有节奏一致性 | ✅ 与 HF "单 Current Active Task" 强约束完全一致 | ❌ 违反 router 既有"同时只锁定 1 个 active task"承诺 | sequential 是 HF 既有合同硬约束 |
+
+**结论**：选择 sequential 不是没有评估并行收益，而是 router 既有"单 active task"硬约束（参见 `hf-workflow-router/SKILL.md`）+ 评审聚焦 + 错误隔离三项收益**优于** 2/3 时间节省。如未来 HF 引入 parallel-task 支持（属 `hf-increment` 或更大 evolution），可重新评估。
 
 ## 7. 完成定义与验证策略
 
 每个任务的完成定义：
 
 - 文件创建 / 修改完成
-- `Verify` 段所有命令退出码 = 0
+- `Verify` 段所有命令退出码 = 0（无错误输出）
 - `hf-test-review` 通过
 - `hf-code-review` 通过（含 Clean Architecture / SOLID / Two Hats 检查；本 feature 无运行时代码，主要检查 prose 一致性 / 引用合法 / 不破坏既有 skill 合同）
 - `hf-traceability-review` 通过（追溯到 spec FR/NFR/CON + design 章节 + ADR）
-- `hf-regression-gate` 通过（**预期 N/A**：本 feature 是 prose skill，无运行时代码，无 regression 测试可跑；reviewer 应判定 verdict = `N/A` 而非强行跑 nonexistent 测试）
-- `hf-doc-freshness-gate` 通过（**dogfooding 路径**：本 gate 评估自己——本 feature 的 README / 模块 README 是否需要刷新）
+- `hf-regression-gate`：见 §7.1 例外条款
+- `hf-doc-freshness-gate`：见 §7.2 dogfooding 例外条款
 - `hf-completion-gate` 通过（evidence bundle 包含上述全部 verdict）
 
 整 feature 完成定义：所有 7 任务通过完成定义 + `hf-finalize` workflow closeout 同步：CHANGELOG.md（vX.Y.Z 入口）、ADR 状态翻 accepted、仓库根 README.md 更新 active feature 行。
+
+### 7.1 `hf-regression-gate` 在 prose-only feature 上的处理（与 reviewer-return verdict 词表对齐）
+
+reviewer-return-contract verdict 词表 = `{通过, 需修改, 阻塞}`，**没有** `N/A`。本 feature 是 prose skill，无运行时代码，无可跑的 regression 测试，但 verdict 仍必须落到合法词表内。**采用合规处理路径 (a)**：
+
+- reviewer 返回 `通过` + record 显式标注 `"无 regression 测试范围（prose-only feature）"`
+- evidence 文件路径仍按 `features/<active>/verification/regression-YYYY-MM-DD.md` 落盘，内容写明 "本 feature 无运行时代码，无 regression 测试可执行；reviewer 已确认无既有功能受影响（git diff 未触碰任何运行时代码路径）"
+- 不允许 reviewer 返回非词表值（如 `N/A`），避免 router 无法解析
+
+### 7.2 `hf-doc-freshness-gate` dogfooding chicken-and-egg 例外条款
+
+`hf-doc-freshness-gate` 在本 feature 完成后才存在；T1..T6 完成时本 gate skill 尚未落地（T5 引入 router transition 后 router 才会指向本 gate）。处理规则：
+
+- **T1..T4 完成时**：router 尚未含本 gate transition（T5 才修改 router）→ router 路径自然不经过本 gate，按 `hf-regression-gate → hf-completion-gate` 的旧路径处理；不强制 doc-freshness-gate verdict
+- **T5 完成后**：router 含本 gate transition，但 skill 主体（SKILL.md / references / templates / evals）已在 T1-T4 完成 → router 派发 reviewer subagent 评估"本 task 是否 user-visible behavior change"。本 feature 内**唯一对外可见行为变化**是"引入了新 skill `hf-doc-freshness-gate`"；该变化的文档承接路径 = T7 dogfooding dry run + hf-finalize closeout 同步 README 与 CHANGELOG。因此 T5 / T6 完成时 verdict = `N/A`（本 gate 词表内合法值；本 task 未独立触发对外可见行为变化，外可见承载点 = T7）
+- **T7 完成时**：T7 自身的 dogfooding dry run = 本 gate 评估自己 + walking skeleton 同时验证 NFR-001..NFR-004。verdict = `pass`（dogfooding 实测通过）
+- **重要**：上述例外不破坏 design §11 boundary（本 gate verdict ∈ `{pass, partial, N/A, blocked}`），只是说明在 chicken-and-egg 场景下哪些 task 的 dogfooding evidence 是"独立产出" vs "由 T7 统一覆盖"
 
 ## 8. 当前活跃任务选择规则
 
