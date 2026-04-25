@@ -7,6 +7,12 @@
   - 方法论协作与冲突地图: `docs/principles/methodology-coherence.md`
   - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
 
+## HF 的目标
+
+HF 的目标是：**帮助用户从一个 idea 到产品高质量落地**。
+
+围绕这个目标，HF 把产品发现、规格澄清、架构设计、任务拆解、带门禁的 TDD 实现、多道独立评审、回归与完成门禁、正式收尾都当作一等阶段，沿着"一个 idea → 可评审方向 → 可评审设计 → 可执行任务 → 可落地产品"的显式路径推进。
+
 ## 核心命题
 
 用户和 Harness Flow（HF）的协作方式，总结下来就一句话：**用户是架构师，HF 是工程团队**。
