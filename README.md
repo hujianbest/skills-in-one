@@ -10,7 +10,7 @@ HarnessFlow is a skill pack for AI agents that turns the full **idea → insight
 
 HarnessFlow's primary path covers the full **idea-to-product** arc:
 
-- **Always-on coding principles preface**: `hf-coding-principles` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; loaded before every HF node, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+- **Cross-cutting coding principles** (constitution layer, not a workflow node): `docs/principles/coding-principles.md` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; inherited by every `hf-*` skill via `AGENTS.md` § Soul docs, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - **Upstream product discovery**: problem framing, JTBD, Opportunity Solution Tree, RICE / ICE, Desired Outcome / North Star
 - **Hypothesis validation**: `hf-experiment` — minimal probes when blocking or low-confidence hypotheses exist
 - **Specification**: EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -70,20 +70,20 @@ HF draws from a small set of explicit engineering methods:
 
 Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack level, the current methodology map looks like this:
 
-### Always-on coding principles (preface, loaded before every HF node)
+### Cross-cutting coding principles (constitution layer)
 
-| Skill | Core methodology |
-|-------|------------------|
-| `hf-coding-principles` | Think Before Coding, Simplicity First (YAGNI), Surgical Changes, Goal-Driven Execution — adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
+| Document | Core principles |
+|----------|-----------------|
+| `docs/principles/coding-principles.md` | Think Before Coding, Simplicity First (YAGNI), Surgical Changes, Goal-Driven Execution — adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
 
-`hf-coding-principles` is **not** a workflow node and **not** part of the canonical `Next Action Or Recommended Skill` vocabulary. It is a behavioral preface every HF node (entry, router, authoring, review, gate, branch, finalize) loads before starting its own first step.
+These principles live in the constitution layer (`docs/principles/`), not as a separate `hf-*` skill. Every `hf-*` skill inherits them via `AGENTS.md` § Soul docs. They are **not** part of the canonical `Next Action Or Recommended Skill` vocabulary, do **not** add a step to any node's Workflow, and do **not** replace review / gate / approval / finalize judgments.
 
 ### Entry and routing
 
 | Skill | Core methodology |
 |-------|------------------|
-| `using-hf-workflow` | Front Controller Pattern, Evidence-Based Dispatch, Separation of Concerns (preceded by `hf-coding-principles`) |
-| `hf-workflow-router` | Finite State Machine Routing, Evidence-Based Decision Making, Escalation Pattern (preceded by `hf-coding-principles`) |
+| `using-hf-workflow` | Front Controller Pattern, Evidence-Based Dispatch, Separation of Concerns |
+| `hf-workflow-router` | Finite State Machine Routing, Evidence-Based Decision Making, Escalation Pattern |
 
 ### Upstream discovery
 
