@@ -8,6 +8,14 @@
 2. 什么时候应直接交给当前 runtime router `hf-workflow-router`
 3. 什么时候允许 direct invoke 某个具体 `hf-*` skill
 
+## Always-On Preface
+
+任何入口（public entry / router / direct invoke）开始工作前，**先加载 `hf-coding-principles`** 这个 always-on preface，对当前请求按 4 条 LLM coding 行为准则（Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution）做一次最小自检。
+
+- 自检完成才进入下面的入口判断逻辑。
+- preface 自检**不**改变入口判断本身，**不**进入 canonical schema 与 `Next Action Or Recommended Skill` 受控词表。
+- 与 `docs/principles/soul.md` / `AGENTS.md` 显式声明冲突时，preface 让位。
+
 ## One-Line Rule
 
 新会话默认先走 `using-hf-workflow`。

@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "现在进入 using-hf-workflow，准备给 notifications 服务加限流。开始之前，按 always-on preface 先做一次 4 条原则自检，再说你要不要 direct invoke 还是 route-first。",
+    "expected": "先按 hf-coding-principles 的 4 条准则做最小自检，识别 single missing fact / simplicity / surgical / goal 风险并在输出最前面带一行 Coding Principles Note；然后才进入 using-hf-workflow 的 entry vs runtime recovery 判断。不把 hf-coding-principles 写进 Next Action Or Recommended Skill。"
+  },
+  {
+    "id": 2,
+    "prompt": "我现在在 hf-test-driven-dev 节点。任务说『加 validation』，没有明确成功标准。请按 always-on preface 自检并继续。",
+    "expected": "命中 Goal-Driven Execution 风险，目标 skill 输出最前面追加一行 Coding Principles Note: [Goal] 已为本任务补齐 verify 条件：写测试覆盖非法输入；然后再继续 hf-test-driven-dev 的 RED-GREEN 流程。绝不把 hf-coding-principles 写成 canonical handoff。"
+  },
+  {
+    "id": 3,
+    "prompt": "评审刚跑完，router 让我接着跑下一个节点；同时我顺手发现一段无关 dead code，是否要删？",
+    "expected": "命中 Surgical Changes 风险：指出无关 dead code 的位置但不顺手删除（除非用户明确要求），输出 Coding Principles Note: [Surgical] 仅指出不动：<file/symbol>；router 的 canonical 节点决定不变。"
+  }
+]

@@ -40,6 +40,14 @@ HF workflow family 的 **public shell**。帮助你决定：
 
 ## Workflow
 
+### 0. 加载 always-on preface（`hf-coding-principles`）
+
+任何回合开始前，先加载并按 4 条准则做一次最小自检：Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution。
+
+- 自检过程**不展开整轮 intake**；仅当命中 single missing fact / simplicity / surgical / goal 风险时，目标 skill 输出最前面带一行 `Coding Principles Note: ...`（详见 `hf-coding-principles/SKILL.md` 的 Output Contract）。
+- 这一步**不**改变 entry vs runtime recovery 的判断逻辑，**不**写 canonical handoff，**不**把 `hf-coding-principles` 写进 `Next Action Or Recommended Skill`。
+- 自检完成后立刻进入步骤 1。
+
 ### 1. 判断 entry vs runtime recovery
 
 entry（用本 skill）：新会话、高层意图、命令 bias、direct vs route 选择。
@@ -138,6 +146,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 | 文件 | 用途 |
 |------|------|
+| `hf-coding-principles/SKILL.md` | always-on 行为前置层，进入本 skill 与任何下游 leaf skill 前先加载 |
 | `skills/docs/hf-workflow-entrypoints.md` | public entry 与 direct invoke 边界 |
 | `skills/docs/hf-command-entrypoints.md` | `/hf-*` 命令解释 |
 | `hf-workflow-router/SKILL.md` | authoritative runtime routing |
@@ -146,6 +155,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 ## Verification
 
+- [ ] 已先加载 `hf-coding-principles` 并完成 4 条原则自检
 - [ ] 已判断 entry vs runtime recovery
 - [ ] 已区分 direct invoke vs route-first
 - [ ] 只差 1 个判别事实时，已优先使用单事实分流检查点

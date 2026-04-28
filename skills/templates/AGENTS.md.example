@@ -4,6 +4,14 @@
 >
 > 这是**最小骨架**，不强制全部填写；未填写的字段视为"项目当前未启用此项标准"，HF 会按 `read-on-presence` 原则容错处理。
 
+## 0. Always-On Coding Principles（行为前置层）
+
+HF skill pack 内置 `hf-coding-principles` 作为 always-on preface：任何 HF 节点（`using-hf-workflow` / `hf-workflow-router` / 所有 leaf skill）开工前都会先按 4 条 LLM coding 行为准则做一次最小自检（Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution）。
+
+- 它**不是** workflow 节点，**不进入** `Next Action Or Recommended Skill` 受控词表，**不替代** review / gate / approval / finalize。
+- 它与本节 §1 soul docs 冲突时让位。
+- 项目无需特别配置即可使用；如需关闭某条原则（例如允许大范围风格统一），请在本文件相应章节显式声明项目级例外。
+
 ## 1. Soul docs / Constitution（最高锚点）
 
 这些文档构成本项目"宪法层"，HF 在所有判断中以这些文档为最高优先级：

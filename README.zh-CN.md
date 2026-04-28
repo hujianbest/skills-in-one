@@ -10,6 +10,7 @@ HarnessFlow 是一个面向 AI Agent 的 skill pack，用来把**从产品洞察
 
 HarnessFlow 当前的主路径覆盖「**从一个 idea 到产品落地**」全程：
 
+- **Always-on 行为前置层**：`hf-coding-principles` — Think Before Coding / Simplicity First（YAGNI）/ Surgical Changes / Goal-Driven Execution；每个 HF 节点开工前先加载，改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - 上游 **产品洞察**：problem framing、JTBD、Opportunity Solution Tree、RICE / ICE、Desired Outcome / North Star
 - **假设验证**：`hf-experiment` 在 Blocking 或低 confidence 关键假设下插入的最小 probe
 - **规格澄清**：EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -69,12 +70,20 @@ HF 明确吸收了几类工程方法：
 
 HF 的每个 skill 都会在自己的 `SKILL.md` 里显式声明方法论。在 pack 层面，当前可以概括成下面这张图：
 
+### Always-on 行为前置层（每个 HF 节点开工前都先加载）
+
+| Skill | 核心方法论 |
+|---|---|
+| `hf-coding-principles` | Think Before Coding、Simplicity First (YAGNI)、Surgical Changes、Goal-Driven Execution — 改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
+
+`hf-coding-principles` **不是** workflow 节点，**不进入** canonical `Next Action Or Recommended Skill` 受控词表。它是 always-on preface：所有 HF 节点（入口 / 路由 / authoring / review / gate / branch / finalize）在开始自己的 Workflow 第一步之前，先加载这 4 条 LLM coding 行为准则做一次最小自检。
+
 ### 入口与路由
 
 | Skill | 核心方法论 |
 |---|---|
-| `using-hf-workflow` | Front Controller Pattern、Evidence-Based Dispatch、Separation of Concerns |
-| `hf-workflow-router` | Finite State Machine Routing、Evidence-Based Decision Making、Escalation Pattern |
+| `using-hf-workflow` | Front Controller Pattern、Evidence-Based Dispatch、Separation of Concerns（前置加载 `hf-coding-principles`） |
+| `hf-workflow-router` | Finite State Machine Routing、Evidence-Based Decision Making、Escalation Pattern（前置加载 `hf-coding-principles`） |
 
 ### 上游 discovery
 
