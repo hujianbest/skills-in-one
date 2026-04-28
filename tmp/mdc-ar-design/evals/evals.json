@@ -1,0 +1,242 @@
+{
+  "skill_name": "mdc-ar-design",
+  "evals": [
+    {
+      "id": 1,
+      "name": "生成新AR文档",
+      "prompt": "文档类型：生成新文档\n需求描述：实现审批系统的申请人信息验证功能，包括姓名格式校验、工号唯一性检查、部门有效性验证。需要支持批量导入申请人信息。\n代码路径：/home/ci/mdc-projects/approval-system",
+      "expected_output": "生成完整的 AR 设计文档，包含功能点分解、实现设计、接口描述、代码设计和测试设计",
+      "files": [],
+      "assertions": [
+        {
+          "name": "feature-decomposition",
+          "text": "文档包含功能点分解（如姓名校验、工号检查、部门验证、批量导入）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "implementation-design",
+          "text": "文档包含实现设计（类结构、函数设计、数据流）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "interface-description",
+          "text": "文档包含接口描述（API 端点、参数、返回值）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "code-design",
+          "text": "文档包含代码设计（关键函数、数据结构、错误处理）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-design",
+          "text": "文档包含测试设计（测试场景、用例设计、覆盖率要求）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "mdc-scenario-analysis",
+          "text": "文档包含 MDC 场景分析（如硬件约束、实时性要求、可靠性要求）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "更新已有AR文档",
+      "prompt": "文档类型：更新文档\n代码路径：/home/ci/mdc-projects/approval-system\nAR文档路径：features/approval-system/ar-design.md\n\n当前需要添加的功能：申请人信息实时通知，当申请人信息被审核通过或拒绝时，实时推送通知给申请人。",
+      "expected_output": "在原有 AR 文档基础上，添加新功能的详细设计",
+      "files": [],
+      "assertions": [
+        {
+          "name": "update-mode",
+          "text": "识别为更新模式，读取现有 AR 文档",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "incremental-design",
+          "text": "在保留原有内容基础上添加新功能设计",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "feature-added",
+          "text": "新功能（实时通知）的设计已添加到文档中",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "功能点分解-清晰拆分",
+      "prompt": "生成 AR 文档。需求：实现审批流程状态机，包括提交、审批中、已批准、已拒绝、已撤销状态。需要状态流转校验和审计记录。\n不涉及新增模块。",
+      "expected_output": "将需求清晰拆分为功能点，每个功能点有明确的输入输出",
+      "files": [],
+      "assertions": [
+        {
+          "name": "feature-breakdown",
+          "text": "拆分出状态定义、状态流转、校验逻辑、审计记录等功能点",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "feature-io",
+          "text": "每个功能点明确输入输出",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "实现设计-类结构",
+      "prompt": "生成 AR 文档。需求：实现审批申请的缓存机制，提升查询性能。使用 Redis 作为缓存，需要考虑缓存更新策略和缓存穿透防护。",
+      "expected_output": "提供清晰的类结构和关键函数设计",
+      "files": [],
+      "assertions": [
+        {
+          "name": "class-design",
+          "text": "定义核心类（如 ApprovalCache）及其成员变量和方法",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "key-functions",
+          "text": "设计关键函数（get、set、invalidate）及其实现思路",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "data-flow",
+          "text": "描述数据流（缓存读写、缓存更新策略）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "接口描述-完整性",
+      "prompt": "生成 AR 文档。需求：实现申请人管理 API，包括创建、查询、更新、删除申请人。",
+      "expected_output": "完整描述所有接口（路径、方法、参数、响应）",
+      "files": [],
+      "assertions": [
+        {
+          "name": "api-endpoints",
+          "text": "列出所有 API 端点（POST、GET、PUT、DELETE）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "request-response-structure",
+          "text": "详细定义请求和响应数据结构",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "代码设计-错误处理",
+      "prompt": "生成 AR 文档。需求：实现审批金额校验。金额范围是 0-1000000，超出范围返回错误信息。",
+      "expected_output": "考虑边界情况、错误处理和特殊场景",
+      "files": [],
+      "assertions": [
+        {
+          "name": "boundary-conditions",
+          "text": "考虑边界值（0、1000000、负数）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "error-handling",
+          "text": "定义错误码和错误信息",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "input-validation",
+          "text": "描述输入校验逻辑",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "测试设计-场景覆盖",
+      "prompt": "生成 AR 文档。需求：实现审批申请的超时自动取消功能，超过 30 天未审批则自动取消。",
+      "expected_output": "设计测试用例覆盖正常、边界和异常场景",
+      "files": [],
+      "assertions": [
+        {
+          "name": "test-scenarios",
+          "text": "设计多种测试场景（成功取消、边界值、并发申请）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "coverage-requirement",
+          "text": "明确测试覆盖率要求",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "MDC场景分析-实时性要求",
+      "prompt": "生成 AR 文档（MDC 项目）。需求：实现车辆实时控制指令下发功能，指令下发后需要在 100ms 内到达执行器。",
+      "expected_output": "分析 MDC 特定场景（实时性、可靠性、硬件约束）",
+      "files": [],
+      "assertions": [
+        {
+          "name": "realtime-analysis",
+          "text": "分析实时性要求（100ms 限制）和实现方案",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "reliability-concerns",
+          "text": "考虑可靠性（指令丢失、重传机制）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "hardware-constraints",
+          "text": "考虑硬件约束（执行器接口、通讯带宽）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "代码路径自动识别",
+      "prompt": "生成 AR 文档。需求：实现数据加密存储功能。代码修改位于当前工作目录。",
+      "expected_output": "自动识别 Git 仓库路径并确定 AR 编号",
+      "files": [],
+      "assertions": [
+        {
+          "name": "git-repo-detection",
+          "text": "自动检测 Git 仓库路径",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "ar-number-generation",
+          "text": "生成或识别 AR 编号",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

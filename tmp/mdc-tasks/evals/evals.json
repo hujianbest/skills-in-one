@@ -1,0 +1,305 @@
+{
+  "skill_name": "mdc-tasks",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我已经有需求文档和设计文档了。现在请把“内部发布审批系统”拆成可执行任务计划。需求要点：员工提交发布申请、直属主管审批、审批通过后通知申请人。设计要点：后端分为申请服务、审批服务、通知服务；前端有申请页和审批页；需要记录审批历史。",
+      "expected_output": "基于现有需求和设计输出结构化的可执行任务计划：里程碑显式包含目标、任务范围、退出标准和前后关系；任务显式包含任务 ID、需求/设计依据、依赖、验证方式和完成定义；结尾给出 readiness 判断。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "里程碑显式写出目标、包含任务范围、退出标准和前后关系",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "每个任务块显式包含任务 ID、目标、需求依据和设计依据",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "每个任务块显式包含前置条件或依赖、验证方式和完成定义",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "结尾包含文档路径与 readiness 判断，且不直接输出实现代码",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "只有需求文档，没有完整设计文档。先帮我拆任务，主题是审批流系统。已知需求：员工提交申请、主管审批、通过后发通知。设计细节我还没想清楚。",
+      "expected_output": "应明确指出设计缺口会阻塞任务拆解，停在补齐输入模式，而不是伪造详细任务计划。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "识别缺少设计文档或关键设计信息",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "明确指出当前还不能可靠地完成任务拆解",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "列出缺失输入或阻塞项",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "不臆造详细模块任务、接口任务或数据流任务",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "请基于需求文档和设计文档，给企业协作平台做任务拆解，范围包含审批、公告、知识库、即时通讯、数据看板五个子系统。先给我一个统一任务计划。",
+      "expected_output": "应先识别范围过大，给出 2-3 种切分方式并推荐本轮计划边界，而不是直接产出一份失真的大一统详细计划。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "识别当前请求覆盖多个巨大子系统",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "给出 2-3 种合理的计划切分方式",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "解释不同切分方式的取舍并给出推荐",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "在边界未确认前，不直接展开覆盖全部子系统的详细任务清单",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "我已经有需求文档和设计文档了。需求要点：员工提交发布申请、直属主管审批、审批通过后通知申请人。设计要点：后端分为申请服务、审批服务、通知服务；前端有申请页和审批页。项目里已经约定：任务计划要写到 `docs/project-plans/release-approval-plan.md`，并使用 `概述 / 里程碑 / 任务拆解 / 依赖关系 / 验证策略 / 风险与待确认` 这套章节。请按这个要求起草，不要退回默认模板。",
+      "expected_output": "应在已有需求和设计的前提下，优先遵循用户给定的路径与章节骨架，而不是回落到默认路径和默认结构。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "优先采用用户给定的任务计划路径",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "优先采用用户给定的章节骨架",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "不强行退回默认 `docs/tasks/YYYY-MM-DD-<topic>-tasks.md` 路径",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "任务条目中仍体现需求与设计追溯",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-5",
+          "text": "任务条目中仍体现验证方式或完成定义",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-6",
+          "text": "完成后仍给出 readiness 判断",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "需求文档里有 `REQ-1 员工可提交发布申请`、`REQ-2 主管可审批申请`、`REQ-3 审批通过后通知申请人`。设计文档里有 `DES-2.1 申请服务`、`DES-2.2 审批服务`、`DES-2.3 通知服务`。请按这些输入拆任务计划。",
+      "expected_output": "应让任务与需求 ID、设计章节保持可追溯关系，而不是只给无来源的大块任务。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "任务拆解中显式引用需求 ID 或等价追溯标识",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "任务拆解中显式引用设计章节或等价追溯标识",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "不遗漏主要需求条目",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "若发现输入覆盖不完整，应显式指出缺口",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "我已经有需求文档和设计文档，也有一份旧的任务草稿，请你在这个基础上补完，不要整份重写。需求要点：员工提交发布申请、直属主管审批、审批通过后通知申请人。设计要点：后端分为申请服务、审批服务、通知服务；前端有申请页和审批页；需要记录审批历史。草稿如下：\n\n# 发布审批任务计划\n状态: 草稿\n\n## 里程碑\n- 里程碑 1：打通申请与审批主流程\n\n## 任务拆解\n- 完成后端\n- 完成前端\n- 联调测试\n\n已知问题是：没有依赖关系、没有验证方式、完成定义也比较弱。",
+      "expected_output": "应在保留原草稿标题、状态和里程碑文案的前提下，把粗粒度任务显式展开为带任务 ID、目标、需求/设计依据、依赖、预计会触碰的工件、验证方式和完成定义的修订版计划，并在结尾给出文档路径与修订后的 readiness 判断。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "保留原始标题、状态行和原有里程碑文案",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "显式说明新任务是对原粗粒度任务的展开，并把保留的里程碑补全为目标、包含任务范围说明、退出标准和前后关系，或以紧邻的等价结构表达这些信息",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "新增任务显式包含任务 ID、目标、需求依据、设计依据、依赖、预计会触碰的工件、验证方式和完成定义",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "结尾同时包含修订后的文档路径和 readiness 判断，不把修订任务误做成整份重写",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "你先列几个大任务就行，比如“完成后端”“完成前端”“联调测试”，验证和完成定义后面再补。",
+      "expected_output": "应拒绝把大而无法验证的工作块直接当成可执行任务计划，强调任务粒度、验证方式和完成定义。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "明确指出过于粗粒度的任务不足以执行和验证",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "要求在任务级写出验证方式",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "要求在任务级写出完成定义",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "不把模糊大任务包装成合格任务计划",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "需求文档写的是“审批通过后通知申请人”，但设计文档写成了“所有审批结果都通知申请人和直属主管”。你基于这两份文档拆任务吧。",
+      "expected_output": "应识别需求与设计之间的冲突，显式暴露影响，并把它当作阻塞项或工作假设处理，而不是静默选边继续拆任务。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "识别需求与设计之间存在冲突",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "明确说明冲突会影响任务计划",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "把冲突写成阻塞项或显式工作假设",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "不静默选择其中一边继续输出完整任务计划",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "我有需求文档和一份很粗的设计说明。需求是：员工提交申请、主管审批、审批通过后通知申请人。设计说明目前只有：系统分前端、后端、通知模块，具体接口、数据流和模块边界还没定。请直接拆任务。",
+      "expected_output": "应识别虽然存在设计说明，但其粒度仍不足以支撑可靠任务拆解，因此停在补齐输入模式，而不是伪造详细任务计划。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "识别设计说明虽然存在，但仍缺少关键模块边界、接口或数据流",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "明确指出当前还不能可靠地完成任务拆解",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "列出需要补齐的设计信息",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "不臆造详细任务、接口任务或数据流任务",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

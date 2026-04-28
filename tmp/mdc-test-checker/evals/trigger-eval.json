@@ -1,0 +1,41 @@
+{
+  "skill_name": "mdc-test-checker",
+  "description": "用于校准 mdc-test-checker 的触发边界：should_trigger 为 true 时期望启用本 Skill 的评审流程；should_trigger 为 false 时期望按用户主任务处理，不强行输出完整 UT 审查模板。",
+  "queries": [
+    {
+      "id": 1,
+      "query": "帮我看下 tests 目录里这批 gtest 单测，断言是不是太弱了，错误路径有没有漏，按阻塞问题和规范问题列一下。",
+      "should_trigger": true
+    },
+    {
+      "id": 2,
+      "query": "这段 CreateOrder 的 UT 只检查了返回 0，要不要加对订单状态或输出结构的断言？你帮我从评审角度说几句。",
+      "should_trigger": true
+    },
+    {
+      "id": 3,
+      "query": "我们团队的单测规范里要求 TEST_F 命名必须带模块前缀，这段测试命名符合吗？",
+      "should_trigger": true
+    },
+    {
+      "id": 4,
+      "query": "pytest 里这个 fixture 报 teardown 错误，帮我根据 traceback 修一下环境变量和 conftest。",
+      "should_trigger": false
+    },
+    {
+      "id": 5,
+      "query": "Jenkins 上集成测试连不上数据库，帮我看看 pipeline 里哪一步把连接串弄丢了。",
+      "should_trigger": false
+    },
+    {
+      "id": 6,
+      "query": "帮我把这个函数的实现补全，顺便写几个 unittest，不用评审写得好不好。",
+      "should_trigger": false
+    },
+    {
+      "id": 7,
+      "query": "k6 压测脚本里 vu 和 duration 怎么设比较合理，目标 QPS 大概 5000。",
+      "should_trigger": false
+    }
+  ]
+}

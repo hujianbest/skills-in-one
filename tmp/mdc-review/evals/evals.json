@@ -1,0 +1,263 @@
+{
+  "skill_name": "mdc-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "规格评审-完整规格应通过",
+      "prompt": "评审这份需求规格草稿：\n\n# 内部发布审批系统规格\n状态：草稿\n\n## 背景与目标\n员工提交发布申请、直属主管审批、审批通过后通知申请人。\n\n## 范围\n### 核心需求\n**[REQ-001] 员工可提交发布申请**（P0）\n- 来源：产品会议记录 2024-01-15\n- 描述：员工可填写发布信息并提交申请\n- 验收标准：系统存储申请记录并返回申请 ID\n\n**[REQ-002] 直属主管可审批申请**（P0）\n- 来源：产品会议记录 2024-01-15\n- 描述：直属主管可查看并审批申请\n- 验收标准：系统记录审批结果并更新申请状态\n\n**[REQ-003] 审批通过后通知申请人**（P0）\n- 来源：产品会议记录 2024-01-15\n- 描述：系统自动通知申请人审批结果\n- 验收标准：60秒内申请人收到审批通过通知\n\n## 范围外内容\n- 多级审批（第二期）\n- 移动端应用（后续迭代）\n\n## 验收标准\n- 所有核心功能通过端到端测试\n- 系统可支持 100+ 并发用户",
+      "expected_output": "规格完整，核心需求可验收，应给出通过 verdict",
+      "files": [],
+      "assertions": [
+        {
+          "name": "verdict-pass",
+          "text": "评审结论为'通过'或'accept'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "findings-recorded",
+          "text": "输出评审记录文件路径",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "规格评审-模糊词需修改",
+      "prompt": "评审这份需求规格草稿：\n\n# 审批系统规格\n\n## 核心需求\n系统应该快速处理审批请求，尽量减少延迟。用户界面要友好易用。\n\n## 验收标准\n系统要稳定可靠",
+      "expected_output": "识别模糊词（快速、尽量、友好、稳定可靠），标记为需修改",
+      "files": [],
+      "assertions": [
+        {
+          "name": "verdict-needs-revision",
+          "text": "评审结论为'需修改'或'needs revision'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "ambiguous-words",
+          "text": "指出提到的模糊词问题",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "next-step",
+          "text": "建议下一步为 mdc-specify",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "规格评审-设计泄漏",
+      "prompt": "评审这份需求规格草稿：\n\n# 审批系统规格\n\n## 核心需求\n员工提交时调用 POST /api/submit 接口。\n系统使用 MySQL 存储审批记录。\n前端使用 React 框架",
+      "expected_output": "识别混入了接口、数据库、框架等技术细节，标记为需修改",
+      "files": [],
+      "assertions": [
+        {
+          "name": "design-leakage",
+          "text": "指出包含接口名、数据库或框架等设计决策",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "separate-concerns",
+          "text": "说明这些内容应移到设计阶段",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "规格评审-模糊范围",
+      "prompt": "评审这份需求规格草稿：\n\n# 企业审批系统规格\n\n## 核心需求\n支持审批功能、公告功能、知识库管理、即时通讯、数据看板。",
+      "expected_output": "识别范围过大，多个功能打包在一个需求中，标记为需修改或阻塞",
+      "files": [],
+      "assertions": [
+        {
+          "name": "oversized-scope",
+          "text": "指出当前范围包含多个独立功能",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "suggest-split",
+          "text": "建议拆分需求",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "规格评审-缺少验收标准",
+      "prompt": "评审这份需求规格草稿：\n\n# 审批系统规格\n\n## 核心需求\n**[REQ-001]** 员工可提交发布申请\n**[REQ-002]** 直属主管可审批申请",
+      "expected_output": "识别缺少验收标准，标记为需修改",
+      "files": [],
+      "assertions": [
+        {
+          "name": "missing-acceptance",
+          "text": "指出核心需求缺少验收标准",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "critical-finding",
+          "text": "将此问题标记为 'important' 或 'critical' 级别",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "架构设计评审-优秀设计应通过",
+      "prompt": "评审这份架构设计草稿（review_type=arch-design）：\n\n# 审批系统架构设计\n\n## 架构决策\n- 采用微服务架构，分为申请服务、审批服务、通知服务\n- 使用 RESTful API 进行服务间通信\n- 数据层使用 PostgreSQL，主从复制\n\n## 组件定义\n### 申请服务\n- 职责：接收并存储申请请求\n- 接口：POST /api/applications\n\n### 审批服务\n- 职责：处理审批逻辑、状态流转\n- 接口：PUT /api/applications/{id}/approve\n\n### 通知服务\n- 职责：发送审批结果通知\n- 接口：POST /api/notifications\n\n## 追溯规范\n- REQ-001 → 申请服务\n- REQ-002 → 审批服务  \n- REQ-003 → 通知服务",
+      "expected_output": "设计清晰可追溯，组件接口定义完整，应给出通过",
+      "files": [],
+      "assertions": [
+        {
+          "name": "verdict-pass",
+          "text": "评审结论为'通过'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "traceability",
+          "text": "确认设计与需求的追溯关系",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "架构设计评审-缺少组件定义",
+      "prompt": "评审这份架构设计草稿（review_type=arch-design）：\n\n# 审批系统架构设计\n\n## 架构决策\n使用微服务架构",
+      "expected_output": "识别缺少具体组件定义和接口描述，标记为需修改",
+      "files": [],
+      "assertions": [
+        {
+          "name": "missing-components",
+          "text": "指出缺少组件定义",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "missing-interfaces",
+          "text": "指出缺少接口定义",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "任务计划评审-任务可执行应通过",
+      "prompt": "评审这份任务计划草稿（review_type=tasks）：\n\n# 审批系统任务计划\n\n## 里程碑 1：实现申请与审批主流程\n- 目标：支持员工提交和主管审批\n- 退出标准：通过端到端测试\n\n## 任务\n**[T-001] 实现申请服务**\n- 依据：REQ-001, DES-1.1\n- 前置条件：数据库 schema 已定义\n- 验证方式：unit test + API test\n- 完成定义：申请可创建并返回 ID\n\n**[T-002] 实现审批服务**  \n- 依据：REQ-002, DES-1.2\n- 依赖：T-001\n- 验证方式：unit test + integration test\n- 完成定义：审批状态可正确更新",
+      "expected_output": "任务可执行、有验证方式和完成定义，应给出通过",
+      "files": [],
+      "assertions": [
+        {
+          "name": "verdict-pass",
+          "text": "评审结论为'通过'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "task-completeness",
+          "text": "确认每个任务有验证方式和完成定义",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "任务计划评审-缺少验证方式",
+      "prompt": "评审这份任务计划草稿（review_type=tasks）：\n\n# 审批系统任务计划\n\n## 任务\n- 实现 API 接口\n- 编写业务逻辑\n- 前端页面",
+      "expected_output": "识别任务缺少验证方式、依赖关系和完成定义，标记为需修改",
+      "files": [],
+      "assertions": [
+        {
+          "name": "missing-validation",
+          "text": "指出任务缺少验证方式",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "missing-dependencies",
+          "text": "指出缺少任务依赖关系",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "评审记录格式",
+      "prompt": "评审规格草稿（任意内容），review_type=spec。确保评审记录按模板格式输出。",
+      "expected_output": "生成规范的评审记录，包含结构化信息",
+      "files": [],
+      "assertions": [
+        {
+          "name": "record-structure",
+          "text": "评审记录包含 verdict、findings、下一步等结构化信息",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "findings-classification",
+          "text": "findings 按 severity 和 classification 分类",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "AR设计评审-完整AR应通过",
+      "prompt": "评审这份AR设计草稿（review_type=ar-design）：\n\n# 审批申请模块 AR设计\n\n## 功能点分解\n**[FP-001] 申请提交**\n- 输入：申请人信息、申请内容\n- 输出：申请ID、提交时间\n- 逻辑：校验申请人权限→构建申请记录→持久化→返回申请ID\n\n**[FP-002] 申请查询**\n- 输入：申请ID或查询条件\n- 输出：申请详情\n- 逻辑：解析查询条件→检索→返回\n\n## 实现设计\n类 ApprovalService，方法 submitApplication()、queryApplication()\n状态机：Draft → Submitted → Approved/Rejected\n\n## 接口描述\nPOST /api/applications - 创建申请\nGET /api/applications/{id} - 查询申请\n参数类型与返回值均已定义\n\n## MDC场景分析\n- 实时性：否（非实时业务）\n- 可靠性：需持久化保证\n- 硬件约束：无特殊约束\n\n## 测试设计\n- 正常路径：提交→查询→审批\n- 边界：重复提交、无效ID查询\n- 异常：数据库不可用、权限不足\n覆盖率要求：≥90%\n\n## 追溯\nREQ-001 → FP-001, REQ-002 → FP-002",
+      "expected_output": "AR设计完整，功能点、实现设计、接口、测试均有覆盖，应给出通过",
+      "files": [],
+      "assertions": [
+        {
+          "name": "verdict-pass",
+          "text": "评审结论为'通过'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "ar-dimensions-covered",
+          "text": "确认AR1-AR8各维度均有内容",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "AR设计评审-功能点空洞需修改",
+      "prompt": "评审这份AR设计草稿（review_type=ar-design）：\n\n# 审批模块 AR设计\n\n## 功能点分解\n**[FP-001] 申请提交**\n- 待补充\n\n**[FP-002] 审批处理**\n- 处理审批请求\n\n## 实现设计\n待补充\n\n## 接口描述\n待补充\n\n## 测试设计\n编写单元测试",
+      "expected_output": "识别功能点空洞(RA1)、实现思路缺失(RA2)、接口参数含糊(RA3)、测试与功能点脱节(RA6)，标记为需修改或阻塞",
+      "files": [],
+      "assertions": [
+        {
+          "name": "verdict-needs-revision",
+          "text": "评审结论为'需修改'或'阻塞'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "anti-pattern-detected",
+          "text": "识别出至少2个anti-pattern（RA1/RA2/RA3等）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "skill_name": "mdc-arch-design",
+  "evals": [
+    {
+      "id": 1,
+      "name": "新增服务-生成架构设计",
+      "prompt": "需求规格已批准。请设计审批系统的架构，需要新增申请服务、审批服务和通知服务。规格要点：审批量约 1000/天，需要审批历史追溯，系统可用性要求 99.9%。",
+      "expected_output": "产出架构设计文档，包含 ADR、候选方案对比、C4视图和组件定义",
+      "files": [],
+      "assertions": [
+        {
+          "name": "adr-records",
+          "text": "包含架构决策记录（ADR格式）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "candidate-approaches",
+          "text": "提供至少两个候选架构方案并比较",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "c4-diagrams",
+          "text": "包含 C4 架构视图（Context/Container/Component）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "component-definition",
+          "text": "定义新增组件的职责、边界和接口",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "设计决策-避免过度设计",
+      "prompt": "请设计一个简单的审批系统。当前需求：员工提交、主管审批、通过后通知。日审批量约 100。不要为未来可能的多级审批预留扩展。",
+      "expected_output": "遵循 YAGNI 原则，避免为假设需求过度设计",
+      "files": [],
+      "assertions": [
+        {
+          "name": "yagni-principle",
+          "text": "设计基于当前已确认需求，不为未确认未来需求过度设计",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "complexity-matching",
+          "text": "架构复杂度与问题规模匹配",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "NFR-非功能需求",
+      "prompt": "设计审批系统架构。NFR 要求：响应时间 < 100ms、支持 1000 并发用户、数据可靠存储。",
+      "expected_output": "架构设计体现 NFR 约束，明确如何满足性能和可靠性要求",
+      "files": [],
+      "assertions": [
+        {
+          "name": "nfr-addressed",
+          "text": "架构决策考虑性能、可靠性等非功能需求",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "nfr-tactics",
+          "text": "提供具体战术来实现 NFR（如缓存、主从复制）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "失败模式分析",
+      "prompt": "设计审批系统架构。请考虑系统可能的失败场景及应对策略。",
+      "expected_output": "分析关键失败模式并给出缓解策略",
+      "files": [],
+      "assertions": [
+        {
+          "name": "failure-analysis",
+          "text": "识别关键失败点（如服务宕机、网络分区、数据丢失）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "mitigation-strategies",
+          "text": "提供缓解策略（如重试、降级、备份）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "技术选型-多方案对比",
+      "prompt": "设计审批系统的数据存储。需要在强一致性和高可用性之间权衡。请对比 PostgreSQL vs MongoDB vs MySQL。",
+      "expected_output": "对比多个技术选型并给出选型决策依据",
+      "files": [],
+      "assertions": [
+        {
+          "name": "technology-comparison",
+          "text": "对比至少两个技术方案",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "tradeoff-analysis",
+          "text": "分析各方案的优缺点和适用场景",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "decision-evidence",
+          "text": "有明确的选型决策和依据",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "接口定义",
+      "prompt": "设计审批系统的服务接口。申请服务需要支持创建申请、查询申请、撤销申请。",
+      "expected_output": "清晰定义服务接口（API 签名、请求参数、响应结构）",
+      "files": [],
+      "assertions": [
+        {
+          "name": "api-definitions",
+          "text": "定义服务接口（API 端点、方法、路径）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "request-response",
+          "text": "定义请求参数和响应结构",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "运维考虑",
+      "prompt": "设计审批系统架构。请考虑部署、监控、日志收集和运维成本。",
+      "expected_output": "设计考虑运维复杂度和部署成本",
+      "files": [],
+      "assertions": [
+        {
+          "name": "ops-concerns",
+          "text": "考虑部署方案（容器化、编排）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "monitoring-logging",
+          "text": "设计监控和日志收集方案",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "追溯关系",
+      "prompt": "设计审批系统架构。脚注规格位于 docs/cases/2024-01/approval-spec.md，其中 REQ-001 至 REQ-005 是核心需求。",
+      "expected_output": "架构设计与需求规格保持追溯关系",
+      "files": [],
+      "assertions": [
+        {
+          "name": "requirement-traceability",
+          "text": "设计明确追溯到需求规格（如 REQ-ID）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "coverage-validation",
+          "text": "设计覆盖所有核心需求",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

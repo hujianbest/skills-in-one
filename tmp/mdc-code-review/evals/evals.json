@@ -1,0 +1,191 @@
+{
+  "skill_name": "mdc-code-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "基础代码审查-检测明显问题",
+      "prompt": "请检视这段 C++ 代码并识别问题：\n\n```cpp\nvoid ProcessData(int* data, int size) {\n    if (data != NULL) {\n        for (int i = 0; i <= size; i++) {\n            data[i] = data[i] * 2;\n        }\n    }\n}\n```",
+      "expected_output": "检测到数组越界（i <= size 应为 i < size）和空指针检查未完全安全的问题",
+      "files": [],
+      "assertions": [
+        {
+          "name": "bounds-check",
+          "text": "识别出数组越界问题（循环条件 i <= size 应为 i < size）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "pointer-safety",
+          "text": "指出指针安全相关问题",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "provides-suggestion",
+          "text": "提供具体的修复建议或示例代码",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "内存泄漏检测",
+      "prompt": "检视这段代码是否有内存泄漏：\n\n```cpp\nvoid ProcessRequest() {\n    char* buffer = new char[1024];\n    if (ShouldProcess(buffer)) {\n        Process(buffer);\n    }\n    // 没有释放 buffer\n}\n```",
+      "expected_output": "检测到内存泄漏，buffer 未在所有路径上释放",
+      "files": [],
+      "assertions": [
+        {
+          "name": "memory-leak",
+          "text": "识别出内存泄漏问题（buffer 未 delete）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "severity-level",
+          "text": "将此问题标记为 Important 或 Critical 级别",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "代码风格检查",
+      "prompt": "检视这段代码的编码规范合规性：\n\n```cpp\nclass cartitem{\n  private:\n    int _id;\n    string _name;\n  public:\n    void setId(int id){_id=id;}\n    void setName(string name){_name=name;}\n};\n```",
+      "expected_output": "识别命名违规（类名应使用 PascalCase，成员变量命名不规范）和缺少注释",
+      "files": [],
+      "assertions": [
+        {
+          "name": "naming-violation",
+          "text": "指出类名应使用 PascalCase",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "code-style",
+          "text": "指出代码格式问题（缩进、空格等）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "missing-documentation",
+          "text": "指出缺少类或函数注释",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "安全性问题检测",
+      "prompt": "检视这段代码的安全问题：\n\n```cpp\nvoid CopyData(char* dest, const char* src) {\n    strcpy(dest, src);  // 不安全的拷贝\n}\n\nvoid ExecuteCommand(char* command) {\n    system(command);  // 直接执行用户输入\n}",
+      "expected_output": "识别缓冲区溢出风险和命令注入漏洞",
+      "files": [],
+      "assertions": [
+        {
+          "name": "buffer-overflow",
+          "text": "识别 strcpy 的缓冲区溢出风险",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "command-injection",
+          "text": "识别 system() 的命令注入风险",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "critical-severity",
+          "text": "将安全问题标记为 Critical 级别",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "性能问题识别",
+      "prompt": "检视这段代码的性能问题：\n\n```cpp\nstd::string BuildString(int n) {\n    std::string result;\n    for (int i = 0; i < n; i++) {\n        result += \"item\";  // 多次内存分配\n    }\n    return result;\n}",
+      "expected_output": "识别字符串拼接的性能问题，建议使用 reserve 或直接计算大小",
+      "files": [],
+      "assertions": [
+        {
+          "name": "performance-issue",
+          "text": "识别字符串拼接的效率问题",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "optimization-suggestion",
+          "text": "提供优化建议（如使用 reserve）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "测试质量审查",
+      "prompt": "检视这个测试用例的质量：\n\n```cpp\nTEST(CalculatorTest, AddTest) {\n    Calculator calc;\n    int result = calc.Add(2, 3);\n    // 缺少断言\n}",
+      "expected_output": "识别测试无效，缺少断言验证",
+      "files": [],
+      "assertions": [
+        {
+          "name": "missing-assertion",
+          "text": "指出测试缺少断言",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-ineffective",
+          "text": "标记为测试问题",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "复杂度评估",
+      "prompt": "检视这段代码的复杂度：\n\n```cpp\nvoid ProcessComplex(int x, int y, int z) {\n    if (x > 0) {\n        if (y > 0) {\n            if (z > 0) {\n                if (x > y) {\n                    if (y > z) {\n                        // 深层嵌套\n                    }\n                }\n            }\n        }\n    }\n}",
+      "expected_output": "识别过深的嵌套层次，建议重构",
+      "files": [],
+      "assertions": [
+        {
+          "name": "nesting-depth",
+          "text": "指出嵌套层次过深",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "refactor-suggestion",
+          "text": "建议重构减少嵌套",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "资源管理-RAII",
+      "prompt": "检视这段代码的资源管理：\n\n```cpp\nvoid ProcessFile(const char* path) {\n    FILE* f = fopen(path, \"r\");\n    if (f) {\n        // 处理文件\n        fclose(f);\n    }\n}",
+      "expected_output": "建议使用 RAII 机制管理资源",
+      "files": [],
+      "assertions": [
+        {
+          "name": "raii-suggestion",
+          "text": "建议使用 RAII 或智能指针管理资源",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "exception-safety",
+          "text": "指出异常安全问题",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

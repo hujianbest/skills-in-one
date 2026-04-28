@@ -1,0 +1,203 @@
+{
+  "skill_name": "mdc-finalize",
+  "evals": [
+    {
+      "id": 1,
+      "name": "回归门禁-执行回归测试",
+      "prompt": "Code-review 已通过。需要执行回归门禁，确保代码修改没有破坏现有功能。请求回归范围：标准回归范围（直接相关模块）。测试框架：CMake/CTest。",
+      "expected_output": "执行回归测试，生成 evidence bundle，输出回归记录",
+      "files": [],
+      "assertions": [
+        {
+          "name": "run-regression-tests",
+          "text": "执行回归测试命令",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "evidence-bundle",
+          "text": "生成回归证据束（回归面、命令、退出码、结果摘要、新鲜度锚点）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "regression-record",
+          "text": "输出回归记录文件",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "回归门禁-测试失败处理",
+      "prompt": "执行回归测试。测试结果：3 个测试用例失败，失败的是 test_approval_flow 和 test_data_integrity。",
+      "expected_output": "识别测试失败，标记为需修改，指向失败测试",
+      "files": [],
+      "assertions": [
+        {
+          "name": "detect-failure",
+          "text": "识别测试失败",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "verdict-needs-fix",
+          "text": "门禁判断为'需修改'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "next-step",
+          "text": "建议下一步为 mdc-test-driven-dev",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "完成门禁-判断任务完成",
+      "prompt": "回归门禁已通过。当前任务：实现审批申请缓存功能。需要执行完成门禁，确认任务是否已完成。",
+      "expected_output": "判断任务完成标准，验证实现是否满足验收条件",
+      "files": [],
+      "assertions": [
+        {
+          "name": "completion-scope",
+          "text": "明确完成范围（当前任务）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "verification",
+          "text": "执行验证命令检查完成条件",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "definition-of-done",
+          "text": "根据 Definition of Done 判断任务是否完成",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "收尾-更新进度并归档",
+      "prompt": "所有任务已完成，需要执行收尾步骤。当前任务：审批系统第一期。",
+      "expected_output": "更新进度文件、归档交付件、记录完成状态",
+      "files": [],
+      "assertions": [
+        {
+          "name": "update-progress",
+          "text": "更新 progress.md 状态为'完成'",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "archive-artifacts",
+          "text": "归档所有交付件（规格、设计、任务计划、实现、测试、评审记录）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "record-completion",
+          "text": "记录完成状态和时间",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "追溯链检查-验证完整性",
+      "prompt": "需要验证追溯链完整性。工件：规格、设计、任务计划、实现、code-review 记录。",
+      "expected_output": "检查追溯链完整性，评分各维度",
+      "files": [],
+      "assertions": [
+        {
+          "name": "traceability-check",
+          "text": "检查 spec→设计、design→任务、task→实现、实现→验证 各维度",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "scoring",
+          "text": "各维度给出评分（0-10）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "gate-decision",
+          "text": "根据评分决定是否通过门禁",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Fresh Evidence Principle-拒绝历史结果",
+      "prompt": "执行回归测试。用户查询：能否使用上次的测试结果而不再重新运行？",
+      "expected_output": "拒绝历史结果，要求 fresh evidence",
+      "files": [],
+      "assertions": [
+        {
+          "name": "reject-historical",
+          "text": "拒绝使用历史测试结果",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "fresh-evidence",
+          "text": "强调 Fresh Evidence Principle 要求新的测试证据",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Impact-Based Testing-最小回归范围",
+      "prompt": "代码修改涉及审批服务模块。 requests 需要确定回归范围。最小回归范围：仅执行与修改相关模块的测试。",
+      "expected_output": "基于追溯链识别影响区域，定义最小回归范围",
+      "files": [],
+      "assertions": [
+        {
+          "name": "impact-analysis",
+          "text": "分析代码修改的影响范围",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "minimal-regression",
+          "text": "定义最小回归范围（不执行全量测试）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Evidence Bundle-记录新鲜度锚点",
+      "prompt": "执行回归测试。测试通过，需要记录 evidence bundle。",
+      "expected_output": "记录完整 evidence bundle，包含新鲜度锚点（如 commit hash、时间戳）",
+      "files": [],
+      "assertions": [
+        {
+          "name": "bundle-completeness",
+          "text": "evidence bundle 包含回归面、命令、退出码、结果摘要",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "freshness-anchor",
+          "text": "包含新鲜度锚点（commit hash、时间戳）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

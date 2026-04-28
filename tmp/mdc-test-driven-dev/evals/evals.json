@@ -1,0 +1,239 @@
+{
+  "skill_name": "mdc-test-driven-dev",
+  "evals": [
+    {
+      "id": 1,
+      "name": "TDD流程-红绿重构",
+      "prompt": "实现一个函数，计算两个数的最大公约数（GCD）。",
+      "expected_output": "先写测试，让测试失败，再写实现让测试通过，然后可重构",
+      "files": [],
+      "assertions": [
+        {
+          "name": "write-test-first",
+          "text": "先编写测试用例",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-fails",
+          "text": "测试先失败（RED 阶段）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "write-implementation",
+          "text": "然后编写实现让测试通过（GREEN 阶段）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "单向-strcpy安全包装",
+      "prompt": "实现一个安全的字符串拷贝函数，防止缓冲区溢出。使用测试驱动开发。",
+      "expected_output": "先写测试，覆盖正常、边界、溢出场景，再写实现，确保测试通过",
+      "files": [],
+      "assertions": [
+        {
+          "name": "test-coverage",
+          "text": "测试覆盖正常拷贝、边界条件、源串过长等场景",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-fails-first",
+          "text": "在写实现前先运行测试确保失败",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "safe-implementation",
+          "text": "实现包含边界检查和返回值",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "边界条件-测试充分性",
+      "prompt": "实现一个数组元素查找函数，返回元素索引，未找到返回 -1。使用 TDD，确保包含边界测试。",
+      "expected_output": "测试覆盖边界（空数组、头元素、尾元素、未找到）",
+      "files": [],
+      "assertions": [
+        {
+          "name": "empty-array",
+          "text": "测试空数组场景",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "first-not-last",
+          "text": "测试首元素和尾元素",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "not-found",
+          "text": "测试元素未找到场景",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "异常处理-错误场景测试",
+      "prompt": "实现一个文件读取函数，使用测试驱动开发。需要测试文件不存在、权限不足、读取成功等场景。",
+      "expected_output": "测试包含所有错误场景和成功场景",
+      "files": [],
+      "assertions": [
+        {
+          "name": "error-scenarios",
+          "text": "测试文件不存在、权限不足等错误场景",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "success-scenario",
+          "text": "测试文件读取成功场景",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "error-handling",
+          "text": "实现包含错误处理逻辑",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Mock-外部依赖",
+      "prompt": "实现一个网络请求处理函数，依赖 HTTP 客户端。使用 Mock 测试外部依赖。",
+      "expected_output": "使用 Mock 对象隔离外部依赖，测试各种响应场景",
+      "files": [],
+      "assertions": [
+        {
+          "name": "use-mock",
+          "text": "使用 gmock 模拟 HTTP 客户端",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-scenarios",
+          "text": "测试成功、失败、超时等 Mock 场景",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "断言质量-具体描述",
+      "prompt": "实现一个字符串工具函数。使用 TDD，确保断言有清晰的错误信息。",
+      "expected_output": "使用 EXPECT/ASSERT 宏，提供有意义的期望值",
+      "files": [],
+      "assertions": [
+        {
+          "name": "meaningful-assertions",
+          "text": "断言包含期望值和实际值对比",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "no-comment-assertions",
+          "text": "不在断言中使用注释说明测试意图",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "测试命名-清晰可读",
+      "prompt": "实现一个余额计算函数，考虑透支限制。使用 TDD，确保测试用例命名清晰。",
+      "expected_output": "测试用例名清楚表达测试场景和期望结果",
+      "files": [],
+      "assertions": [
+        {
+          "name": "descriptive-names",
+          "text": "测试用例名描述测试场景（如 'BalanceExceedsLimit_ReturnsFalse'）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-class-naming",
+          "text": "测试类名反映被测功能",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "构造函数和析构测试",
+      "prompt": "实现一个资源管理类（如文件句柄封装）。使用 TDD 测试 RAII 行为。",
+      "expected_output": "测试构造、析构、拷贝/移动等资源管理行为",
+      "files": [],
+      "assertions": [
+        {
+          "name": "raii-test",
+          "text": "测试构造获取资源、析构释放资源",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "copy-move-semantics",
+          "text": "测试拷贝/移动构造和赋值（如禁用或正确实现）",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "参数化测试-消除重复",
+      "prompt": "实现一个数学函数（如幂运算）。使用参数化测试测试多组输入。",
+      "expected_output": "使用值参数化测试避免重复测试代码",
+      "files": [],
+      "assertions": [
+        {
+          "name": "parameterized-test",
+          "text": "使用 INSTANTIATE_TEST_CASE_P 或 TEST_P 进行参数化测试",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "test-data-cases",
+          "text": "提供多个测试数据组合",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "测试-isolation-独立性",
+      "prompt": "实现一个状态机类。使用 TDD，确保每个测试用例独立，不互相影响。",
+      "expected_output": "每个测试用例独立设置和清理，使用 TearDown",
+      "files": [],
+      "assertions": [
+        {
+          "name": "test-isolation",
+          "text": "每个测试用例独立，不依赖其他测试",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "setup-teardown",
+          "text": "使用 SetUp/TearDown 初始化和清理资源",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

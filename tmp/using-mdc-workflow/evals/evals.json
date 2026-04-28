@@ -1,0 +1,269 @@
+{
+  "skill_name": "using-mdc-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "name": "全新需求-路由到mdc-specify",
+      "prompt": "客户需要一个新的车辆感知数据融合功能，将激光雷达和摄像头数据进行融合处理。我们目前没有任何相关文档。",
+      "expected_output": "应该识别为新功能需求，创建AR目录，路由到 mdc-specify 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-specify",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "响应中提到创建 AR 目录或 features/",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "规格已完成-涉及新增组件路由到mdc-arch-design",
+      "prompt": "我已经完成了车辆感知融合功能的需求规格文档（features/AR5678-perception-fusion/ar-spec.md，状态：已批准）。需要新增感知融合服务模块和数据融合组件。现在需要进行架构设计。",
+      "expected_output": "应该识别涉及新增组件，选择 Full Profile，路由到 mdc-arch-design 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-arch-design",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "识别出涉及新增组件/模块/接口",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "响应中提到的路径是 features/<active>/ar-design.md",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "规格已完成-现有组件修改路由到mdc-ar-design",
+      "prompt": "我已经完成了激光雷达驱动模块的用户权限管理功能需求（features/DTS9012-fix-dri-perm/ar-spec.md，状态：已批准）。这只是在现有 lidar-driver 组件上增加权限校验，不新增组件。现在需要进行技术设计。",
+      "expected_output": "应该识别仅为现有组件修改，选择 Standard Profile，直接路由到 mdc-ar-design 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-ar-design",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "识别出仅涉及现有组件修改，不涉及新增组件",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "不经过 mdc-arch-design",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "架构设计已完成-路由到mdc-ar-design",
+      "prompt": "我已经完成了车辆感知融合功能的架构设计文档（features/AR5678-perception-fusion/ar-design.md，状态：已批准）。现在需要进行组件级AR设计。",
+      "expected_output": "应该识别为架构设计已完成，需要进入AR设计阶段，路由到 mdc-ar-design 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-ar-design",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "响应中提到的路径是 features/<active>/ar-design.md",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "响应中提到 AR设计阶段或组件实现设计",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "任务已完成-路由到mdc-test-driven-dev",
+      "prompt": "我已经完成了任务计划（features/AR5678-perception-fusion/tasks.md，任务项已拆分完成。现在要开始实现第一个任务：编写激光雷达数据处理模块。",
+      "expected_output": "应该识别为任务已完成，选择 Standard Profile，路由到 mdc-test-driven-dev 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-test-driven-dev",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "响应中提到的路径是 features/<active>/progress.md",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "响应中提到实现阶段或编码阶段",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "实现已完成-路由到mdc-code-review",
+      "prompt": "我已经完成了车辆感知融合模块的代码实现和单元测试，现在需要进行代码检视后才能提交。",
+      "expected_output": "应该识别为实现已完成，路由到 mdc-code-review 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-code-review",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "响应中提到的路径是 features/<active>/reviews/ 目录",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "响应中提到检视阶段或代码检视",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Bug修复-轻量工作流-现有组件",
+      "prompt": "我发现感知融合模块在处理高频率数据时偶发崩溃，需要修复这个 Bug。DTS9012。",
+      "expected_output": "应该识别为 Bug 修复，Bug修复不涉及新增组件，选择 Lightweight Profile，路由到 mdc-ar-design 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-ar-design",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "响应中提到 Lightweight Profile 或轻量工作流",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "识别为现有组件修改，不触发 mdc-arch-design",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Bug修复-轻量工作流-需新增组件",
+      "prompt": "用户反馈激光雷达数据处理时缺少实时监控接口，需要新增一个监控服务模块。DTS8921。",
+      "expected_output": "应该识别为 Bug 修复但涉及新增服务，选择 Full Profile，路由到 mdc-arch-design 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-arch-design",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "识别出涉及新增组件/模块，需要架构级设计",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "响应中提到 Full Profile",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Code review通过-路由到mdc-finalize",
+      "prompt": "代码检视已通过（features/AR5678-perception-fusion/reviews/code-review-task-001.md）。现在需要执行回归门禁和收尾。",
+      "expected_output": "应该识别为 code-review 通过，路由到 mdc-finalize 技能",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应中提到 mdc-finalize",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "响应中提到的路径是 features/<active>/verification/ 目录",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "响应中提到回归门禁或 completion gate",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "阶段不清-询问明确",
+      "prompt": "审批系统要怎么做？",
+      "expected_output": "应该无法确定阶段，需要询问用户明确当前处于什么阶段、有什么现有文档",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "响应包含澄清问题",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "不直接跳到某个 skill",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "询问是否有现成的 ar-spec/ar-design/tasks 文档",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

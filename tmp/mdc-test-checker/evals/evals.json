@@ -1,0 +1,157 @@
+{
+  "skill_name": "mdc-test-checker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请帮我审查 `tests/payment_service_test.cpp` 里的 GoogleTest 单测，判断是否合理、是否符合常见规范。重点看弱断言、边界覆盖、错误路径和是否会制造错误信心。",
+      "expected_output": "应输出结构化评审结果，至少包含总体结论、阻塞问题、规范问题、覆盖评估和结论，并优先指出行为风险而不是样式问题。",
+      "files": [
+        "tests/payment_service_test.cpp",
+        "include/payment_service.h",
+        "src/payment_service.cpp"
+      ],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "输出包含“总体结论”部分",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "“总体结论”中出现“通过”“需改进”或“不通过”之一（或同义明确表述）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "输出包含“阻塞问题”和“规范问题”分段（或等价小标题）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "输出包含“覆盖评估”且包含已覆盖与缺失（或等价两项）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-5",
+          "text": "输出包含“结论”",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-6",
+          "text": "至少一条问题带可定位信息：文件路径或具体 TEST/用例名",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-7",
+          "text": "输出优先讨论弱断言、错误路径或覆盖缺口，而非仅讨论命名格式",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-8",
+          "text": "输出不是只讨论命名或格式问题",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我这边新增了一批 C++ UT，用的是 gtest。请你像 reviewer 一样检查：哪些用例只是跑通代码、哪些断言太弱、哪些边界场景没有覆盖到。输出请分成阻塞问题和规范问题。",
+      "expected_output": "应触发本 Skill，并按阻塞问题、规范问题、覆盖评估给出可执行意见，重点识别只检查返回码、只验证成功路径、依赖 setup 过重等问题。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "输出包含“阻塞问题”和“规范问题”分组",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "输出包含“覆盖评估”",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "输出明确识别“只是跑通代码”或“断言太弱”的风险",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "输出提到边界场景或错误路径覆盖不足",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-5",
+          "text": "输出给出可执行的补强建议（具体动作，而非空泛“加强测试”）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-6",
+          "text": "至少一条阻塞或规范问题隐含或显式包含用例名或“某测试”的可定位描述",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我看一下和 `CreateUser`、`UpdateProfile` 相关的单测，尤其关注空指针失败场景是否真的验证充分，失败后状态是否需要断言保持不变，以及“空用户名”这类边界场景测试是不是过弱。",
+      "expected_output": "应结合被测 API 行为分析失败路径与边界场景是否足够，识别仅检查返回值但未检查状态不变、多路径仅比成功而无有效结果断言等问题。",
+      "files": [
+        "tests/user_service_test.cpp",
+        "include/user_service.h",
+        "src/user_service.cpp"
+      ],
+      "assertions": [
+        {
+          "name": "assertion-1",
+          "text": "输出讨论空指针失败场景是否验证充分",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-2",
+          "text": "输出讨论失败后状态是否需要保持不变（或说明契约未知时的假设）",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-3",
+          "text": "输出讨论空用户名或类似边界场景测试是否过弱",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-4",
+          "text": "输出识别仅比较成功返回值而缺少有效结果断言的问题",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-5",
+          "text": "若契约未给出失败语义，输出中出现“假设”或“契约缺口”类表述之一",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "assertion-6",
+          "text": "输出包含“总体结论”与“结论”",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}
