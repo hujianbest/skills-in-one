@@ -9,6 +9,7 @@
 这些文档构成本项目"宪法层"，HF 在所有判断中以这些文档为最高优先级：
 
 - **价值锚点（不可省）**：`docs/principles/soul.md`
+- **横切行为基线（4 条 LLM coding 行为准则）**：`docs/principles/coding-principles.md`
 - **方法论协作 / 反替代规则 / Phase × profile 激活**：`docs/principles/methodology-coherence.md`
 - **工件管理约定（路径单一信源）**：`docs/principles/sdd-artifact-layout.md`
 - **SDD + TDD 设计原则**：`docs/principles/hf-sdd-tdd-skill-design.md`

@@ -10,6 +10,7 @@ HarnessFlow 是一个面向 AI Agent 的 skill pack，用来把**从产品洞察
 
 HarnessFlow 当前的主路径覆盖「**从一个 idea 到产品落地**」全程：
 
+- **横切行为基线**（宪法层文档，非 workflow 节点）：`docs/principles/coding-principles.md` — Think Before Coding / Simplicity First（YAGNI）/ Surgical Changes / Goal-Driven Execution；通过 `AGENTS.md` § Soul docs 被每个 `hf-*` skill 自动继承，改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - 上游 **产品洞察**：problem framing、JTBD、Opportunity Solution Tree、RICE / ICE、Desired Outcome / North Star
 - **假设验证**：`hf-experiment` 在 Blocking 或低 confidence 关键假设下插入的最小 probe
 - **规格澄清**：EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -68,6 +69,14 @@ HF 明确吸收了几类工程方法：
 ## 每个 Skill 用了什么方法论
 
 HF 的每个 skill 都会在自己的 `SKILL.md` 里显式声明方法论。在 pack 层面，当前可以概括成下面这张图：
+
+### 横切行为基线（宪法层文档）
+
+| 文档 | 核心原则 |
+|---|---|
+| `docs/principles/coding-principles.md` | Think Before Coding、Simplicity First (YAGNI)、Surgical Changes、Goal-Driven Execution — 改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
+
+这 4 条原则落在宪法层 `docs/principles/`，**不是**独立 `hf-*` skill。每个 `hf-*` skill 通过 `AGENTS.md` § Soul docs 自动继承。它们**不**进入 canonical `Next Action Or Recommended Skill` 受控词表，**不**给任何节点的 Workflow 加额外步骤，**不**替代 review / gate / approval / finalize 判断。
 
 ### 入口与路由
 

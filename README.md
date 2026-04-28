@@ -10,6 +10,7 @@ HarnessFlow is a skill pack for AI agents that turns the full **idea → insight
 
 HarnessFlow's primary path covers the full **idea-to-product** arc:
 
+- **Cross-cutting coding principles** (constitution layer, not a workflow node): `docs/principles/coding-principles.md` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; inherited by every `hf-*` skill via `AGENTS.md` § Soul docs, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - **Upstream product discovery**: problem framing, JTBD, Opportunity Solution Tree, RICE / ICE, Desired Outcome / North Star
 - **Hypothesis validation**: `hf-experiment` — minimal probes when blocking or low-confidence hypotheses exist
 - **Specification**: EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -68,6 +69,14 @@ HF draws from a small set of explicit engineering methods:
 ## Methodology By Skill
 
 Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack level, the current methodology map looks like this:
+
+### Cross-cutting coding principles (constitution layer)
+
+| Document | Core principles |
+|----------|-----------------|
+| `docs/principles/coding-principles.md` | Think Before Coding, Simplicity First (YAGNI), Surgical Changes, Goal-Driven Execution — adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
+
+These principles live in the constitution layer (`docs/principles/`), not as a separate `hf-*` skill. Every `hf-*` skill inherits them via `AGENTS.md` § Soul docs. They are **not** part of the canonical `Next Action Or Recommended Skill` vocabulary, do **not** add a step to any node's Workflow, and do **not** replace review / gate / approval / finalize judgments.
 
 ### Entry and routing
 

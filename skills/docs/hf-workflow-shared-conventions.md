@@ -13,6 +13,17 @@
 5. 哪些旧字段只允许“读时归一化”，不允许继续写回
 6. 工作目录 / worktree 隔离应如何表达与传递
 
+## Cross-Cutting Coding Principles
+
+HF 把 Karpathy 风格的 4 条 LLM coding 行为准则（Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution）落到 `docs/principles/04 coding-principles.md`，作为**所有 `hf-*` skill 共同遵守的横切行为基线**，而不是一个独立的 workflow 节点。
+
+- 这些原则**不**进入 canonical schema：不写进 `Current Stage` / `Next Action Or Recommended Skill` / `Pending Reviews And Gates` / 迁移表 / reviewer return contract 的 `next_action_or_recommended_skill`。
+- 这些原则**不**替代 review / gate / approval / finalize 的本地职责。
+- 与 `docs/principles/00 soul.md` / `AGENTS.md` 显式声明冲突时让位。
+- 旧工件未显式提及这 4 条不视为违规；本节只约束新产出的 skill 行为，不强制回写历史工件。
+
+详细条款与每条原则在各 `hf-*` skill 的承接点见 `docs/principles/04 coding-principles.md`。
+
 ## Canonical Progress Schema
 
 默认 progress state 建议统一使用以下字段：
@@ -353,6 +364,7 @@ reviewer subagent 的最小结构化摘要统一使用：
 
 当你在编写或审阅某个 `hf-*` skill 时，至少确认：
 
+- [ ] 该 skill 行为遵守 `docs/principles/04 coding-principles.md` 的 4 条横切基线，且没有把它们写进 canonical schema 或 next-action vocabulary
 - [ ] progress schema 使用 canonical 字段名
 - [ ] verdict 与 severity vocabulary 没有漂移
 - [ ] `Next Action Or Recommended Skill` / `next_action_or_recommended_skill` 只写唯一 canonical 值
