@@ -33,6 +33,33 @@ DTS 规格不必填写所有类别；至少应有 FR（或 IFR / CON）描述被
 - AR / DTS / CHANGE：使用 `Component Impact`；不为 `none` 时，规格必须在 `Component Impact Assessment` 章节显式说明，并由 `devflow-router` 决定是否升级 `component-impact` profile。
 - SR：使用 `Affected Components`；列出本 row 影响的所有组件（一条 SR row 通常跨多个组件）；规格必须在 `Affected Components` / `AR Breakdown Candidates` / `Component Design Impact` 三个章节中分别消费这些字段。
 
+## Interface Contract Candidates（AR / DTS / CHANGE）
+
+当存在 `IFR` row，或任一 FR / NFR / IFR 的 `Component Impact = interface` 时，`requirement.md` 必须维护 `Interface Contract Candidates` 章节。它是规格阶段的**语义级接口候选契约**，用于给 `devflow-component-design` / `devflow-ar-design` 提供清晰输入，但不替代后续设计。
+
+每条候选至少含：
+
+| 字段 | 说明 |
+|---|---|
+| `Candidate ID` | 例 `IFC-001` |
+| `Interface / Service Name` | 可为候选名；未知时写语义名，不伪造最终 API 名 |
+| `Provider Component` | 提供接口的组件 |
+| `Consumer / Caller` | 调用方 / 消费方 |
+| `Trigger / Operation` | 触发条件或操作语义 |
+| `Inputs` | 语义级输入字段、单位、范围、约束；不强制语言类型 |
+| `Outputs / Observable Result` | 返回结果、事件、状态变化或可观察行为 |
+| `Error / Return Semantics` | 错误码、失败语义、降级行为、幂等性（如适用） |
+| `Sync / Async / Timing Expectation` | 同步 / 异步、时序或超时预期 |
+| `Compatibility / Versioning` | 兼容性、版本、弃用策略或 N/A |
+| `Covers Requirement Rows` | 覆盖的 FR / IFR / NFR row IDs |
+| `Open Questions / Owner` | 未决接口事实和责任人 |
+
+边界：
+
+- 可以写 SOA 服务契约、协议语义、数据格式、错误码语义、兼容性要求。
+- 不写内部函数签名、私有数据结构、线程模型、具体重试次数、具体库选择；这些属于 design。
+- 若接口候选的 provider / consumer / error semantics 无法确认，必须写 Open Question，不能猜。
+
 ## SR-only 章节字段
 
 SR 规格在 row 表之外，必须维护以下章节级字段。它们不是 row 的一部分，但 reviewer 会把它们跟 row 表反向核对。

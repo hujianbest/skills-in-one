@@ -37,6 +37,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - AR / DTS / CHANGE 必须有唯一所属组件；SR 必须有唯一所属子系统；不唯一时阻塞，回需求负责人
 - IR / SR / AR 追溯关系冲突 → 阻塞，回需求负责人
 - 不把待决问题只藏在正文里，必须显式列在「Open Questions」章节
+- AR / DTS / CHANGE 若出现 `IFR` 或 `Component Impact = interface`，必须维护 `Interface Contract Candidates`；不得只写“影响接口”而不给设计可消费的契约边界
 - 未经 `using-devflow` / `devflow-router` 入口判断 → 先回 router
 
 ## Object Contract
@@ -48,7 +49,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - Backend Output Object: `features/<id>/requirement.md` 草稿 + `features/<id>/traceability.md` 骨架 + `features/<id>/progress.md` canonical 字段同步
 - Object Transformation: 把团队已接受的输入澄清为可设计的需求规格对象（含范围 / 非范围 / 验收 / 待决问题 / 追溯）
   - SR 额外产出：Subsystem Scope Assessment、Affected Components、AR Breakdown Candidates、Component Design Impact
-  - AR / DTS / CHANGE 额外产出：Component Impact Assessment
+  - AR / DTS / CHANGE 额外产出：Component Impact Assessment、Interface Contract Candidates（当涉及接口）
 - Object Boundaries: 不写实现设计 / 不写代码 / 不修改既有组件实现设计 / 不重新决定要不要做这个需求；SR 不预先做 AR 级实现设计
 - Object Invariants: Work Item ID、所属组件 / 子系统、上游追溯（IR / SR）、当前轮范围在 spec-review 通过前保持稳定
 
@@ -64,6 +65,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - **NFR Quality Attribute Scenarios（ISO/IEC 25010 + Bass / Clements / Kazman）**: 每条核心 NFR 用五要素（Stimulus Source / Stimulus / Environment / Response / Response Measure）表达，给出可判定阈值；详见 `references/nfr-quality-attribute-scenarios.md`
 - **Brainstorming Notes Normalization**: 头脑风暴 / 会议散点输入先做事实 vs 假设、业务意图 vs 实现细节、当前 vs 后续三轮归一化，再写 row；详见 `references/requirement-rows-contract.md` 同名节
 - **Embedded Domain Awareness**: 嵌入式语境中识别可能影响 AR 设计的内存 / 实时性 / 资源约束（写为 NFR 不写实现），并指向 `docs/component-design.md` 的相关章节
+- **Interface Contract Candidate Capture**: 对外接口 / SOA 服务 / 协议 / 错误码先形成语义级候选契约，供组件设计或 AR 设计消费；不在 spec 阶段写语言级签名或内部数据结构
 - **Team Role Discipline**: 业务方向 / 优先级 / 验收阈值留给需求负责人 / 模块架构师；本节点只澄清，不拍板
 
 ## Workflow
@@ -97,7 +99,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 1. 用户、目标、成功标准、非目标
 2. 核心行为与触发条件
 3. 边界、异常路径、失败处理
-4. 接口、依赖、兼容性、跨组件影响
+4. 接口、依赖、兼容性、跨组件影响；若涉及接口，澄清 provider / consumer / operation / inputs / outputs / error semantics
 5. 嵌入式相关 NFR（实时性 / 内存 / 资源 / 错误处理）
 6. 待澄清术语与 assumption
 
@@ -126,6 +128,20 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
   - **Component Design Impact**：本 SR 是否需要 `devflow-component-design`；若需要，要修订哪些章节
 - **AR / DTS / CHANGE**：
   - **Component Impact Assessment**：本需求是否影响 SOA 接口 / 组件依赖 / 状态机；指向 `docs/component-design.md` 相关章节
+  - **Interface Contract Candidates**：当存在 `IFR` row 或 `Component Impact = interface` 时必填。每条候选至少含：
+    - Interface / Service Name（可为候选名）
+    - Provider Component
+    - Consumer / Caller
+    - Trigger / Operation
+    - Inputs（语义级字段、单位、约束；不强制语言类型）
+    - Outputs / Observable Result
+    - Error / Return Semantics
+    - Sync / Async / Timing Expectation
+    - Compatibility / Versioning
+    - Covers Requirement Rows
+    - Open Questions / Owner
+
+接口候选契约的边界：它应足够让 `devflow-component-design` / `devflow-ar-design` 消费，但不得在 spec 阶段锁死内部函数签名、私有数据结构、重试次数、线程模型或具体库选择。这些设计选择进入后续 design 节点。
 
 ### 6. 同步 traceability 与 progress
 
@@ -159,6 +175,7 @@ SR 还需在 progress 中写入 `Owning Subsystem`；可空字段 `AR Breakdown 
   - 若声明「无可拆分 AR」，已写明理由
 - AR / DTS / CHANGE：
   - Component Impact Assessment 章节存在并已显式判断
+  - 若存在 `IFR` 或 `Component Impact = interface`，Interface Contract Candidates 章节存在，且每条候选含 provider / consumer / operation / inputs / outputs / error semantics / compatibility / open questions
   - AR row 的 Acceptance 可直接落成 RED 用例
 
 任一失败 → 回步骤 4 / 5。
@@ -191,6 +208,8 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 - 缺 Acceptance 却声称需求清晰
 - 把实现细节（接口签名、表结构、数据结构）写进 Statement
 - AR 影响 SOA 接口却不在 Component Impact Assessment 中标注
+- AR / DTS / CHANGE 影响接口却缺 Interface Contract Candidates
+- 在 Interface Contract Candidates 中写死内部函数签名 / 私有数据结构 / 线程模型
 - 把 USER-INPUT 阻塞项当 LLM-FIXABLE 自我硬补
 - 不更新 progress.md 就声称交接
 
@@ -201,6 +220,7 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 | 直接抄输入文档作为 requirement.md | 重新拆成 rows + 显式 Acceptance |
 | 含糊的 NFR（"足够快"） | 改成可判定阈值或回需求负责人补阈值 |
 | 误把组件设计修订写进 requirement.md | 仅在 Component Impact Assessment 标注，由 router 决定是否进入 `devflow-component-design` |
+| 把接口候选写成 C++ 函数签名 | 改成语义级契约：provider / consumer / operation / inputs / outputs / error semantics |
 
 ## Verification
 
@@ -226,6 +246,7 @@ SR work item 额外项：
 AR / DTS / CHANGE work item 额外项：
 
 - [ ] Component Impact Assessment 已显式判断
+- [ ] 涉及接口时，Interface Contract Candidates 已给出 provider / consumer / operation / inputs / outputs / error semantics / compatibility / open questions
 - [ ] traceability.md 含 IR / SR / AR 行
 - [ ] `Owning Component` 已记录
 
@@ -282,7 +303,7 @@ Default process directories are features/SR<id>-<slug>/, features/AR<id>-<slug>/
 - Open Questions split into blocking and non-blocking
 - Assumptions And Dependencies
 - SR adds Subsystem Scope Assessment, Affected Components, AR Breakdown Candidates, Component Design Impact
-- AR / DTS / CHANGE adds Component Impact Assessment
+- AR / DTS / CHANGE adds Component Impact Assessment and Interface Contract Candidates when interfaces are affected
 ## Supporting References
 
 | 文件 | 用途 |

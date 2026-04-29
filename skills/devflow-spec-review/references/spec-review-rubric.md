@@ -16,7 +16,7 @@
 
 | 维度 | 关键检查 | < 6 的典型信号 |
 |---|---|---|
-| **S5 Component Impact Assessment** | 是否影响组件接口 / 依赖 / 状态机已显式判断 | 章节缺失；判断与 row 中 Component Impact 字段冲突 |
+| **S5 Component Impact Assessment** | 是否影响组件接口 / 依赖 / 状态机已显式判断；涉及接口时 Interface Contract Candidates 足够设计消费 | 章节缺失；判断与 row 中 Component Impact 字段冲突；影响接口但无接口候选契约 |
 
 ## SR 额外维度
 
@@ -59,6 +59,8 @@
 | C3 | 范围内 / 范围外闭合 |
 | C4 | （AR / DTS / CHANGE）Component Impact Assessment 显式判断（none / interface / dependency / state-machine / runtime-behavior） |
 | C5 | Assumptions 已显式且失效影响可回读 |
+| C6 | （AR / DTS / CHANGE）存在 `IFR` 或 `Component Impact = interface` 时，Interface Contract Candidates 已列出 provider / consumer / operation / inputs / outputs / error semantics / compatibility / open questions |
+| C7 | Interface Contract Candidates 未越界写内部函数签名、私有数据结构、线程模型或具体库选择 |
 
 ## Group G：Granularity And Split
 
@@ -130,5 +132,5 @@
 | S3 / Group A / Group Q（部分） | `references/requirement-rows-contract.md`（EARS / BDD / MoSCoW / Brainstorming Notes / Common Failure Modes） |
 | Group G + S3 中的拆分判断 + Group SR 的 SR9 | `references/granularity-and-split.md` |
 | S4 + Group Q 的 Q5 / Q6 + Group SR 的 SR10 | `references/nfr-quality-attribute-scenarios.md` |
-| S5 / Group C 的 C4 | ?? skill ? `SKILL.md` / Local DevFlow Conventions 的「Component Impact Assessment」与 work item 类型必含章节集 |
+| S5 / Group C 的 C4-C7 | `SKILL.md` 的「Component Impact Assessment」/「Interface Contract Candidates」与 work item 类型必含章节集 |
 | S5-SR / S7-SR / S8-SR / Group SR | `references/requirement-rows-contract.md` 的 SR-only 章节 + `references/granularity-and-split.md` SR Breakdown Heuristics |

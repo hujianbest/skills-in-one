@@ -83,7 +83,7 @@ description: Use when a requirement.md draft from devflow-specify is ready for a
 
 | Work Item Type | 额外维度 | 关注 |
 |---|---|---|
-| AR / DTS / CHANGE | S5 Component Impact Assessment | 是否影响组件接口 / 依赖 / 状态机已显式判断 |
+| AR / DTS / CHANGE | S5 Component Impact Assessment + Interface Contract Candidates | 是否影响组件接口 / 依赖 / 状态机已显式判断；涉及接口时是否给出可供设计消费的语义级接口候选契约 |
 | SR | S5-SR Subsystem Scope & Affected Components | 子系统范围与受影响组件清单完整且与 row 表交叉一致 |
 | SR | S7-SR AR Breakdown Candidates | 候选 AR 拆分清单存在；每条候选含 Scope / Owning Component（唯一）/ Covers SR Rows / Hand-off Owner；如 SR 显式声明「无可拆分 AR」也明确说明并由需求负责人确认 |
 | SR | S8-SR Component Design Impact | 若本 SR 触发 `devflow-component-design`，已显式列出受影响组件设计章节与修订方向 |
@@ -112,7 +112,7 @@ description: Use when a requirement.md draft from devflow-specify is ready for a
 
 | 条件 | conclusion | `next_action_or_recommended_skill` | reroute_via_router |
 |---|---|---|---|
-| 范围清晰、核心 rows 含 Acceptance、Component Impact 已判断、无阻塞 USER-INPUT、足以喂下一节点 | `通过` | `devflow-component-design`（Component Impact ≠ none）/ `devflow-ar-design`（其余） | `false` |
+| 范围清晰、核心 rows 含 Acceptance、Component Impact 已判断、涉及接口时 Interface Contract Candidates 完整、无阻塞 USER-INPUT、足以喂下一节点 | `通过` | `devflow-component-design`（Component Impact ≠ none）/ `devflow-ar-design`（其余） | `false` |
 | 有用但不完整，findings 可 1-2 轮定向修订 | `需修改` | `devflow-specify` | `false` |
 | 范围 / 验收 / 组件归属严重不清，findings 无法定向回修 | `阻塞`（内容） | `devflow-specify` | `false` |
 | route / stage / profile / 上游证据冲突 | `阻塞`（workflow） | `devflow-router` | `true` |
@@ -147,6 +147,7 @@ description: Use when a requirement.md draft from devflow-specify is ready for a
 |---|---|
 | 缺业务阈值仍给 `通过` | 标 `USER-INPUT` 阻塞，回需求负责人 |
 | Component Impact 没判断 → 给 `通过` | 标 critical finding，verdict 至少 `需修改` |
+| 影响接口但缺 Interface Contract Candidates | 标 critical finding，verdict 至少 `需修改` |
 | 多个候选下一步 | 收敛为唯一 canonical 值；无法收敛即 `reroute_via_router=true` |
 
 ## Verification
@@ -239,7 +240,7 @@ Write the spec review record under features/<id>/reviews/spec-review.md unless A
 
 ### Spec Review Inputs
 
-Use requirement.md required sections, Requirement Rows, Component Impact Assessment, Embedded NFR, open questions, and trace links. A passing review must map to one next node only.
+Use requirement.md required sections, Requirement Rows, Component Impact Assessment, Interface Contract Candidates when interfaces are affected, Embedded NFR, open questions, and trace links. A passing review must map to one next node only.
 ## Supporting References
 
 | 文件 | 用途 |
