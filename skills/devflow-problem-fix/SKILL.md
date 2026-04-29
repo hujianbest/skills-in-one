@@ -1,6 +1,6 @@
 ---
 name: devflow-problem-fix
-description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction, root-cause analysis, and a minimum-safe fix boundary before any code change, when devflow-router has selected the hotfix profile, or when an AR-route encountered a regression that should be analyzed as a problem before further implementation. Not for writing the fix code (→ devflow-tdd-implementation), not for AR design (→ devflow-ar-design), not for component design changes (→ devflow-component-design), not for stage / route confusion (→ devflow-router).
+description: 当 DTS、紧急缺陷或已上线问题在任何代码修改前需要复现、根因分析和最小安全修复边界时使用；也用于 devflow-router 已选择 hotfix 档位，或 AR 路线中遇到需要先按问题分析处理的回归。不用于编写修复代码、AR 设计、组件设计变更，或阶段和路由混乱。
 ---
 
 # devflow 问题修改 / Hotfix 分析
@@ -9,7 +9,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 
 本 skill **不**写生产代码（那是 `devflow-tdd-implementation` 的职责），**不**修改组件实现设计（必要时回 `devflow-component-design`），**不**替开发负责人决定优先级，**不**绕过 review / gate。紧急 ≠ 跳过。
 
-## When to Use
+## 适用场景
 
 适用：
 
@@ -25,7 +25,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - 修复触及组件边界 → `devflow-component-design`
 - 阶段不清 / 证据冲突 → `devflow-router`
 
-## Hard Gates
+## 硬性门禁
 
 - 必须有复现路径（或显式无法复现说明）才能 handoff 给 `devflow-tdd-implementation`
 - 必须确认根因 + 最小安全修复边界
@@ -35,7 +35,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - 修复若实质上是「新增能力」或「需求变更」→ 不走 hotfix，回 `devflow-specify` 或 router
 - 不写生产代码
 
-## Object Contract
+## 对象契约
 
 - Primary Object: problem-fix package（reproduction + root cause + fix boundary + 回流节点）
 - Frontend Input Object: DTS / 缺陷单原文、用户描述、相关代码 / 日志、`docs/component-design.md`、`docs/ar-designs/`、`AGENTS.md`、当前 `features/<id>/progress.md`（若已存在）
@@ -49,7 +49,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - Object Boundaries: 不写生产代码 / 不修改 AR 设计或组件设计 / 不顺手优化
 - Object Invariants: DTS ID / 所属组件 / 复现路径在 handoff 后保持稳定
 
-## Methodology
+## 方法原则
 
 - **Root Cause Analysis (RCA / 5 Whys)**: 从表象逐层追问到根因；不只修表象
 - **Minimum Safe Fix Boundary**: 显式定义改什么 / 不改什么 / 影响什么
@@ -58,7 +58,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - **Blameless Post-Mortem Mindset**: 关注机制 / 系统性原因，不归咎个人
 - **Embedded Risk Awareness**: 内存 / 并发 / 实时性 / 资源 / 错误处理在根因分析中作为一等输入
 
-## Workflow
+## 工作流
 
 ### 1. 建立证据基线
 
@@ -113,7 +113,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - `features/DTS<id>-<slug>/traceability.md`：补 IR / SR / AR（若涉及功能需求）/ 设计 / 代码 / 测试占位
 - `features/DTS<id>-<slug>/progress.md`：`Current Stage = devflow-problem-fix`、`Pending Reviews And Gates = test-check, code-review, completion-gate`、`Next Action Or Recommended Skill = <步骤 6 回流节点>`
 
-## Output Contract
+## 输出契约
 
 - `features/DTS<id>-<slug>/reproduction.md`、`root-cause.md`、`fix-design.md`
 - `features/DTS<id>-<slug>/progress.md` canonical 同步
@@ -136,7 +136,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
   reroute_via_router: true | false
   ```
 
-## Red Flags
+## 风险信号
 
 - 不复现就给修复方案
 - 顺手「优化」其他代码
@@ -147,7 +147,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - 在 fix-design.md 中写完整生产代码
 - DTS 触及组件边界仍指向 `devflow-tdd-implementation`
 
-## Common Mistakes
+## 常见错误
 
 | 错误 | 修复 |
 |---|---|
@@ -155,7 +155,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 | 修复扩散到多模块仍指向 tdd | 触发步骤 6 边界确认点；超过则回 router 升 component-impact |
 | DTS 实际是新增能力 | 阻塞，回 `devflow-specify` 或 router |
 
-## Verification
+## 验证清单
 
 - [ ] `features/DTS<id>-<slug>/` 目录骨架已建立
 - [ ] reproduction.md 已落盘（含期望 / 实际 / 步骤 / 证据 / 稳定性）
@@ -166,61 +166,61 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - [ ] progress.md canonical 同步，下一步唯一指向回流节点
 - [ ] 未写生产代码
 
-## Local Hotfix Route Notes
+## 本地 Hotfix 路由说明
 
-Enter this skill when devflow-router selects hotfix for DTS / urgent production defects, or when evidence shows reproduction and root-cause work is needed before safe implementation. If the issue is actually a new requirement or scope change, route to devflow-specify or devflow-router.
+当 `devflow-router` 为 DTS / urgent production defects 选择 hotfix，或证据显示安全实现前需要先做复现与根因分析时，进入本 skill。若问题实质是新需求或范围变更，路由到 `devflow-specify` 或 `devflow-router`。
 
-## Local DevFlow Conventions
+## 本地 DevFlow 约定
 
-This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
+本节由当前 skill 自己维护。不要加载共享约定文件；项目 `AGENTS.md` 可以覆盖等价路径或模板。
 
-### Artifact Layout
+### 产物布局
 
-Default artifact layout is copied from `docs/principles/03 artifact-layout.md`. Project `AGENTS.md` may override equivalent paths, but absent an override this skill must use the following component-repo layout:
+默认产物布局来自 `docs/principles/03 artifact-layout.md`。项目 `AGENTS.md` 可以覆盖等价路径；没有覆盖时，本 skill 必须使用以下组件仓库布局：
 
 ```text
 <component-repo>/
   docs/
-    component-design.md           # long-lived component implementation design
-    ar-designs/                   # long-lived AR implementation designs
+    component-design.md           # 长期组件实现设计
+    ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
-    interfaces.md                 # optional, read/sync only when enabled by team
-    dependencies.md               # optional, read/sync only when enabled by team
-    runtime-behavior.md           # optional, read/sync only when enabled by team
+    interfaces.md                 # 可选；仅团队启用时读取 / 同步
+    dependencies.md               # 可选；仅团队启用时读取 / 同步
+    runtime-behavior.md           # 可选；仅团队启用时读取 / 同步
 
   features/
-    AR<id>-<slug>/                # process artifacts for one AR
-    DTS<id>-<slug>/               # process artifacts for one defect / problem fix
-    CHANGE<id>-<slug>/            # process artifacts for one lightweight change
+    AR<id>-<slug>/                # 单个 AR 的过程产物
+    DTS<id>-<slug>/               # 单个缺陷 / 问题修复的过程产物
+    CHANGE<id>-<slug>/            # 单个轻量变更的过程产物
 ```
 
-`docs/` is for long-lived component assets that are committed with code. `features/<id>/` is for one work item's process artifacts: `README.md`, `progress.md`, `requirement.md`, `ar-design-draft.md`, `tasks.md`, `task-board.md`, `traceability.md`, `implementation-log.md`, `reviews/`, `evidence/`, `completion.md`, and `closeout.md` as applicable.
+`docs/` 存放随代码提交的长期组件资产。`features/<id>/` 存放单个 work item 的过程产物：按需包含 `README.md`、`progress.md`、`requirement.md`、`ar-design-draft.md`、`tasks.md`、`task-board.md`、`traceability.md`、`implementation-log.md`、`reviews/`、`evidence/`、`completion.md`、`closeout.md`。
 
-Read-on-presence rules:
+Read-on-presence 规则：
 
-- Required long-lived assets block when missing: `docs/component-design.md` for component-impact work, and `docs/ar-designs/AR<id>-<slug>.md` by implementation closeout.
-- Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are read/synced only when the project has enabled them. Missing optional assets are recorded as `N/A (project optional asset not enabled)`, not treated as blockers.
-- Process directories stay under `features/`; do not move closed work items to `features/archived/` because that breaks traceability links.
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
+- 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
-### Progress Fields
+### Progress 字段
 
-Use canonical progress fields when this skill reads or writes features/<id>/progress.md:
+本 skill 读写 `features/<id>/progress.md` 时使用 canonical progress 字段：
 
 - Work Item Type: SR / AR / DTS / CHANGE
-- Work Item ID: SR1234, AR12345, DTS67890, or CHANGE id
-- Owning Component: required for AR / DTS / CHANGE
-- Owning Subsystem: required for SR
+- Work Item ID: SR1234、AR12345、DTS67890 或 CHANGE id
+- Owning Component: AR / DTS / CHANGE 必填
+- Owning Subsystem: SR 必填
 - Workflow Profile: requirement-analysis / standard / component-impact / hotfix / lightweight
 - Execution Mode: interactive / auto
-- Current Stage: current canonical devflow node
-- Pending Reviews And Gates: pending review or gate list
-- Next Action Or Recommended Skill: one canonical node only
+- Current Stage: 当前 canonical devflow node
+- Pending Reviews And Gates: 待处理 review / gate 列表
+- Next Action Or Recommended Skill: 仅允许一个 canonical node
 - Blockers: open blockers
 - Last Updated: timestamp
 
-### Handoff Fields
+### Handoff 字段
 
-Return a structured handoff with the fields this skill knows:
+返回结构化 handoff，并使用本 skill 已知的字段：
 
 - current_node
 - work_item_id
@@ -234,16 +234,16 @@ Return a structured handoff with the fields this skill knows:
 - next_action_or_recommended_skill
 - reroute_via_router
 
-Do not set next_action_or_recommended_skill to using-devflow or free text.
+不要把 `next_action_or_recommended_skill` 设为 `using-devflow` 或自由文本。
 
-### DTS / Hotfix Paths
+### DTS / Hotfix 路径
 
 Default DTS directory is features/DTS<id>-<slug>/. Create or update README.md, progress.md, reproduction.md, root-cause.md, and fix-design.md as needed.
 
-### Evidence Paths
+### Evidence 路径
 
-Store reproduction evidence, logs, unit/integration evidence, static-analysis output, and build output under the work item evidence directory. Root cause must be supported by fresh evidence, not guesswork.
-## Supporting References
+把 reproduction evidence、logs、unit/integration evidence、static-analysis output 和 build output 存到 work item evidence 目录下。Root cause 必须由 fresh evidence 支撑，不能靠猜测。
+## 支撑参考
 
 | 文件 | 用途 |
 |---|---|

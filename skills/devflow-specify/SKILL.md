@@ -1,6 +1,6 @@
 ---
 name: devflow-specify
-description: Use when the team has accepted an SR / AR / DTS / change request as input and needs it clarified into a reviewable spec. Covers two sub-streams: (a) requirement-analysis sub-stream — clarify subsystem-level SR + optional component implementation design; does NOT proceed to AR-level implementation; (b) implementation sub-stream — clarify AR (or DTS that needs an AR-level spec) before devflow-ar-design / devflow-tdd-implementation. Not for product discovery (回需求负责人), not for designing the AR implementation (→ devflow-ar-design), not for component implementation design authoring (→ devflow-component-design), not for hotfix reproduction / root cause (→ devflow-problem-fix).
+description: 当团队已接受 SR / AR / DTS / CHANGE 输入，需要澄清成可评审的需求规格时使用；覆盖 SR 的 requirement-analysis 子街区，以及 AR / DTS / CHANGE 在进入 devflow-ar-design 或 devflow-tdd-implementation 前的实现子街区规格澄清。不用于产品发现、需求负责人决策、AR 实现设计、组件实现设计写作，或紧急修复的复现与根因分析。
 ---
 
 # devflow 需求规格澄清（覆盖 SR-分析 与 AR-实现 两条子街区）
@@ -12,7 +12,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 
 本 skill 不做产品发现、不创造需求方向、不替需求负责人决定优先级；当输入不清且涉及方向 / 范围 / 验收标准时，只整理待决问题列表，回需求负责人。
 
-## When to Use
+## 适用场景
 
 适用：
 
@@ -29,7 +29,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - 紧急缺陷的复现 / 根因 → `devflow-problem-fix`
 - 阶段不清 / 证据冲突 → `devflow-router`
 
-## Hard Gates
+## 硬性门禁
 
 - 需求规格通过 `devflow-spec-review` 之前，不得进入 `devflow-component-design`、`devflow-ar-design`
 - SR work item 不得进入 `devflow-ar-design` / `devflow-tdd-implementation` / `devflow-test-checker` / `devflow-code-review` / `devflow-completion-gate` / `devflow-problem-fix`；SR 拆出的候选 AR 必须新建 AR work item
@@ -40,7 +40,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - AR / DTS / CHANGE 若出现 `IFR` 或 `Component Impact = interface`，必须维护 `Interface Contract Candidates`；不得只写“影响接口”而不给设计可消费的契约边界
 - 未经 `using-devflow` / `devflow-router` 入口判断 → 先回 router
 
-## Object Contract
+## 对象契约
 
 - Primary Object: requirement specification model（一个 work item 的需求规格）
 - Frontend Input Object：
@@ -53,7 +53,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - Object Boundaries: 不写实现设计 / 不写代码 / 不修改既有组件实现设计 / 不重新决定要不要做这个需求；SR 不预先做 AR 级实现设计
 - Object Invariants: Work Item ID、所属组件 / 子系统、上游追溯（IR / SR）、当前轮范围在 spec-review 通过前保持稳定
 
-## Methodology
+## 方法原则
 
 - **Requirements Traceability**: 显式建立 IR -> SR -> AR 链路；DTS 修改若涉及功能需求时建立 DTS -> AR -> SR 反向锚点
 - **Scope / Non-Scope / Acceptance Criteria**: 规格按"做什么 / 不做什么 / 怎样算完成"组织
@@ -68,7 +68,7 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - **Interface Contract Candidate Capture**: 对外接口 / SOA 服务 / 协议 / 错误码先形成语义级候选契约，供组件设计或 AR 设计消费；不在 spec 阶段写语言级签名或内部数据结构
 - **Team Role Discipline**: 业务方向 / 优先级 / 验收阈值留给需求负责人 / 模块架构师；本节点只澄清，不拍板
 
-## Workflow
+## 工作流
 
 ### 1. 对齐最少必要上下文 + 确认 work item 类型与子街区
 
@@ -172,7 +172,7 @@ SR 还需在 progress 中写入 `Owning Subsystem`；可空字段 `AR Breakdown 
 ### 8. Handoff
 
 
-## Output Contract
+## 输出契约
 
 完成时产出：
 
@@ -189,7 +189,7 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 
 未达评审门槛时不伪造 handoff；明确仍缺什么。
 
-## Red Flags
+## 风险信号
 
 - 把用户输入的自然语言需求直接当 requirement rows
 - 越过模块架构师，自行决定组件归属
@@ -202,7 +202,7 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 - 把 USER-INPUT 阻塞项当 LLM-FIXABLE 自我硬补
 - 不更新 progress.md 就声称交接
 
-## Common Mistakes
+## 常见错误
 
 | 错误 | 修复 |
 |---|---|
@@ -211,7 +211,7 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 | 误把组件设计修订写进 requirement.md | 仅在 Component Impact Assessment 标注，由 router 决定是否进入 `devflow-component-design` |
 | 把接口候选写成 C++ 函数签名 | 改成语义级契约：provider / consumer / operation / inputs / outputs / error semantics |
 
-## Verification
+## 验证清单
 
 通用：
 
@@ -239,57 +239,57 @@ AR / DTS / CHANGE work item 额外项：
 - [ ] traceability.md 含 IR / SR / AR 行
 - [ ] `Owning Component` 已记录
 
-## Local DevFlow Conventions
+## 本地 DevFlow 约定
 
-This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
+本节由当前 skill 自己维护。不要加载共享约定文件；项目 `AGENTS.md` 可以覆盖等价路径或模板。
 
-### Artifact Layout
+### 产物布局
 
-Default artifact layout is copied from `docs/principles/03 artifact-layout.md`. Project `AGENTS.md` may override equivalent paths, but absent an override this skill must use the following component-repo layout:
+默认产物布局来自 `docs/principles/03 artifact-layout.md`。项目 `AGENTS.md` 可以覆盖等价路径；没有覆盖时，本 skill 必须使用以下组件仓库布局：
 
 ```text
 <component-repo>/
   docs/
-    component-design.md           # long-lived component implementation design
-    ar-designs/                   # long-lived AR implementation designs
+    component-design.md           # 长期组件实现设计
+    ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
-    interfaces.md                 # optional, read/sync only when enabled by team
-    dependencies.md               # optional, read/sync only when enabled by team
-    runtime-behavior.md           # optional, read/sync only when enabled by team
+    interfaces.md                 # 可选；仅团队启用时读取 / 同步
+    dependencies.md               # 可选；仅团队启用时读取 / 同步
+    runtime-behavior.md           # 可选；仅团队启用时读取 / 同步
 
   features/
-    AR<id>-<slug>/                # process artifacts for one AR
-    DTS<id>-<slug>/               # process artifacts for one defect / problem fix
-    CHANGE<id>-<slug>/            # process artifacts for one lightweight change
+    AR<id>-<slug>/                # 单个 AR 的过程产物
+    DTS<id>-<slug>/               # 单个缺陷 / 问题修复的过程产物
+    CHANGE<id>-<slug>/            # 单个轻量变更的过程产物
 ```
 
-`docs/` is for long-lived component assets that are committed with code. `features/<id>/` is for one work item's process artifacts: `README.md`, `progress.md`, `requirement.md`, `ar-design-draft.md`, `tasks.md`, `task-board.md`, `traceability.md`, `implementation-log.md`, `reviews/`, `evidence/`, `completion.md`, and `closeout.md` as applicable.
+`docs/` 存放随代码提交的长期组件资产。`features/<id>/` 存放单个 work item 的过程产物：按需包含 `README.md`、`progress.md`、`requirement.md`、`ar-design-draft.md`、`tasks.md`、`task-board.md`、`traceability.md`、`implementation-log.md`、`reviews/`、`evidence/`、`completion.md`、`closeout.md`。
 
-Read-on-presence rules:
+Read-on-presence 规则：
 
-- Required long-lived assets block when missing: `docs/component-design.md` for component-impact work, and `docs/ar-designs/AR<id>-<slug>.md` by implementation closeout.
-- Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are read/synced only when the project has enabled them. Missing optional assets are recorded as `N/A (project optional asset not enabled)`, not treated as blockers.
-- Process directories stay under `features/`; do not move closed work items to `features/archived/` because that breaks traceability links.
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
+- 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
-### Progress Fields
+### Progress 字段
 
-Use canonical progress fields when this skill reads or writes features/<id>/progress.md:
+本 skill 读写 `features/<id>/progress.md` 时使用 canonical progress 字段：
 
 - Work Item Type: SR / AR / DTS / CHANGE
-- Work Item ID: SR1234, AR12345, DTS67890, or CHANGE id
-- Owning Component: required for AR / DTS / CHANGE
-- Owning Subsystem: required for SR
+- Work Item ID: SR1234、AR12345、DTS67890 或 CHANGE id
+- Owning Component: AR / DTS / CHANGE 必填
+- Owning Subsystem: SR 必填
 - Workflow Profile: requirement-analysis / standard / component-impact / hotfix / lightweight
 - Execution Mode: interactive / auto
-- Current Stage: current canonical devflow node
-- Pending Reviews And Gates: pending review or gate list
-- Next Action Or Recommended Skill: one canonical node only
+- Current Stage: 当前 canonical devflow node
+- Pending Reviews And Gates: 待处理 review / gate 列表
+- Next Action Or Recommended Skill: 仅允许一个 canonical node
 - Blockers: open blockers
 - Last Updated: timestamp
 
-### Handoff Fields
+### Handoff 字段
 
-Return a structured handoff with the fields this skill knows:
+返回结构化 handoff，并使用本 skill 已知的字段：
 
 - current_node
 - work_item_id
@@ -303,13 +303,13 @@ Return a structured handoff with the fields this skill knows:
 - next_action_or_recommended_skill
 - reroute_via_router
 
-Do not set next_action_or_recommended_skill to using-devflow or free text.
+不要把 `next_action_or_recommended_skill` 设为 `using-devflow` 或自由文本。
 
-### Work Item Skeleton
+### Work Item 骨架
 
-Default process directories are features/SR<id>-<slug>/, features/AR<id>-<slug>/, features/DTS<id>-<slug>/, and features/CHANGE<id>-<slug>/.
+默认过程目录为 `features/SR<id>-<slug>/`、`features/AR<id>-<slug>/`、`features/DTS<id>-<slug>/`、`features/CHANGE<id>-<slug>/`。
 
-### Requirement.md Minimum Content
+### requirement.md 最小内容
 
 - Identity: type, id, owner, component/subsystem, IR/SR/AR links, profile
 - Background And Goal
@@ -317,11 +317,11 @@ Default process directories are features/SR<id>-<slug>/, features/AR<id>-<slug>/
 - Requirement Rows with ID, statement, acceptance, source, component impact
 - Acceptance Criteria
 - Embedded NFR when relevant
-- Open Questions split into blocking and non-blocking
+- Open Questions 按 blocking / non-blocking 分类
 - Assumptions And Dependencies
 - SR adds Subsystem Scope Assessment, Affected Components, AR Breakdown Candidates, Component Design Impact
-- AR / DTS / CHANGE adds Component Impact Assessment and Interface Contract Candidates when interfaces are affected
-## Supporting References
+- AR / DTS / CHANGE 增加 Component Impact Assessment；接口受影响时增加 Interface Contract Candidates
+## 支撑参考
 
 | 文件 | 用途 |
 |---|---|

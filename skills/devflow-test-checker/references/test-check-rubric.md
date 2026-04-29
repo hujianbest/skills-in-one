@@ -16,29 +16,29 @@
 
 任一关键维度 < 6 → 不得 `通过`。
 
-## Rule IDs
+## Rule ID 列表
 
-### Group TC1 - Fresh RED / GREEN
+### Group TC1 - Fresh RED / GREEN（新鲜 RED / GREEN）（新鲜 RED / GREEN）（新鲜 RED / GREEN）
 
 - `TC1.1` RED 证据存在且失败原因匹配预期
 - `TC1.2` GREEN 证据本会话产生（命令、退出码、新鲜度锚点齐全）
 - `TC1.3` REFACTOR 证据（如适用）未引入新行为
 - `TC1.4` 大体量原始日志保存在 evidence 子目录而非 implementation-log.md
 
-### Group TC2 - Behavior & Acceptance
+### Group TC2 - Behavior & Acceptance（行为与验收）（行为与验收）（行为与验收）
 
 - `TC2.1` 每个用例回指 requirement row
 - `TC2.2` 每个用例回指 AR 设计 Test Design Case ID
 - `TC2.3` 每条核心 requirement row 至少有一个用例覆盖
 - `TC2.4` Acceptance 中的可判定条件被显式断言
 
-### Group TC3 - Boundary & Exception
+### Group TC3 - Boundary & Exception（边界与异常）（边界与异常）（边界与异常）
 
 - `TC3.1` 输入边界（最大 / 最小 / null / 越界）覆盖
 - `TC3.2` 错误路径（参数错、资源失败、依赖失败）覆盖
 - `TC3.3` 异常状态恢复路径覆盖
 
-### Group TC4 - Embedded Risk
+### Group TC4 - Embedded Risk（嵌入式风险）（嵌入式风险）（嵌入式风险）
 
 - `TC4.1` 内存（边界、池化、栈）有专属用例
 - `TC4.2` 并发（中断上下文、临界区、竞态）有专属用例
@@ -48,7 +48,7 @@
 - `TC4.6` ABI / API 兼容性（如 AR 触及）有专属用例
 - `TC4.7` 嵌入式风险覆盖矩阵的所有触发维度均有实测用例
 
-### Group TC5 - Mock Boundary
+### Group TC5 - Mock Boundary（Mock 边界）（Mock 边界）（Mock 边界）
 
 - `TC5.1` mock 仅限外部依赖 / 硬件 / 协议栈 / 跨组件 SOA 调用
 - `TC5.2` 不 mock 内部纯逻辑
@@ -56,14 +56,14 @@
 - `TC5.4` 不引入「测试专用方法」（test-only public method）
 - `TC5.5` 仿真器版本与配置已记录
 
-### Group TC6 - Assertion Strength
+### Group TC6 - Assertion Strength（断言强度）（断言强度）（断言强度）
 
 - `TC6.1` 断言验证行为结果，不只是「调用过」
 - `TC6.2` 断言能在实现 mutation 后失败（默认怀疑）
 - `TC6.3` 不使用宽松断言（"不为 null"、"不抛"）覆盖关键行为
 - `TC6.4` 数值断言含具体期望值，不只是范围
 
-### Group TC7 - Stability & Maintainability
+### Group TC7 - Stability & Maintainability（稳定性与可维护性）（稳定性与可维护性）（稳定性与可维护性）
 
 - `TC7.1` 测试可独立运行（不依赖其他用例顺序）
 - `TC7.2` 不依赖外部状态 / 不依赖系统时钟（除实时性 NFR）
@@ -81,7 +81,7 @@
 - `important`：approval 前应修（断言过弱、边界覆盖不全、单个嵌入式维度未覆盖）
 - `minor`：建议改进（命名、轻微稳定性问题）
 
-## Team UT Rules Addendum
+## 团队 UT 规则补充
 
 完整继承版见 `team-test-review-rubric.md`；下表是速查摘要。
 
@@ -97,7 +97,7 @@
 
 过量 mock、只验证 mock 调用、只检查返回码不检查副作用、宽松断言（非空 / 不抛 / 非 0）均应至少标为 important finding。
 
-## Classification
+## Classification 分类 分类 分类
 
 - `USER-INPUT`：业务接受度判定 / 阈值是否合理 → 上抛需求负责人 / 开发负责人
 - `LLM-FIXABLE`：补用例、改断言、调整 mock 边界、补嵌入式风险用例 → 由 `devflow-tdd-implementation` 回修

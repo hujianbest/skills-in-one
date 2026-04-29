@@ -53,7 +53,7 @@
 
 ```plantuml
 @startuml
-' TODO: replace with real component context
+' TODO: 替换为真实组件上下文
 @enduml
 ```
 
@@ -97,7 +97,7 @@
 
 ```plantuml
 @startuml
-' TODO: replace with real code structure model
+' TODO: 替换为真实代码结构模型
 @enduml
 ```
 
@@ -111,7 +111,7 @@
 
 ```plantuml
 @startuml
-' TODO: replace with real implementation model
+' TODO: 替换为真实实现模型
 @enduml
 ```
 
@@ -151,7 +151,7 @@
 
 ```plantuml
 @startuml
-' TODO: replace with component / software-unit interaction diagram
+' TODO: 替换为组件 / 软件单元交互图
 @enduml
 ```
 
@@ -243,7 +243,7 @@
 ```plantuml
 @startuml
 autonumber
-' TODO: replace with class/method-level sequence
+' TODO: 替换为类 / 方法级时序
 @enduml
 ```
 

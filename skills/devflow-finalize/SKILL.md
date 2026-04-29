@@ -1,6 +1,6 @@
 ---
 name: devflow-finalize
-description: Use when a work item must be formally closed out. Two closeout types: (a) implementation closeout for AR / DTS / CHANGE — triggered after devflow-completion-gate verdict 通过; promotes ar-design + (if applicable) component-design + optional sub-assets to docs/; (b) analysis closeout for SR — triggered after devflow-spec-review (no component design revision) or devflow-component-design-review (with component design revision); promotes only component-design (if revised) + the SR's AR Breakdown Candidates handed back to the requirement owner. Also used when the user explicitly asks "做收尾 / closeout / 把这个 SR / AR 收掉". Not for new implementation (→ devflow-tdd-implementation), not for completion judgment (→ devflow-completion-gate), not for stage / route confusion (→ devflow-router).
+description: 当工作项需要正式收口时使用；包括 AR / DTS / CHANGE 在 devflow-completion-gate 通过后的实现收口，以及 SR 在 devflow-spec-review 通过或组件设计评审通过后的分析收口。负责把适用的 AR 设计、组件设计和可选长期资产同步到 docs/，并把 SR 的 AR Breakdown Candidates 交还需求负责人。也用于用户明确要求收口或收掉某个 SR / AR。不用于新实现、完成判断，或阶段和路由混乱。
 ---
 
 # devflow 收尾（覆盖 implementation closeout 与 analysis closeout）
@@ -21,7 +21,7 @@ devflow 默认每个 work item 一次 finalize；实现子街区只有在 task-b
 
 本 skill **不**做新实现、**不**替 completion gate 判断完成、**不**修改其他组件、**不**创造新需求方向、**不**替需求负责人决定候选 AR 何时新建。
 
-## When to Use
+## 适用场景
 
 适用：
 
@@ -37,7 +37,7 @@ devflow 默认每个 work item 一次 finalize；实现子街区只有在 task-b
 - SR 还没通过 spec-review 或还需修订组件设计 → 回 `devflow-spec-review` / `devflow-component-design-review`
 - 阶段不清 → `devflow-router`
 
-## Hard Gates
+## 硬性门禁
 
 通用：
 
@@ -61,7 +61,7 @@ Analysis closeout 专属：
 - 必须把 SR 的 `AR Breakdown Candidates` 定稿后写入 closeout，作为给需求负责人的交付产物；候选 AR 是否新建 work item **不**由 devflow 决定
 - closeout 后 SR work item 即关闭；不允许在同一 work item 内续接实现节点
 
-## Object Contract
+## 对象契约
 
 - Primary Object: closeout pack（含 evidence matrix、长期资产同步清单、状态字段、Closeout Type）
 - Frontend Input Object（按 Closeout Type）：
@@ -79,7 +79,7 @@ Analysis closeout 专属：
 - Object Boundaries: 不写代码 / 不动其他组件 / 不动其他 work item / 不替需求负责人新建候选 AR
 - Object Invariants: closeout 后 `Next Action Or Recommended Skill = null`（已完成）
 
-## Methodology
+## 方法原则
 
 - **Project Closeout**: 系统性收尾，确认交付物完成、状态同步、handoff 完整
 - **Promotion Rules**: 过程目录 → 长期资产（详细规则见 `references/promotion-checklist.md`）
@@ -87,7 +87,7 @@ Analysis closeout 专属：
 - **Sync-On-Presence**: 项目当前未启用的可选资产不构成 `blocked`
 - **Single-Work-Item Discipline**: 一次 finalize 对应一个 AR / DTS；work item 内部 task 队列必须已收敛
 
-## Workflow
+## 工作流
 
 ### 1. 判定 Closeout Type 并读取最少必要输入
 
@@ -163,7 +163,7 @@ Analysis 专属：
 
 按 Handoff Pack Pattern 给团队 closeout summary（含分支 / MR / PR 信息、长期资产同步清单、未闭合风险）。**不**替开发负责人 / 模块架构师决定是否合并 / 发布。
 
-## Output Contract
+## 输出契约
 
 - `features/<id>/closeout.md`，按 `references/devflow-closeout-template.md`
 - 长期资产同步：
@@ -174,7 +174,7 @@ Analysis 专属：
 - `features/<id>/README.md` 状态收口
 - 结构化 handoff 摘要：work_item_id、closeout_verdict、long_term_assets_synced、blockers、`next_action_or_recommended_skill = null`
 
-## Red Flags
+## 风险信号
 
 - completion gate 没通过就开始 finalize
 - 长期资产未同步就声称 closeout 完成
@@ -185,7 +185,7 @@ Analysis 专属：
 - 把闭口后的 work item 移到 `features/archived/`（破坏反向引用）
 - closeout 后再写 `Next Action Or Recommended Skill = devflow-router`（应为 `null`）
 
-## Common Mistakes
+## 常见错误
 
 | 错误 | 修复 |
 |---|---|
@@ -193,7 +193,7 @@ Analysis 专属：
 | component-impact 但漏同步 docs/component-design.md | 阻塞，回到步骤 3 |
 | closeout pack 没列 N/A 项 | 显式列出，避免被误判 blocked |
 
-## Verification
+## 验证清单
 
 通用：
 
@@ -219,57 +219,57 @@ Analysis closeout（SR）额外：
 - [ ] **未** promote 到 `docs/ar-designs/`
 - [ ] **未**消费 implementation handoff / test-check / code-review / completion 证据
 
-## Local DevFlow Conventions
+## 本地 DevFlow 约定
 
-This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
+本节由当前 skill 自己维护。不要加载共享约定文件；项目 `AGENTS.md` 可以覆盖等价路径或模板。
 
-### Artifact Layout
+### 产物布局
 
-Default artifact layout is copied from `docs/principles/03 artifact-layout.md`. Project `AGENTS.md` may override equivalent paths, but absent an override this skill must use the following component-repo layout:
+默认产物布局来自 `docs/principles/03 artifact-layout.md`。项目 `AGENTS.md` 可以覆盖等价路径；没有覆盖时，本 skill 必须使用以下组件仓库布局：
 
 ```text
 <component-repo>/
   docs/
-    component-design.md           # long-lived component implementation design
-    ar-designs/                   # long-lived AR implementation designs
+    component-design.md           # 长期组件实现设计
+    ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
-    interfaces.md                 # optional, read/sync only when enabled by team
-    dependencies.md               # optional, read/sync only when enabled by team
-    runtime-behavior.md           # optional, read/sync only when enabled by team
+    interfaces.md                 # 可选；仅团队启用时读取 / 同步
+    dependencies.md               # 可选；仅团队启用时读取 / 同步
+    runtime-behavior.md           # 可选；仅团队启用时读取 / 同步
 
   features/
-    AR<id>-<slug>/                # process artifacts for one AR
-    DTS<id>-<slug>/               # process artifacts for one defect / problem fix
-    CHANGE<id>-<slug>/            # process artifacts for one lightweight change
+    AR<id>-<slug>/                # 单个 AR 的过程产物
+    DTS<id>-<slug>/               # 单个缺陷 / 问题修复的过程产物
+    CHANGE<id>-<slug>/            # 单个轻量变更的过程产物
 ```
 
-`docs/` is for long-lived component assets that are committed with code. `features/<id>/` is for one work item's process artifacts: `README.md`, `progress.md`, `requirement.md`, `ar-design-draft.md`, `tasks.md`, `task-board.md`, `traceability.md`, `implementation-log.md`, `reviews/`, `evidence/`, `completion.md`, and `closeout.md` as applicable.
+`docs/` 存放随代码提交的长期组件资产。`features/<id>/` 存放单个 work item 的过程产物：按需包含 `README.md`、`progress.md`、`requirement.md`、`ar-design-draft.md`、`tasks.md`、`task-board.md`、`traceability.md`、`implementation-log.md`、`reviews/`、`evidence/`、`completion.md`、`closeout.md`。
 
-Read-on-presence rules:
+Read-on-presence 规则：
 
-- Required long-lived assets block when missing: `docs/component-design.md` for component-impact work, and `docs/ar-designs/AR<id>-<slug>.md` by implementation closeout.
-- Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are read/synced only when the project has enabled them. Missing optional assets are recorded as `N/A (project optional asset not enabled)`, not treated as blockers.
-- Process directories stay under `features/`; do not move closed work items to `features/archived/` because that breaks traceability links.
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
+- 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
-### Progress Fields
+### Progress 字段
 
-Use canonical progress fields when this skill reads or writes features/<id>/progress.md:
+本 skill 读写 `features/<id>/progress.md` 时使用 canonical progress 字段：
 
 - Work Item Type: SR / AR / DTS / CHANGE
-- Work Item ID: SR1234, AR12345, DTS67890, or CHANGE id
-- Owning Component: required for AR / DTS / CHANGE
-- Owning Subsystem: required for SR
+- Work Item ID: SR1234、AR12345、DTS67890 或 CHANGE id
+- Owning Component: AR / DTS / CHANGE 必填
+- Owning Subsystem: SR 必填
 - Workflow Profile: requirement-analysis / standard / component-impact / hotfix / lightweight
 - Execution Mode: interactive / auto
-- Current Stage: current canonical devflow node
-- Pending Reviews And Gates: pending review or gate list
-- Next Action Or Recommended Skill: one canonical node only
+- Current Stage: 当前 canonical devflow node
+- Pending Reviews And Gates: 待处理 review / gate 列表
+- Next Action Or Recommended Skill: 仅允许一个 canonical node
 - Blockers: open blockers
 - Last Updated: timestamp
 
-### Handoff Fields
+### Handoff 字段
 
-Return a structured handoff with the fields this skill knows:
+返回结构化 handoff，并使用本 skill 已知的字段：
 
 - current_node
 - work_item_id
@@ -283,20 +283,20 @@ Return a structured handoff with the fields this skill knows:
 - next_action_or_recommended_skill
 - reroute_via_router
 
-Do not set next_action_or_recommended_skill to using-devflow or free text.
+不要把 `next_action_or_recommended_skill` 设为 `using-devflow` 或自由文本。
 
-### Closeout Record
+### Closeout 记录
 
-Write features/<id>/closeout.md unless AGENTS.md overrides it.
+除非 `AGENTS.md` 覆盖路径，否则写入 `features/<id>/closeout.md`。
 
-### Promotion Rules
+### Promotion 规则
 
-- Component design passed review updates docs/component-design.md
-- AR design passed review writes docs/ar-designs/AR<id>-<slug>.md
-- Enabled optional assets are sync-on-presence; otherwise merge relevant content into docs/component-design.md
-- SR analysis closeout records AR Breakdown Candidates but does not create AR work items
-- No long-term asset change is recorded as N/A
-## Supporting References
+- 组件设计通过 review 后更新 `docs/component-design.md`
+- AR 设计通过 review 后写入 `docs/ar-designs/AR<id>-<slug>.md`
+- 已启用的可选资产按 sync-on-presence 同步；否则把相关内容合并进 `docs/component-design.md`
+- SR analysis closeout 记录 AR Breakdown Candidates，但不创建 AR work items
+- 无长期资产变化时记录为 `N/A`
+## 支撑参考
 
 | 文件 | 用途 |
 |---|---|

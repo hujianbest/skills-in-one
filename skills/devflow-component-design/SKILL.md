@@ -1,6 +1,6 @@
 ---
 name: devflow-component-design
-description: Use when component implementation design needs to be created or revised. Triggered in two ways: (a) inside an SR work item under requirement-analysis profile when devflow-spec-review verdict says the SR triggers component design revision; (b) inside an AR work item under component-impact profile when AR scope touches SOA interfaces / dependencies / state machine / runtime mechanism. Also triggered when devflow-component-design-review returns 需修改/阻塞. Not for AR-level code design (→ devflow-ar-design), not for general spec clarification (→ devflow-specify), not for routine within-component changes (→ devflow-ar-design directly).
+description: 当需要创建或修订组件实现设计时使用；触发场景包括 requirement-analysis 档位下的 SR 被 devflow-spec-review 判定需要修订组件设计，或 component-impact 档位下的 AR 范围触及 SOA 接口、依赖、状态机、运行机制。也用于 devflow-component-design-review 返回需修改或阻塞后的修订。不用于 AR 代码层设计、通用规格澄清，或普通组件内变更。
 ---
 
 # devflow 组件实现设计（覆盖 SR-分析 与 AR-实现 两条子街区）
@@ -14,7 +14,7 @@ description: Use when component implementation design needs to be created or rev
 
 本 skill 不写单个 AR 的代码层设计（那是 `devflow-ar-design` 的职责），不写代码，不修改其他组件。它的输出是组件长期资产，受团队组件设计模板约束。
 
-## When to Use
+## 适用场景
 
 适用：
 
@@ -30,7 +30,7 @@ description: Use when component implementation design needs to be created or rev
 - 直接进入 AR 代码层设计 → `devflow-ar-design`
 - 阶段不清 / 证据冲突 → `devflow-router`
 
-## Hard Gates
+## 硬性门禁
 
 - 组件实现设计必须遵循团队模板（`references/devflow-component-design-template.md`；模板留空时由模块架构师手动补齐章节后再交评审）
 - 不替模块架构师拍板组件边界 / SOA 接口 / 跨组件依赖；模块架构师必须 sign-off
@@ -43,16 +43,16 @@ description: Use when component implementation design needs to be created or rev
 - SR triggered 时本节点完成后下一步是 `devflow-component-design-review` → `devflow-finalize`（analysis closeout），**不得**指向 `devflow-ar-design`
 - 正式输出不得残留 `AI提示`、示例业务内容、变量替换说明、`TBD` / `{DATE}` 等模板占位符
 
-## Object Contract
+## 对象契约
 
-- Primary Object: component implementation design model
+- Primary Object: component implementation design model（组件实现设计模型）
 - Frontend Input Object: `features/<id>/requirement.md`（已通过 spec-review）、`features/<id>/traceability.md`、当前 `docs/component-design.md`（如存在）、相关 SR / AR 上游锚点、组件代码现状摘要
 - Backend Output Object: `features/<id>/component-design-draft.md`（过程版） + 同步到 `docs/component-design.md`（review 通过且模块架构师 sign-off 后）
 - Object Transformation: 把组件职责 / 接口 / 依赖 / 数据 / 运行机制写成长期可消费的设计
 - Object Boundaries: 不写 AR 代码层设计；不修改其他组件；不写代码
 - Object Invariants: 组件名、所属子系统、模块架构师 owner 在 review 通过前保持稳定
 
-## Methodology
+## 方法原则
 
 - **SOA Component Boundary Analysis**: 显式说明组件职责 / 接口 / 依赖 / 跨组件影响
 - **Clean Architecture Boundary Discipline**: 保持依赖方向稳定；不让实现细节倒灌到上层
@@ -62,7 +62,7 @@ description: Use when component implementation design needs to be created or rev
 - **Template-Constrained Design**: 设计文档结构由团队模板决定（`references/devflow-component-design-template.md`，留空待团队补齐）
 - **Embedded Risk Awareness**: 实时性 / 中断上下文 / ABI 兼容 / 编译条件作为一等约束
 
-## Workflow
+## 工作流
 
 ### 1. 对齐输入与角色
 
@@ -130,7 +130,7 @@ description: Use when component implementation design needs to be created or rev
 
 进入 handoff 前自检：旧组件模板章节齐全；Design Options 已列候选方案 / trade-off / 推荐项 / 模块架构师确认状态（或 Single obvious option 理由）；无 `AI提示`、示例业务内容、变量替换说明、`TBD` / `{DATE}` 等残留；组件职责 / 非职责清晰；全量功能列表可作为 AR 基线；SOA 接口含参数、返回值 / 错误码、时序约束、兼容性和并发约束；依赖方向无环；状态机覆盖核心生命周期；并发 / 实时性 / 资源 / 错误处理已落到具体章节；每个关键功能 / 场景的时序图细化到软件单元 / 类 / 方法调用级；软件单元设计细化到函数级；测试设计有明确观测点；软件成本项已填写；「对 AR 实现设计的约束」可被下游消费；跨组件影响已显式列出。任一失败 → 回步骤 5 / 6。自检通过 → 父会话派发独立 reviewer subagent 执行 `devflow-component-design-review`。
 
-## Output Contract
+## 输出契约
 
 - `features/<id>/component-design-draft.md`（过程版本）
 - review 通过且模块架构师 sign-off 后，**由 `devflow-finalize` 同步**到 `docs/component-design.md`（仅当项目已启用并触发变化时，再同步可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`；未启用的，相关变化合并进 `docs/component-design.md` 对应章节）
@@ -141,7 +141,7 @@ description: Use when component implementation design needs to be created or rev
   - `Pending Reviews And Gates` 含 `component-design-review`
 - handoff 摘要按 Local DevFlow Conventions 字段；`reviewer_dispatch_request` 字段指向 `devflow-component-design-review`
 
-## Red Flags
+## 风险信号
 
 - 把单个 AR 的代码层设计写进组件设计
 - 跳过 Design Options，直接写单一组件方案
@@ -152,7 +152,7 @@ description: Use when component implementation design needs to be created or rev
 - 把模糊词（"高效"、"必要时"）作为组件级约束
 - 跨组件协调未确认就声称设计完整
 
-## Common Mistakes
+## 常见错误
 
 | 错误 | 修复 |
 |---|---|
@@ -160,7 +160,7 @@ description: Use when component implementation design needs to be created or rev
 | 团队模板留空，写得很短 | 显式标注待补齐章节；不要伪装完整 |
 | 修订 SOA 接口未列错误码兼容性 | 补完错误码集合 + 兼容性策略 |
 
-## Verification
+## 验证清单
 
 - [ ] `features/<id>/component-design-draft.md` 已落盘
 - [ ] 团队组件模板章节齐全，且无模板提示 / 示例业务内容 / 占位符残留
@@ -175,61 +175,61 @@ description: Use when component implementation design needs to be created or rev
 - [ ] 模块架构师 owner 已记录
 - [ ] 父会话准备派发独立 reviewer subagent
 
-## Local Route Trigger Notes
+## 本地路由触发说明
 
-Enter this skill only when the router has selected requirement-analysis with component design revision, or component-impact because the AR touches component responsibilities, SOA interfaces, dependencies, state machine, or runtime mechanism. If this skill is only consuming existing component design, route back to devflow-router.
+仅当 router 选择了带组件设计修订的 `requirement-analysis`，或因 AR 触及组件职责、SOA interfaces、dependencies、state machine、runtime mechanism 而选择 `component-impact` 时，才进入本 skill。若本 skill 只是消费既有组件设计，回路由到 `devflow-router`。
 
-## Local DevFlow Conventions
+## 本地 DevFlow 约定
 
-This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
+本节由当前 skill 自己维护。不要加载共享约定文件；项目 `AGENTS.md` 可以覆盖等价路径或模板。
 
-### Artifact Layout
+### 产物布局
 
-Default artifact layout is copied from `docs/principles/03 artifact-layout.md`. Project `AGENTS.md` may override equivalent paths, but absent an override this skill must use the following component-repo layout:
+默认产物布局来自 `docs/principles/03 artifact-layout.md`。项目 `AGENTS.md` 可以覆盖等价路径；没有覆盖时，本 skill 必须使用以下组件仓库布局：
 
 ```text
 <component-repo>/
   docs/
-    component-design.md           # long-lived component implementation design
-    ar-designs/                   # long-lived AR implementation designs
+    component-design.md           # 长期组件实现设计
+    ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
-    interfaces.md                 # optional, read/sync only when enabled by team
-    dependencies.md               # optional, read/sync only when enabled by team
-    runtime-behavior.md           # optional, read/sync only when enabled by team
+    interfaces.md                 # 可选；仅团队启用时读取 / 同步
+    dependencies.md               # 可选；仅团队启用时读取 / 同步
+    runtime-behavior.md           # 可选；仅团队启用时读取 / 同步
 
   features/
-    AR<id>-<slug>/                # process artifacts for one AR
-    DTS<id>-<slug>/               # process artifacts for one defect / problem fix
-    CHANGE<id>-<slug>/            # process artifacts for one lightweight change
+    AR<id>-<slug>/                # 单个 AR 的过程产物
+    DTS<id>-<slug>/               # 单个缺陷 / 问题修复的过程产物
+    CHANGE<id>-<slug>/            # 单个轻量变更的过程产物
 ```
 
-`docs/` is for long-lived component assets that are committed with code. `features/<id>/` is for one work item's process artifacts: `README.md`, `progress.md`, `requirement.md`, `ar-design-draft.md`, `tasks.md`, `task-board.md`, `traceability.md`, `implementation-log.md`, `reviews/`, `evidence/`, `completion.md`, and `closeout.md` as applicable.
+`docs/` 存放随代码提交的长期组件资产。`features/<id>/` 存放单个 work item 的过程产物：按需包含 `README.md`、`progress.md`、`requirement.md`、`ar-design-draft.md`、`tasks.md`、`task-board.md`、`traceability.md`、`implementation-log.md`、`reviews/`、`evidence/`、`completion.md`、`closeout.md`。
 
-Read-on-presence rules:
+Read-on-presence 规则：
 
-- Required long-lived assets block when missing: `docs/component-design.md` for component-impact work, and `docs/ar-designs/AR<id>-<slug>.md` by implementation closeout.
-- Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are read/synced only when the project has enabled them. Missing optional assets are recorded as `N/A (project optional asset not enabled)`, not treated as blockers.
-- Process directories stay under `features/`; do not move closed work items to `features/archived/` because that breaks traceability links.
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
+- 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
-### Progress Fields
+### Progress 字段
 
-Use canonical progress fields when this skill reads or writes features/<id>/progress.md:
+本 skill 读写 `features/<id>/progress.md` 时使用 canonical progress 字段：
 
 - Work Item Type: SR / AR / DTS / CHANGE
-- Work Item ID: SR1234, AR12345, DTS67890, or CHANGE id
-- Owning Component: required for AR / DTS / CHANGE
-- Owning Subsystem: required for SR
+- Work Item ID: SR1234、AR12345、DTS67890 或 CHANGE id
+- Owning Component: AR / DTS / CHANGE 必填
+- Owning Subsystem: SR 必填
 - Workflow Profile: requirement-analysis / standard / component-impact / hotfix / lightweight
 - Execution Mode: interactive / auto
-- Current Stage: current canonical devflow node
-- Pending Reviews And Gates: pending review or gate list
-- Next Action Or Recommended Skill: one canonical node only
+- Current Stage: 当前 canonical devflow node
+- Pending Reviews And Gates: 待处理 review / gate 列表
+- Next Action Or Recommended Skill: 仅允许一个 canonical node
 - Blockers: open blockers
 - Last Updated: timestamp
 
-### Handoff Fields
+### Handoff 字段
 
-Return a structured handoff with the fields this skill knows:
+返回结构化 handoff，并使用本 skill 已知的字段：
 
 - current_node
 - work_item_id
@@ -243,16 +243,16 @@ Return a structured handoff with the fields this skill knows:
 - next_action_or_recommended_skill
 - reroute_via_router
 
-Do not set next_action_or_recommended_skill to using-devflow or free text.
+不要把 `next_action_or_recommended_skill` 设为 `using-devflow` 或自由文本。
 
-### Component Design Assets
+### 组件设计资产
 
-Read docs/component-design.md when present or required. Optional assets docs/interfaces.md, docs/dependencies.md, and docs/runtime-behavior.md are read-on-presence and missing optional assets do not block.
+当 `docs/component-design.md` 存在或必需时读取。可选资产 `docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md` 按 read-on-presence 读取；缺失可选资产不阻塞。
 
-### Component Design Minimum Content
+### 组件设计最小内容
 
-Cover component responsibilities, SOA services/interfaces, dependencies, data model/state machine, concurrency/realtime/resources, error handling, configuration, and constraints on AR design.
-## Supporting References
+覆盖组件职责、SOA services/interfaces、dependencies、data model/state machine、concurrency/realtime/resources、error handling、configuration，以及对 AR design 的约束。
+## 支撑参考
 
 | 文件 | 用途 |
 |---|---|

@@ -1,9 +1,9 @@
-# Requirement Rows Review Excerpt
+# Requirement Rows 评审摘录
 
-Spec review checks that every core row has ID, Statement, Acceptance, Priority, Source / Trace Anchor, and Component Impact or Affected Components as appropriate.
+Spec review 检查每条核心 row 是否具备 ID、Statement、Acceptance、Priority、Source / Trace Anchor，以及按类型必需的 Component Impact 或 Affected Components。
 
-- Statement should use EARS-style structure and avoid ambiguous actors, hidden timing, and untestable wording.
-- Acceptance should be BDD-like Given / When / Then and independently judgeable.
-- Source must point to IR / SR / AR / meeting note / owner decision, not an undocumented memory.
-- SR rows use Affected Components; AR / DTS / CHANGE rows use Component Impact.
-- Missing business fact is USER-INPUT; wording/structure gaps are usually LLM-FIXABLE; component boundary decisions are TEAM-EXPERT.
+- Statement 应使用 EARS-style 结构，避免模糊 actor、隐藏 timing 和不可测试措辞。
+- Acceptance 应采用 BDD-like Given / When / Then，并可独立判断。
+- Source 必须指向 IR / SR / AR / meeting note / owner decision，而不是无记录记忆。
+- SR rows 使用 Affected Components；AR / DTS / CHANGE rows 使用 Component Impact。
+- 缺业务事实属于 USER-INPUT；措辞 / 结构缺口通常是 LLM-FIXABLE；组件边界决策属于 TEAM-EXPERT。

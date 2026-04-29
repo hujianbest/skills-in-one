@@ -16,9 +16,9 @@
 
 任一关键维度 < 6 → 不得 `通过`。
 
-## Rule IDs
+## Rule ID 列表
 
-### Group CD1 - Identity & Template
+### Group CD1 - Identity & Template（身份与模板）（身份与模板）（身份与模板）
 
 - `CD1.1` 模板版本与团队模板对齐（或显式标注占位）
 - `CD1.2` Owner（模块架构师）显式记录
@@ -26,7 +26,7 @@
 - `CD1.4` 旧组件模板章节齐全：修订记录、术语、概述、输入、组件详细设计、关键功能设计、评审纪要、软件成本项
 - `CD1.5` 正式输出无 `AI提示`、示例业务内容、变量替换说明、`TBD` / `{DATE}` 等占位符残留
 
-### Group CD2 - Responsibility
+### Group CD2 - Responsibility（职责）（职责）（职责）
 
 - `CD2.1` 职责正向描述清晰可冷读
 - `CD2.2` 非职责显式列出，未模糊化（"按需"、"必要时"）
@@ -34,7 +34,7 @@
 - `CD2.4` 起草正式设计前已列 2-3 个组件级方案，或写明 `Single obvious option` 理由
 - `CD2.5` 推荐方案的接口 / 依赖 / 状态机 / 成本 trade-off 与模块架构师确认状态清晰
 
-### Group CD3 - SOA Interface
+### Group CD3 - SOA Interface（SOA 接口）（SOA 接口）（SOA 接口）
 
 - `CD3.1` 每个接口含名 / 参数 / 返回值 / 错误码
 - `CD3.2` 时序约束（同步 / 异步、超时、阻塞 / 非阻塞）
@@ -42,14 +42,14 @@
 - `CD3.4` 接口最小知识（不强迫消费方依赖无关字段）
 - `CD3.5` 每个 Service / Topic / API / 内部接口均声明是否支持并发以及并发约束 / 保护机制
 
-### Group CD4 - Dependency
+### Group CD4 - Dependency（依赖）（依赖）（依赖）
 
 - `CD4.1` 依赖方向无环
 - `CD4.2` 初始化 / shutdown 顺序明确
 - `CD4.3` 版本约束 / 编译条件清晰
 - `CD4.4` 不暴露内部实现给上层
 
-### Group CD5 - Data & State
+### Group CD5 - Data & State（数据与状态）（数据与状态）（数据与状态）
 
 - `CD5.1` 数据模型字段语义清晰、约束（取值范围、单位、时序）显式
 - `CD5.2` 状态机覆盖关键生命周期
@@ -57,7 +57,7 @@
 - `CD5.4` 全量功能列表覆盖规格需求，功能编号可作为下游 AR 基线引用
 - `CD5.5` 每个关键功能 / 场景有 PlantUML 时序图，且细化到软件单元 / 类 / 方法调用级别
 
-### Group CD6 - Embedded Risk
+### Group CD6 - Embedded Risk（嵌入式风险）（嵌入式风险）（嵌入式风险）
 
 - `CD6.1` 中断上下文允许 / 禁止的操作显式
 - `CD6.2` 锁 / 临界区策略 + 死锁规避
@@ -67,7 +67,7 @@
 - `CD6.6` 错误处理统一策略 + 降级路径
 - `CD6.7` ABI / API 兼容（跨版本、跨平台）
 
-### Group CD7 - AR Constraints & Cross-Component
+### Group CD7 - AR Constraints & Cross-Component（AR 约束与跨组件影响）（AR 约束与跨组件影响）（AR 约束与跨组件影响）
 
 - `CD7.1` 「对 AR 实现设计的约束」章节存在并具体
 - `CD7.2` 跨组件影响显式列出
@@ -82,7 +82,7 @@
 - `important`：approval 前应修（错误码不全、时序约束模糊、跨组件影响未列）
 - `minor`：建议改进（措辞、排版、章节顺序）
 
-## Classification
+## Classification 分类 分类 分类
 
 - `USER-INPUT`：业务方向 / 跨子系统协调 / 模块架构师 sign-off
 - `LLM-FIXABLE`：模板章节缺、措辞模糊、错误码列表不完整、状态机示意补全

@@ -102,7 +102,7 @@
 - `important`：approval 前应修（NFR 缺阈值、Open Questions 未分类、模糊词未量化）
 - `minor`：建议改进（措辞、章节顺序、术语统一）
 
-## Classification
+## Classification 分类 分类 分类
 
 - `USER-INPUT`：缺业务事实 / 外部决策 / 优先级冲突 / NFR 阈值缺失 → 上抛需求负责人 / 模块架构师
 - `LLM-FIXABLE`：缺 wording / 章节 / 重复整理 / 设计语言混入 → 开发人员定向回修

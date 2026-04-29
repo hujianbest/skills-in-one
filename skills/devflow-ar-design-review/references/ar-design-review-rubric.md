@@ -17,23 +17,23 @@
 
 任一关键维度 < 6 → 不得 `通过`。
 
-## Rule IDs
+## Rule ID 列表
 
-### Group AD1 - Identity & Template
+### Group AD1 - Identity & Template（身份与模板）（身份与模板）（身份与模板）
 
 - `AD1.1` AR ID / SR / IR / Owner 完整
 - `AD1.2` 团队 AR 模板章节齐全：AR 概述、动态行为、功能点分解、实现设计、MDC 五场景、重构设计、测试设计、修订记录
 - `AD1.3` 与 traceability.md 一致
 - `AD1.4` 正式输出无 `AI提示`、示例业务内容、变量替换说明、`TBD` / `{DATE}` 等占位符残留
 
-### Group AD2 - Goal & Scope
+### Group AD2 - Goal & Scope（目标与范围）（目标与范围）（目标与范围）
 
 - `AD2.1` 设计目标 / 范围 / 非范围清晰
 - `AD2.2` 与 requirement.md 范围一致
 - `AD2.3` 起草正式设计前已列 2-3 个实现方案，或写明 `Single obvious option` 理由
 - `AD2.4` 推荐方案的 trade-off、风险、测试策略和开发负责人确认状态清晰
 
-### Group AD3 - Affected & Control Flow
+### Group AD3 - Affected & Control Flow（影响面与控制流）（影响面与控制流）（影响面与控制流）
 
 - `AD3.1` 受影响文件 / 模块清单
 - `AD3.2` 关键控制流冷读得懂（必要时小段伪代码 / Mermaid）
@@ -41,13 +41,13 @@
 - `AD3.4` 动态行为时序图 / 流程图 / 类图为真实内容；如 N/A 有明确理由
 - `AD3.5` 功能点分解含优先级、可独立测试性，并能回指 requirement row
 
-### Group AD4 - Component Conformance
+### Group AD4 - Component Conformance（组件一致性）（组件一致性）（组件一致性）
 
 - `AD4.1` 与 `docs/component-design.md` 对 AR 设计的约束一致
 - `AD4.2` 未修改组件接口 / 依赖 / 状态机
 - `AD4.3` 跨组件影响（若有）已显式说明并指向相应工件
 
-### Group AD5 - Defensive Design
+### Group AD5 - Defensive Design（防御式设计）（防御式设计）（防御式设计）
 
 - `AD5.1` 错误处理（输入校验、降级、恢复）显式
 - `AD5.2` 内存（静态 / 动态、生命周期、栈）
@@ -58,7 +58,7 @@
 - `AD5.7` MDC 五场景（并发、启动退出、休眠唤醒、可靠性、SELinux）均有分析；写“不涉及”时有判定依据
 - `AD5.8` 正常流程和异常流程均有处理策略，不只有 happy path
 
-### Group AD6 - Test Design
+### Group AD6 - Test Design（测试设计）（测试设计）（测试设计）
 
 - `AD6.1` 测试用例最小字段齐全（见 `SKILL.md` 的 Local Test Design Contract Excerpt）
 - `AD6.2` 每个用例回指 requirement row
@@ -68,7 +68,7 @@
 - `AD6.6` 测试设计为本设计的章节，**不**作为独立文件
 - `AD6.7` 测试设计覆盖功能点，含 UT / 接口 / 业务场景 / 异常场景；逻辑覆盖程度明确
 
-### Group AD7 - Mock & Evidence
+### Group AD7 - Mock & Evidence（Mock 与证据）（Mock 与证据）（Mock 与证据）
 
 - `AD7.1` mock 限定在真正的边界（外部依赖 / 硬件 / 协议栈 / 跨组件 SOA）
 - `AD7.2` 不允许 mock 内部纯逻辑
@@ -77,7 +77,7 @@
 - `AD7.5` GREEN 证据要求清晰（含新鲜度锚点）
 - `AD7.6` REFACTOR 证据要求（若适用）清晰
 
-### Group AD8 - Open Questions
+### Group AD8 - Open Questions（未决问题）（未决问题）（未决问题）
 
 - `AD8.1` 阻塞 / 非阻塞分类
 - `AD8.2` 阻塞项已闭合或上抛 USER-INPUT / TEAM-EXPERT
@@ -88,7 +88,7 @@
 - `important`：approval 前应修（错误处理章节缺、mock 边界模糊、RED/GREEN 证据要求模糊）
 - `minor`：建议改进（措辞、章节顺序）
 
-## Classification
+## Classification 分类 分类 分类
 
 - `USER-INPUT`：业务方向 / 验收阈值 / 优先级 → 上抛需求负责人 / 开发负责人
 - `LLM-FIXABLE`：模板章节缺 / 测试用例补全 / 错误处理章节补充 / mock 边界澄清 → 开发人员定向回修

@@ -4,7 +4,7 @@
 >
 > 这解决了「NFR 章节写成 '性能要好、要安全、要好维护' 无阈值口号」的常见失败模式——这种 NFR 进入 AR 实现设计 / TDD 后无法生成可执行的 RED 用例。
 
-## One-Line Rule
+## 一句话规则
 
 **每条核心 NFR 都必须能写成 QAS**：给出 Stimulus Source / Stimulus / Environment / Response / Response Measure 五要素。如果写不出来 → 说明 NFR 描述还不够具体，回 Open Questions 找需求负责人 / 模块架构师补阈值。
 
@@ -185,7 +185,7 @@ QAS:
 - `devflow-test-checker` 在 `TC4 Embedded Risk Coverage` 维度反向核对：每条 NFR 是否被 `embedded-risk` 用例覆盖
 - `devflow-code-review` 在 `CR4 Memory & Resource Lifecycle` / `CR5 Concurrency & Real-time` / `CR6 Error Handling & Defensive Design` 维度反向核对实现是否符合 QAS Response Measure
 
-## Common Red Flags
+## 常见风险信号
 
 - NFR 只写在概述段落，没有独立 ID 和 QAS
 - `Response Measure` 写成「足够快」「合理」「行业水平」「按经验」

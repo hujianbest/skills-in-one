@@ -1,68 +1,68 @@
 ---
 name: devflow-tdd-implementation
-description: Use when devflow-ar-design-review has passed and the approved AR design must be mapped into a task queue and implemented via C/C++ TDD, when continuing the Current Active Task, when fixing implementation after devflow-test-checker or devflow-code-review requested changes, or when devflow-problem-fix has handed off a confirmed reproducer and fix boundary. Not for writing AR design, changing component design, test effectiveness review, code review, or route recovery.
+description: 当 devflow-ar-design-review 已通过，需要把已批准的 AR 设计映射成任务队列并通过 C/C++ TDD 实现时使用；也用于继续 Current Active Task，或按 devflow-test-checker、devflow-code-review 的需修改结论回修实现，或接收 devflow-problem-fix 交接的复现与修复边界。不用于编写 AR 设计、修改组件设计、测试有效性评审、代码评审，或路由恢复。
 ---
 
-# DevFlow TDD Implementation
+# devflow TDD 实现
 
-This skill turns an approved AR design into a task queue, locks one Current Active Task, dispatches a focused implementer subagent when implementation context would be large, and records fresh evidence. Task planning is now an internal preflight of this skill, not a standalone workflow node.
+把已批准的 AR 设计转成 task queue，锁定唯一 `Current Active Task`，在实现上下文较大时派发聚焦的 implementer subagent，并记录 fresh evidence。任务规划现在是本 skill 的内部 preflight，不再是独立 workflow node。
 
-This skill does not write AR design, change AR scope, review its own tests, or review its own code. Those responsibilities remain with `devflow-ar-design`, `devflow-test-checker`, and `devflow-code-review`.
+本 skill 不写 AR 设计、不改变 AR 范围、不自审测试、不自审代码；这些职责分别属于 `devflow-ar-design`、`devflow-test-checker`、`devflow-code-review`。
 
-## When To Use
+## 适用场景
 
-Use when:
+适用：
 
-- `devflow-ar-design-review` has passed and the implementation needs task queue setup plus TDD execution.
-- `tasks.md` / `task-board.md` already exist and the work item needs to continue the Current Active Task.
-- `devflow-test-checker` or `devflow-code-review` returned `needs changes` for implementation work.
-- `devflow-problem-fix` has handed off a reproducer, root cause, and safe fix boundary.
+- `devflow-ar-design-review` 已通过，需要建立 task queue 并执行 TDD。
+- `tasks.md` / `task-board.md` 已存在，work item 需要继续 `Current Active Task`。
+- `devflow-test-checker` 或 `devflow-code-review` 对实现工作返回 `needs changes`。
+- `devflow-problem-fix` 已交接复现、根因和安全修复边界。
 
-Do not use when:
+不适用 → 改用：
 
-- AR design is missing, not reviewed, or lacks test design: use `devflow-ar-design`.
-- The change affects component boundary, SOA interface, dependency, or state machine: use `devflow-router` / `devflow-component-design`.
-- Tests need independent effectiveness review: use `devflow-test-checker`.
-- Code needs independent review: use `devflow-code-review`.
+- AR 设计缺失、未评审或缺测试设计：使用 `devflow-ar-design`。
+- 变更影响组件边界、SOA 接口、依赖或状态机：使用 `devflow-router` / `devflow-component-design`。
+- 测试需要独立有效性审查：使用 `devflow-test-checker`。
+- 代码需要独立评审：使用 `devflow-code-review`。
 
-## Hard Gates
+## 硬性门禁
 
-- Do not start before `devflow-ar-design-review` has passed.
-- Do not enter RED before task queue preflight has passed.
-- `Current Active Task` must be unique and match `task-board.md`.
-- Every task must have Test Design Case IDs, Verify, and Definition of Done.
-- Do not invent tests or business facts that are not in the approved AR design.
-- Do not skip RED.
-- Do not do cleanup during GREEN.
-- REFACTOR must stay inside the current task boundary.
-- Do not claim test effectiveness or code quality; dispatch `devflow-test-checker` next.
+- `devflow-ar-design-review` 通过前不得开始。
+- task queue preflight 通过前不得进入 RED。
+- `Current Active Task` 必须唯一并与 `task-board.md` 一致。
+- 每个 task 必须包含 Test Design Case IDs、Verify、Definition of Done。
+- 不得发明已批准 AR 设计之外的测试或业务事实。
+- 不得跳过 RED。
+- GREEN 阶段不得做 cleanup。
+- REFACTOR 必须留在当前 task 边界内。
+- 不得自称测试有效或代码质量合格；下一步派发 `devflow-test-checker`。
 
-## Object Contract
+## 对象契约
 
-- Primary Object: task-scoped implementation slice.
-- Frontend Input Object: approved `ar-design-draft.md`, `ar-design-review.md`, `requirement.md`, `traceability.md`, optional existing `tasks.md` / `task-board.md`, component design, current code, `AGENTS.md`, and `progress.md`.
-- Backend Output Object: `tasks.md`, `task-board.md`, C/C++ code changes, test code changes, `implementation-log.md`, fresh evidence, traceability updates, and progress updates.
-- Boundaries: no component boundary changes, no AR scope changes, no self-review.
+- Primary Object: task-scoped implementation slice（task 范围内实现切片）
+- Frontend Input Object: 已批准的 `ar-design-draft.md`、`ar-design-review.md`、`requirement.md`、`traceability.md`、可选既有 `tasks.md` / `task-board.md`、component design、当前代码、`AGENTS.md`、`progress.md`。
+- Backend Output Object: `tasks.md`、`task-board.md`、C/C++ 代码变更、测试代码变更、`implementation-log.md`、fresh evidence、traceability 更新、progress 更新。
+- Boundaries: 不改组件边界、不改 AR 范围、不自审。
 
-## Methodology
+## 方法原则
 
-- **Task Queue As Execution Index**: `tasks.md` and `task-board.md` map approved design into executable TDD slices.
-- **Design-Case Mapping**: every task references requirement rows, AR design anchors, and Test Design Case IDs.
-- **Single Active Task**: exactly one task may be active or in progress.
-- **Embedded TDD**: RED -> GREEN -> REFACTOR.
-- **Two Hats**: implementation and refactoring stay separate.
-- **Fresh Evidence**: RED / GREEN / REFACTOR evidence is generated in the current session.
-- **Fresh Implementer Context**: the controller gives each implementer subagent only the current task context pack, not the whole session history.
+- **Task Queue As Execution Index**: `tasks.md` 与 `task-board.md` 把已批准设计映射成可执行 TDD 切片。
+- **Design-Case Mapping**: 每个 task 回指 requirement rows、AR design anchors、Test Design Case IDs。
+- **Single Active Task**: 只能有一个 task 处于 active 或 in progress。
+- **Embedded TDD**: RED -> GREEN -> REFACTOR。
+- **Two Hats**: implementation 与 refactoring 必须分开。
+- **Fresh Evidence**: RED / GREEN / REFACTOR evidence 必须由当前会话生成。
+- **Fresh Implementer Context**: controller 只给 implementer subagent 当前 task context pack，不给整段会话历史。
 
-## Subagent Execution Mode
+## Subagent 执行模式
 
-Use this mode by default when implementing the Current Active Task, especially when code reading or editing would pull substantial context into the controller session. The controller remains responsible for routing, task queue state, evidence paths, and final handoff.
+实现 `Current Active Task` 时默认使用此模式，尤其是读写代码会把大量上下文拉进 controller session 时。controller 仍负责 routing、task queue 状态、evidence 路径和最终 handoff。
 
-Do not make the implementer subagent read the whole plan, prior chat, or broad repository context. Build a context pack and paste the required facts directly into the dispatch prompt.
+不要让 implementer subagent 读取完整计划、历史聊天或大范围仓库上下文。先构建 context pack，把必要事实直接放进派发 prompt。
 
 ### Implementer Context Pack
 
-Before dispatching an implementer subagent, write or assemble this context pack from approved artifacts:
+派发 implementer subagent 前，基于已批准产物写出或组装以下 context pack：
 
 ```markdown
 ## Implementer Context Pack
@@ -81,170 +81,170 @@ Before dispatching an implementer subagent, write or assemble this context pack 
 - Evidence Paths To Write:
 - Component Boundary Constraints:
 - Hard Stops:
-  - ask if requirements, acceptance, approach, or dependencies are unclear
-  - stop if task requires component-boundary or architecture decisions
-  - do not add tests or behavior not present in approved AR design
+  - requirements、acceptance、approach 或 dependencies 不清楚时先问
+  - task 需要 component-boundary 或 architecture 决策时停止
+  - 不添加 approved AR design 中不存在的测试或行为
 ```
 
-### Implementer Status Handling
+### Implementer 状态处理
 
-The implementer subagent reports one status:
+implementer subagent 返回以下状态之一：
 
-- `DONE`: implementation and fresh evidence are ready; controller records report and dispatches `devflow-test-checker`.
-- `DONE_WITH_CONCERNS`: implementation exists but the subagent flagged uncertainty; controller resolves concerns before test-checker.
-- `NEEDS_CONTEXT`: controller supplies missing context and re-dispatches with a tighter context pack.
-- `BLOCKED`: controller decides whether to route to `devflow-ar-design`, `devflow-router`, or split the task further.
+- `DONE`: 实现与 fresh evidence 已就绪；controller 记录报告并派发 `devflow-test-checker`。
+- `DONE_WITH_CONCERNS`: 实现已完成但 subagent 标出不确定点；controller 在 test-checker 前先处理 concerns。
+- `NEEDS_CONTEXT`: controller 补充缺失上下文，并用更收敛的 context pack 重新派发。
+- `BLOCKED`: controller 判断路由到 `devflow-ar-design`、`devflow-router`，或继续拆分 task。
 
-The implementer self-review is useful but never replaces `devflow-test-checker` or `devflow-code-review`.
+implementer 的 self-review 有价值，但永远不能替代 `devflow-test-checker` 或 `devflow-code-review`。
 
-## Workflow
+## 工作流
 
-### 1. Align Inputs And Work Item
+### 1. 对齐输入与 work item
 
-Read approved AR design, AR design review, requirement, traceability, existing task queue artifacts if present, component design, AGENTS.md, code context, and progress.md.
+读取已批准 AR 设计、AR design review、requirement、traceability、已有 task queue 产物（如存在）、component design、`AGENTS.md`、代码上下文和 `progress.md`。
 
-Stop if AR design review has not passed, test design is missing, or the work item identity is ambiguous.
+如果 AR design review 未通过、测试设计缺失或 work item 身份不明确，立即停止。
 
-### 2. Create Or Validate Task Queue
+### 2. 创建或校验 task queue
 
-If `features/<id>/tasks.md` or `task-board.md` is missing, create them from the approved AR design using `references/task-plan-template.md` and `references/task-board-template.md`. If they already exist, validate them against the current approved AR design and requirement without unrelated rewrites.
+如果 `features/<id>/tasks.md` 或 `task-board.md` 缺失，按已批准 AR 设计和 `references/task-plan-template.md` / `references/task-board-template.md` 创建。若已存在，只对照当前已批准 AR 设计和 requirement 校验，避免无关重写。
 
-Each task must include Task ID, Goal, Acceptance, Files, Covers Requirement, AR Design Anchor, Test Design Case IDs, Dependencies, Verify, Definition of Done, Expected Evidence Paths, and notes/assumptions.
+每个 task 必须包含 Task ID、Goal、Acceptance、Files、Covers Requirement、AR Design Anchor、Test Design Case IDs、Dependencies、Verify、Definition of Done、Expected Evidence Paths、notes/assumptions。
 
-Task queue preflight checks:
+Task queue preflight 检查：
 
-- TR1 Executability: each task can be started cold and is not too large.
-- TR2 Contract: Acceptance, Files, Verify, and DoD are complete.
-- TR3 Verification Seeds: Verify supports fail-first RED/GREEN work.
-- TR4 Dependency: dependencies are clear and acyclic.
-- TR5 Traceability: task maps to requirement row, AR design, and test case.
-- TR6 Router Readiness: task-board can select exactly one Current Active Task or next-ready task.
+- TR1 Executability：每个 task 可冷启动，且粒度不能过大。
+- TR2 Contract：Acceptance、Files、Verify、DoD 完整。
+- TR3 Verification Seeds：Verify 支持 fail-first RED/GREEN 工作。
+- TR4 Dependency：依赖清晰且无环。
+- TR5 Traceability：task 映射到 requirement row、AR design 和 test case。
+- TR6 Router Readiness：task-board 能选择唯一 `Current Active Task` 或 next-ready task。
 
-If preflight fails because information is missing from the AR design, route to `devflow-ar-design`. If queue state is ambiguous, route to `devflow-router`.
+如果 preflight 因 AR 设计信息缺失而失败，路由到 `devflow-ar-design`；如果 queue 状态不明确，路由到 `devflow-router`。
 
-### 3. Check Component Boundary
+### 3. 检查组件边界
 
-Compare planned changes with component design. If the task touches component interfaces, dependencies, state machines, or SOA boundary, stop and route to `devflow-router` for component-impact handling.
+把计划变更与 component design 对照。若 task 触及组件接口、依赖、状态机或 SOA boundary，停止并路由到 `devflow-router` 处理 component-impact。
 
-### 4. Prepare Implementer Context Pack
+### 4. 准备 Implementer Context Pack
 
-Create the Implementer Context Pack for the Current Active Task. Record its path or summary in `task-board.md` before dispatch. If the pack cannot be made small and precise, the task is too broad; split or refine the task before implementation.
+为 `Current Active Task` 创建 Implementer Context Pack。派发前把路径或摘要记录到 `task-board.md`。若 pack 无法做到小而精确，说明 task 太宽，应先拆分或收敛。
 
-### 5. Dispatch Implementer Subagent
+### 5. 派发 Implementer Subagent
 
-Dispatch a fresh implementer subagent with only the context pack, allowed file scope, and expected evidence paths. The implementer performs steps 6-10 below inside that limited context. If the subagent asks questions, answer them in the controller session and re-dispatch with the clarified context pack.
+派发新的 implementer subagent，只提供 context pack、允许的文件范围和预期 evidence 路径。implementer 在受限上下文中执行下面步骤 6-10。若 subagent 提问，在 controller session 中回答，并用澄清后的 context pack 重新派发。
 
-For trivial, single-file edits with already-small context, the controller may implement directly, but it must still follow the same RED / GREEN / REFACTOR evidence rules.
+对极小的单文件修改，若上下文已经很小，controller 可直接实现，但仍必须遵守同一套 RED / GREEN / REFACTOR evidence 规则。
 
-### 6. Materialize Tests From Test Design
+### 6. 从测试设计落地测试
 
-Discover existing test harnesses, build scripts, CI config, nearby component tests, and team mock/fixture style. If no runnable harness exists for this target, build the smallest smoke-tested harness first and record bootstrap evidence. Harness failure is not business RED.
+识别既有 test harness、build scripts、CI 配置、邻近组件测试和团队 mock/fixture 风格。若目标没有可运行 harness，先搭建最小 smoke-tested harness 并记录 bootstrap evidence。Harness failure 不是业务 RED。
 
-Implement only tests for the Current Active Task's Test Design Case IDs. Preserve Task ID and Case ID anchors in names or comments.
+只实现 `Current Active Task` 对应 Test Design Case IDs 的测试。名称或注释中保留 Task ID 与 Case ID 锚点。
 
 ### 7. RED
 
-Run the new test and record valid RED evidence under `features/<id>/evidence/unit/` or `evidence/integration/`. Evidence includes command, exit code, failure summary, why the failure matches the intended behavior gap, and freshness anchor.
+运行新增测试，并在 `features/<id>/evidence/unit/` 或 `evidence/integration/` 下记录有效 RED evidence。Evidence 包含命令、退出码、失败摘要、失败为何匹配预期行为缺口，以及 freshness anchor。
 
 ### 8. GREEN
 
-Write the smallest implementation that turns RED green. Record GREEN evidence with command, exit code, pass summary, key result, and freshness anchor. Do not refactor in GREEN.
+写最小实现让 RED 变 GREEN。记录 GREEN evidence，包含命令、退出码、通过摘要、关键结果和 freshness anchor。GREEN 阶段不得 refactor。
 
 ### 9. REFACTOR
 
-Only after tests are green, perform task-scoped cleanup if needed. Follow `references/red-green-refactor-discipline.md`. Rerun tests after every cleanup and record REFACTOR evidence if cleanup occurred.
+只有测试已绿后，才按需做 task 范围内 cleanup。遵循 `references/red-green-refactor-discipline.md`。每次 cleanup 后重新运行测试；若发生 cleanup，记录 REFACTOR evidence。
 
-### 10. Static And Dynamic Evidence
+### 10. 静态与动态证据
 
-Run build, static analysis, and relevant regression checks. Follow `references/embedded-evidence-checklist.md`. Critical unexplained issues block handoff.
+运行 build、static analysis 和相关 regression checks。遵循 `references/embedded-evidence-checklist.md`。未解释的 critical 问题阻塞 handoff。
 
-### 11. Implementation Log And Traceability
+### 11. Implementation Log 与 Traceability
 
-Write Current Active Task, implementer status/report, changed files, decisions, RED/GREEN/REFACTOR evidence, test results, and open risks to `implementation-log.md`. Update traceability with Task ID, Code File, Test Code File, and Verification Evidence.
+把 `Current Active Task`、implementer status/report、changed files、decisions、RED/GREEN/REFACTOR evidence、test results 和 open risks 写入 `implementation-log.md`。用 Task ID、Code File、Test Code File、Verification Evidence 更新 traceability。
 
-### 12. Progress And Handoff
+### 12. Progress 与 Handoff
 
-Update progress fields: Current Stage, Task Plan Path, Task Board Path, Current Active Task, Pending Reviews And Gates, and Next Action Or Recommended Skill = `devflow-test-checker`. Update `task-board.md` with dispatch status, context pack location/summary, implementation report, evidence paths, and any blocked reason.
+更新 progress 字段：Current Stage、Task Plan Path、Task Board Path、Current Active Task、Pending Reviews And Gates、`Next Action Or Recommended Skill = devflow-test-checker`。同步 `task-board.md` 的 dispatch status、context pack location/summary、implementation report、evidence paths 和 blocked reason（如有）。
 
-Dispatch an independent reviewer subagent for `devflow-test-checker`; do not run test review inline.
+派发独立 reviewer subagent 执行 `devflow-test-checker`；不要内联执行测试评审。
 
-## Output Contract
+## 输出契约
 
-- `features/<id>/tasks.md` and `task-board.md` created or validated.
-- Implementer Context Pack recorded for Current Active Task when subagent mode is used.
-- C/C++ code and test code for Current Active Task.
-- `implementation-log.md` with handoff block.
-- Fresh evidence under `evidence/{unit,integration,static-analysis,build}/`.
-- Updated traceability and progress.
-- Next action: `devflow-test-checker`.
+- `features/<id>/tasks.md` 与 `task-board.md` 已创建或已校验。
+- 使用 subagent mode 时，已为 `Current Active Task` 记录 Implementer Context Pack。
+- `Current Active Task` 对应的 C/C++ 代码与测试代码。
+- `implementation-log.md` 含 handoff block。
+- `evidence/{unit,integration,static-analysis,build}/` 下有 fresh evidence。
+- traceability 与 progress 已更新。
+- 下一步：`devflow-test-checker`。
 
-## Red Flags
+## 风险信号
 
-- Starting implementation before task queue preflight passes.
-- Dispatching an implementer subagent with broad chat history instead of a curated context pack.
-- Making the implementer discover the whole plan or unrestricted repository context.
-- Multiple active or in-progress tasks.
-- Adding tests not present in AR design.
-- Treating harness setup failure as business RED.
-- Writing implementation before RED.
-- Refactoring during GREEN.
-- Changing component boundary inside implementation.
-- Reusing stale evidence.
-- Self-approving tests or code.
+- task queue preflight 通过前就开始实现。
+- 派发 implementer subagent 时给了大段聊天历史，而不是精选 context pack。
+- 让 implementer 自己探索完整计划或不受限仓库上下文。
+- 存在多个 active 或 in-progress tasks。
+- 添加 AR 设计中不存在的测试。
+- 把 harness setup failure 当成业务 RED。
+- RED 前写实现。
+- GREEN 阶段 refactor。
+- 在实现中改变组件边界。
+- 复用 stale evidence。
+- 自行批准测试或代码。
 
-## Verification
+## 验证清单
 
-- [ ] Work item identity is stable.
-- [ ] Task queue preflight passed.
-- [ ] Current Active Task is unique and matches task-board.
-- [ ] Implementer Context Pack is small, explicit, and recorded when subagent mode is used.
-- [ ] Implementer status is DONE or DONE_WITH_CONCERNS with concerns resolved before review.
-- [ ] Test Design Case IDs drive the work.
-- [ ] RED, GREEN, and optional REFACTOR evidence are fresh.
-- [ ] Build/static/regression evidence is recorded.
-- [ ] implementation-log.md has handoff information.
-- [ ] traceability.md is updated.
-- [ ] progress.md routes to `devflow-test-checker`.
+- [ ] Work item identity 稳定
+- [ ] Task queue preflight 已通过
+- [ ] Current Active Task 唯一且匹配 task-board
+- [ ] 使用 subagent mode 时，Implementer Context Pack 小而明确且已记录
+- [ ] Implementer status 为 DONE 或 DONE_WITH_CONCERNS，且 concerns 已在 review 前处理
+- [ ] Test Design Case IDs 已驱动本轮工作
+- [ ] RED、GREEN 和可选 REFACTOR evidence 都是 fresh
+- [ ] Build / static / regression evidence 已记录
+- [ ] `implementation-log.md` 已包含 handoff information
+- [ ] `traceability.md` 已更新
+- [ ] `progress.md` 已路由到 `devflow-test-checker`
 
-## Local Test Design Contract Excerpt
+## 本地测试设计契约摘录
 
-Each test design case used by this skill needs: case id, requirement row or design anchor, behavior under test, preconditions, inputs/stimuli, expected output or observable effect, mock/stub/simulation boundary, verification command or evidence path, and embedded risk covered. DevFlow does not use a separate test-design.md; test design lives in AR design.
+本 skill 使用的每个 test design case 需要包含：case id、requirement row 或 design anchor、behavior under test、preconditions、inputs/stimuli、expected output 或 observable effect、mock/stub/simulation boundary、verification command 或 evidence path、embedded risk covered。DevFlow 不使用单独的 `test-design.md`；测试设计位于 AR design 中。
 
-## Local DevFlow Conventions
+## 本地 DevFlow 约定
 
-This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
+本节由当前 skill 自己维护。不要加载共享约定文件；项目 `AGENTS.md` 可以覆盖等价路径或模板。
 
-### Artifact Layout
+### 产物布局
 
-Default artifact layout is copied from `docs/principles/03 artifact-layout.md`. Project `AGENTS.md` may override equivalent paths, but absent an override this skill must use the following component-repo layout:
+默认产物布局来自 `docs/principles/03 artifact-layout.md`。项目 `AGENTS.md` 可以覆盖等价路径；没有覆盖时，本 skill 必须使用以下组件仓库布局：
 
 ```text
 <component-repo>/
   docs/
-    component-design.md           # long-lived component implementation design
-    ar-designs/                   # long-lived AR implementation designs
+    component-design.md           # 长期组件实现设计
+    ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
-    interfaces.md                 # optional, read/sync only when enabled by team
-    dependencies.md               # optional, read/sync only when enabled by team
-    runtime-behavior.md           # optional, read/sync only when enabled by team
+    interfaces.md                 # 可选；仅团队启用时读取 / 同步
+    dependencies.md               # 可选；仅团队启用时读取 / 同步
+    runtime-behavior.md           # 可选；仅团队启用时读取 / 同步
 
   features/
-    AR<id>-<slug>/                # process artifacts for one AR
-    DTS<id>-<slug>/               # process artifacts for one defect / problem fix
-    CHANGE<id>-<slug>/            # process artifacts for one lightweight change
+    AR<id>-<slug>/                # 单个 AR 的过程产物
+    DTS<id>-<slug>/               # 单个缺陷 / 问题修复的过程产物
+    CHANGE<id>-<slug>/            # 单个轻量变更的过程产物
 ```
 
-`docs/` is for long-lived component assets that are committed with code. `features/<id>/` is for one work item's process artifacts: `README.md`, `progress.md`, `requirement.md`, `ar-design-draft.md`, `tasks.md`, `task-board.md`, `traceability.md`, `implementation-log.md`, `reviews/`, `evidence/`, `completion.md`, and `closeout.md` as applicable.
+`docs/` 存放随代码提交的长期组件资产。`features/<id>/` 存放单个 work item 的过程产物：按需包含 `README.md`、`progress.md`、`requirement.md`、`ar-design-draft.md`、`tasks.md`、`task-board.md`、`traceability.md`、`implementation-log.md`、`reviews/`、`evidence/`、`completion.md`、`closeout.md`。
 
-Read-on-presence rules:
+Read-on-presence 规则：
 
-- Required long-lived assets block when missing: `docs/component-design.md` for component-impact work, and `docs/ar-designs/AR<id>-<slug>.md` by implementation closeout.
-- Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are read/synced only when the project has enabled them. Missing optional assets are recorded as `N/A (project optional asset not enabled)`, not treated as blockers.
-- Process directories stay under `features/`; do not move closed work items to `features/archived/` because that breaks traceability links.
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
+- 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
-### Progress Fields
+### Progress 字段
 
-Use canonical progress fields when this skill reads or writes `features/<id>/progress.md`:
+本 skill 读写 `features/<id>/progress.md` 时使用 canonical progress 字段：
 
 - Work Item Type
 - Work Item ID
@@ -263,18 +263,18 @@ Use canonical progress fields when this skill reads or writes `features/<id>/pro
 - Blockers
 - Last Updated
 
-### Handoff Fields
+### Handoff 字段
 
-Return current_node, work_item_id, owning_component, artifact_paths, evidence_summary, traceability_links, blockers, next_action_or_recommended_skill, and reroute_via_router.
+返回 `current_node`、`work_item_id`、`owning_component`、`artifact_paths`、`evidence_summary`、`traceability_links`、`blockers`、`next_action_or_recommended_skill`、`reroute_via_router`。
 
-Do not set next_action_or_recommended_skill to using-devflow or free text.
+不要把 `next_action_or_recommended_skill` 设为 `using-devflow` 或自由文本。
 
-## Supporting References
+## 支撑参考
 
-| File | Purpose |
+| 文件 | 用途 |
 |---|---|
-| `references/task-plan-template.md` | Task queue plan template |
-| `references/task-board-template.md` | Task board state projection template |
-| `references/red-green-refactor-discipline.md` | RED / GREEN / REFACTOR discipline |
-| `references/embedded-evidence-checklist.md` | Evidence capture checklist |
-| Local Test Design Contract Excerpt | Test design field contract |
+| `references/task-plan-template.md` | task queue plan 模板 |
+| `references/task-board-template.md` | task-board 状态投影模板 |
+| `references/red-green-refactor-discipline.md` | RED / GREEN / REFACTOR 纪律 |
+| `references/embedded-evidence-checklist.md` | 证据采集检查清单 |
+| 本地测试设计契约摘录 | 测试设计字段契约 |

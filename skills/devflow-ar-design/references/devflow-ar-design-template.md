@@ -30,7 +30,7 @@
 ```plantuml
 @startuml
 autonumber
-' TODO: replace with real participants and calls
+' TODO: 替换为真实参与者和调用
 @enduml
 ```
 
@@ -77,7 +77,7 @@ autonumber
 
 ```plantuml
 @startuml
-' TODO: replace with real use cases if applicable
+' TODO: 如适用，替换为真实用例
 @enduml
 ```
 
@@ -86,7 +86,7 @@ autonumber
 ```plantuml
 @startuml
 start
-' TODO: replace with real flow
+' TODO: 替换为真实流程
 stop
 @enduml
 ```
@@ -154,7 +154,7 @@ stop
 
 ```plantuml
 @startuml
-' TODO: replace with real class diagram
+' TODO: 替换为真实类图
 @enduml
 ```
 
@@ -300,7 +300,7 @@ stop
 
 ```plantuml
 @startmindmap
-* TODO: replace with real test map if useful
+* TODO: 如有价值，替换为真实测试脑图
 @endmindmap
 ```
 

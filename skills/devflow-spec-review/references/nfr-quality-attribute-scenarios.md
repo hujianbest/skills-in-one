@@ -1,8 +1,8 @@
-# NFR Quality Attribute Scenario Review Excerpt
+# NFR Quality Attribute Scenario 评审摘录
 
-Spec review checks that embedded NFRs are written as quality attribute scenarios with stimulus source, stimulus, environment, response, and response measure.
+Spec review 检查 embedded NFRs 是否写成包含 stimulus source、stimulus、environment、response、response measure 的 quality attribute scenarios。
 
-- Response Measure needs a threshold or observable pass/fail criterion.
-- Acceptance criteria must match the QAS and not introduce a different metric.
-- Split NFRs that mix latency, memory, concurrency, availability, safety, or security into one row.
-- Missing thresholds or operating conditions are USER-INPUT / TEAM-EXPERT, not reviewer guesses.
+- Response Measure 需要阈值或可观察的 pass/fail criterion。
+- Acceptance criteria 必须匹配 QAS，不得引入另一个 metric。
+- 把 latency、memory、concurrency、availability、safety、security 混在一条 row 的 NFR 拆开。
+- 缺 thresholds 或 operating conditions 属于 USER-INPUT / TEAM-EXPERT，不由 reviewer 猜测。

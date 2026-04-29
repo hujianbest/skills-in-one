@@ -117,7 +117,7 @@ reviewer 给出 `需修改` / `阻塞`（内容）verdict 后，回到上游 aut
 2. 再统一回修 LLM-FIXABLE
 3. 一起重新派发 reviewer，**不**多次小批量复审
 
-### Interactive vs Auto
+### Interactive vs Auto 模式 模式 模式
 
 | Execution Mode | 行为 |
 |---|---|
@@ -143,7 +143,7 @@ reviewer 给出 `需修改` / `阻塞`（内容）verdict 后，回到上游 aut
 - 不要把回修当成机会重写未受影响的章节
 - 不要在同一回合既改 LLM-FIXABLE 又问 USER-INPUT 又上抛 TEAM-EXPERT，混淆责任边界——按上面顺序分步走
 
-## Hard Constraints
+## 硬性约束
 
 - reviewer 不修改被评审工件
 - reviewer 不补写测试 / 不写代码 / 不改 AR / 组件设计

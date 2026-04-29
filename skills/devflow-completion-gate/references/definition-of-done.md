@@ -16,7 +16,7 @@
 10. 嵌入式风险（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI / SOA 边界）无未解释 critical 项
 11. critical 静态分析 / 编译告警 / 编码规范违反已闭环（修 / 解释 / 抑制并附理由）
 
-## Task-Level DoD
+## Task 级 DoD
 
 当前 active task 通过 completion-gate 至少要满足：
 
@@ -28,7 +28,7 @@
 
 单 task DoD 通过不等于 work item closeout；completion-gate 必须继续检查是否存在唯一 next-ready task。
 
-## Profile-Specific 加项
+## Profile 专属加项
 
 ### `standard`
 

@@ -1,8 +1,8 @@
-# Granularity And Split Review Excerpt
+# 粒度与拆分评审摘录
 
-Spec review checks that requirement rows and SR AR candidates are small enough to design, review, implement, and verify independently.
+Spec review 检查 requirement rows 与 SR AR candidates 是否足够小，能被独立设计、评审、实现和验证。
 
-- Flag rows that combine unrelated behavior, multiple components, or multiple acceptance paths.
-- Flag SR candidates that cannot become separately owned AR work items.
-- Mechanical splitting by sentence is not enough; split by behavior, ownership, risk, and verification boundary.
-- Cross-component or subsystem ambiguity should be surfaced as USER-INPUT or TEAM-EXPERT rather than guessed.
+- 标出混合无关行为、多个组件或多条 acceptance paths 的 rows。
+- 标出无法成为独立归属 AR work items 的 SR candidates。
+- 只按句子机械拆分不够；应按行为、归属、风险和验证边界拆分。
+- 跨组件或子系统歧义应作为 USER-INPUT 或 TEAM-EXPERT 暴露，不要猜。
