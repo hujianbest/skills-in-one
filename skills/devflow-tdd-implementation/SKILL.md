@@ -214,6 +214,34 @@ Each test design case used by this skill needs: case id, requirement row or desi
 
 This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
 
+### Artifact Layout
+
+Default artifact layout is copied from `docs/principles/03 artifact-layout.md`. Project `AGENTS.md` may override equivalent paths, but absent an override this skill must use the following component-repo layout:
+
+```text
+<component-repo>/
+  docs/
+    component-design.md           # long-lived component implementation design
+    ar-designs/                   # long-lived AR implementation designs
+      AR<id>-<slug>.md
+    interfaces.md                 # optional, read/sync only when enabled by team
+    dependencies.md               # optional, read/sync only when enabled by team
+    runtime-behavior.md           # optional, read/sync only when enabled by team
+
+  features/
+    AR<id>-<slug>/                # process artifacts for one AR
+    DTS<id>-<slug>/               # process artifacts for one defect / problem fix
+    CHANGE<id>-<slug>/            # process artifacts for one lightweight change
+```
+
+`docs/` is for long-lived component assets that are committed with code. `features/<id>/` is for one work item's process artifacts: `README.md`, `progress.md`, `requirement.md`, `ar-design-draft.md`, `tasks.md`, `task-board.md`, `traceability.md`, `implementation-log.md`, `reviews/`, `evidence/`, `completion.md`, and `closeout.md` as applicable.
+
+Read-on-presence rules:
+
+- Required long-lived assets block when missing: `docs/component-design.md` for component-impact work, and `docs/ar-designs/AR<id>-<slug>.md` by implementation closeout.
+- Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are read/synced only when the project has enabled them. Missing optional assets are recorded as `N/A (project optional asset not enabled)`, not treated as blockers.
+- Process directories stay under `features/`; do not move closed work items to `features/archived/` because that breaks traceability links.
+
 ### Progress Fields
 
 Use canonical progress fields when this skill reads or writes `features/<id>/progress.md`:
