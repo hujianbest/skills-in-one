@@ -115,31 +115,20 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 
 ### 5. 草拟规格文档
 
-按 Template-Constrained 写 `features/<id>/requirement.md`，结构遵循团队 `AGENTS.md` 模板覆盖。
+按 Template-Constrained 写 `features/<id>/requirement.md`。默认使用 `references/requirement-template.md` 作为 requirement 模板；团队 `AGENTS.md` 声明等价模板或路径时优先覆盖。
 
-通用默认章节：Identity、Background And Goal、Scope / Non-Scope、Requirement Rows、Acceptance Criteria、Embedded NFR（若适用）、Open Questions（阻塞 / 非阻塞分类）、Assumptions And Dependencies。
+`requirement-template.md` 是 `devflow-specify` 的默认需求规格模板，保持旧 `mdc-specify/references/spec-template.md` 的定位：承载规格 / requirement 文档骨架。详细字段契约不在模板中重复维护，统一引用 `requirement-rows-contract.md` 和 `nfr-quality-attribute-scenarios.md`。
+
+通用默认章节由 `references/requirement-template.md` 定义：Identity、Background And Goal、Scope / Non-Scope、Requirement Rows、Acceptance Criteria、Embedded NFR（若适用）、Open Questions（阻塞 / 非阻塞分类）、Assumptions And Dependencies。
 
 按 work item 类型的额外必填章节：
 
-- **SR**：
-  - **Subsystem Scope Assessment**：本 SR 影响子系统范围、跨组件影响
-  - **Affected Components**：受影响组件清单 + 每个组件的预计修改面（接口 / 依赖 / 状态机 / 数据 / 实现）
-  - **AR Breakdown Candidates**：候选 AR 拆分清单（每条候选含范围 / 所属组件 / 优先级 / 上抛对象；本字段在 spec-review 后可能继续修订，最终在 `devflow-finalize` analysis closeout 时定稿）
-  - **Component Design Impact**：本 SR 是否需要 `devflow-component-design`；若需要，要修订哪些章节
-- **AR / DTS / CHANGE**：
-  - **Component Impact Assessment**：本需求是否影响 SOA 接口 / 组件依赖 / 状态机；指向 `docs/component-design.md` 相关章节
-  - **Interface Contract Candidates**：当存在 `IFR` row 或 `Component Impact = interface` 时必填。每条候选至少含：
-    - Interface / Service Name（可为候选名）
-    - Provider Component
-    - Consumer / Caller
-    - Trigger / Operation
-    - Inputs（语义级字段、单位、约束；不强制语言类型）
-    - Outputs / Observable Result
-    - Error / Return Semantics
-    - Sync / Async / Timing Expectation
-    - Compatibility / Versioning
-    - Covers Requirement Rows
-    - Open Questions / Owner
+按 work item 类型的额外必填章节也由 `references/requirement-template.md` 提供骨架：
+
+- **SR**：Subsystem Scope Assessment、Affected Components、AR Breakdown Candidates、Component Design Impact。
+- **AR / DTS / CHANGE**：Component Impact Assessment、Interface Contract Candidates（当存在 `IFR` row 或 `Component Impact = interface` 时）。
+
+这些章节的详细字段契约以 `references/requirement-rows-contract.md` 为准，避免模板和契约文件重复维护。
 
 接口候选契约的边界：它应足够让 `devflow-component-design` / `devflow-ar-design` 消费，但不得在 spec 阶段锁死内部函数签名、私有数据结构、重试次数、线程模型或具体库选择。这些设计选择进入后续 design 节点。
 
@@ -336,6 +325,7 @@ Default process directories are features/SR<id>-<slug>/, features/AR<id>-<slug>/
 
 | 文件 | 用途 |
 |---|---|
+| `references/requirement-template.md` | requirement.md 默认模板，继承旧 spec-template 的定位 |
 | `references/requirement-rows-contract.md` | requirement rows 最小字段、EARS Statement Patterns、BDD Acceptance Rules、MoSCoW Priority、Source / Trace Anchor、Brainstorming Notes Normalization、Common Failure Modes |
 | `references/granularity-and-split.md` | INVEST `Small` + `Independent` 检查（G1-G6 + 嵌入式 GE1-GE2）、Split Rules、Mechanical vs Scope-Shaping Split、Cross-Work-Item Split、SR Breakdown Heuristics |
 | `references/nfr-quality-attribute-scenarios.md` | ISO/IEC 25010 质量维度、QAS 五要素、嵌入式 NFR 改写示例（实时性 / 内存 / 并发 / 资源 / 错误处理 / 安全）、SR 视角 NFR、最小签入条件 |

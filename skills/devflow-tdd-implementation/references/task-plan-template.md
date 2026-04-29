@@ -1,93 +1,92 @@
-# devflow Task Plan
+# devflow 任务计划模板
 
 使用说明：
 
-- 这是 `devflow-tdd-implementation` 的任务计划模板，默认保存为 `features/<Work Item Id>-<slug>/tasks.md`。
-- tasks 是 AR 实现设计到 TDD 执行的索引层，不是测试设计层；不得新增 AR 设计中没有的测试用例或业务事实。
-- 每个任务必须能回指 requirement row、AR 设计章节和 Test Design Case ID。
+- 默认保存路径：`features/<工作项ID>-<slug>/tasks.md`。
+- tasks 是 AR 设计到 TDD 执行的索引层，不是测试设计层；不得新增 AR 设计中没有的测试用例或业务事实。
 
-## Metadata
+## 元数据
 
-- Work Item Type:
-- Work Item ID:
-- Owning Component:
-- Source Requirement:
-- Source AR Design:
-- Source AR Design Review:
-- Task Plan Owner:
-- Last Updated:
+- 工作项类型:
+- 工作项 ID:
+- 所属组件:
+- 来源需求:
+- 来源 AR 设计:
+- 来源 AR 设计评审:
+- 任务计划 Owner:
+- 最后更新:
 
-## Plan Boundary
+## 计划边界
 
-- In Scope:
-- Out Of Scope:
-- Assumptions:
-- Blockers:
+- 范围内:
+- 范围外:
+- 假设:
+- 阻塞项:
 
-## Milestones
+## 里程碑
 
-| Milestone ID | Goal | Included Tasks | Exit Criteria | Notes |
+| 里程碑 ID | 目标 | 包含任务 | 退出标准 | 备注 |
 |---|---|---|---|---|
 | M1 |  |  |  |  |
 
-## Task Breakdown
+## 任务拆解
 
-### T1 - <task title>
+### T1 - <任务标题>
 
-- Goal:
-- Acceptance:
-- Files:
+- 目标:
+- 验收条件:
+- 文件:
   - 
-- Covers Requirement:
+- 覆盖需求:
   - 
-- AR Design Anchor:
+- AR 设计锚点:
   - 
-- Test Design Case IDs:
+- 测试设计用例 ID:
   - 
-- Dependencies:
+- 依赖:
   - 
-- Verify:
+- 验证方式:
   - 
-- Definition of Done:
+- 完成定义:
   - 
-- Expected Evidence Paths:
+- 预期证据路径:
   - 
-- Suggested Implementer Context Pack:
-  - Allowed Files:
-  - Files Out Of Scope:
-  - Verify Commands:
-  - Hard Stops:
-- Notes / Assumptions:
+- 实现派发:
+  - 模式: controller-direct / implementer-subagent
+  - 允许修改文件:
+  - 范围外文件:
+  - 上下文包:
+- 备注 / 假设:
   - 
 
-## Dependency Map
+## 依赖关系
 
-| Task ID | Depends On | Ready When | Can Run In Parallel With | Notes |
+| 任务 ID | 依赖 | 就绪条件 | 可并行任务 | 备注 |
 |---|---|---|---|---|
-| T1 | - | task queue preflight 通过 |  |  |
+| T1 | - | tasks-review 通过 |  |  |
 
-## Traceability
+## 追溯关系
 
-| Requirement Row | AR Design Section | Test Design Case ID | Task ID | Planned Evidence |
+| 需求行 | AR 设计章节 | 测试设计用例 ID | 任务 ID | 计划证据 |
 |---|---|---|---|---|
 |  |  |  |  |  |
 
-## Verification Strategy
+## 验证策略
 
-| Task ID | Verify Command / Check | Expected Result | Evidence Path | Implementer Context Notes |
+| 任务 ID | 验证命令 / 检查 | 预期结果 | 证据路径 | 实现上下文说明 |
 |---|---|---|---|---|
 | T1 |  |  |  |  |
 
-## Risks And Open Items
+## 风险与待确认项
 
-| ID | Risk / Open Item | Owner | Blocking | Handling |
+| ID | 风险 / 待确认项 | Owner | 是否阻塞 | 处理方式 |
 |---|---|---|---|---|
 | R1 |  |  | yes / no |  |
 
-## Ready For TDD Preflight
+## TDD 前置检查就绪
 
-- [ ] 每个关键任务具备 Acceptance、Files、Verify、Definition of Done
-- [ ] 每个任务回指 requirement row、AR 设计章节、Test Design Case ID
+- [ ] 每个关键任务具备验收条件、文件、验证方式、完成定义
+- [ ] 每个任务回指需求行、AR 设计章节、测试设计用例 ID
 - [ ] 依赖关系无环
 - [ ] 已明确首个 next-ready task 或标出阻塞原因
 - [ ] 未新增测试设计事实

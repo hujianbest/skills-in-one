@@ -1,74 +1,70 @@
-# Work Item: <Work Item ID>-<slug>
+# 工作项：<工作项ID>-<slug>
 
 使用说明：
 
-- 这是 work item README 模板，覆盖以下场景：
-  - `features/SR<id>-<slug>/README.md`（需求分析子街区）
-  - `features/AR<id>-<slug>/README.md` / `features/DTS<id>-<slug>/README.md` / `features/CHANGE<id>-<slug>/README.md`（实现子街区）
-- 由 `devflow-specify`（需求 / SR 澄清）或 `devflow-problem-fix`（DTS / hotfix）在 work item 启动时创建，并由后续每个 `devflow-*` skill 在产出新工件时同步更新对应行。
-- 若项目在 `AGENTS.md` 中声明了等价模板，优先遵循项目约定。
+- 默认保存路径：`features/<工作项ID>-<slug>/README.md`。
+- 作为单个 SR / AR / DTS / CHANGE 的入口索引，记录当前状态和关键工件。
 
-## Metadata
+## 元数据
 
-- Work Item Type:                          # SR / AR / DTS / CHANGE
-- Work Item ID:                            # 例：SR1234 / AR12345 / DTS67890
-- Title:
-- Owning Component:                        # AR / DTS / CHANGE 必填；SR 可空（子系统级）
-- Owning Subsystem:                        # SR 必填；AR / DTS / CHANGE 可空
-- Related IR:
-- Related SR:                              # AR 工作项必填
-- Related AR:                              # DTS 影响功能需求时填写
-- Owner / Assignee:
-- Started:
-- Closed:                                  # closeout 之后写入
-- Workflow Profile:                        # requirement-analysis（SR）/ standard / component-impact / hotfix / lightweight
-- Execution Mode:                          # interactive / auto
+- 工作项类型:                          # SR / AR / DTS / CHANGE
+- 工作项 ID:                            # 例：SR1234 / AR12345 / DTS67890
+- 标题:
+- 所属组件:                            # AR / DTS / CHANGE 必填；SR 可空
+- 所属子系统:                          # SR 必填；AR / DTS / CHANGE 可空
+- 关联 IR:
+- 关联 SR:
+- 关联 AR:
+- Owner / 经办人:
+- 创建日期:
 
-## Status Snapshot
+## 状态快照
 
-- Current Stage:                           # canonical devflow-* 节点
-- Pending Reviews And Gates:
-- Blockers:
-- Closeout Type:                           # closeout 之后写入：implementation / analysis / blocked
-- Closeout Verdict:                        # 未 closeout 时留空：closed / blocked
+- 当前阶段:
+- 工作流 Profile:
+- 执行模式:
+- 待完成评审与门禁:
+- 下一步动作或推荐 Skill:
+- 收尾类型:                            # closeout 后写入：implementation / analysis / blocked
+- 收尾结论:                            # 未 closeout 时留空：closed / blocked
 
-## Process Artifacts
+## 过程工件
 
-| 工件 | 路径 | 状态 | 适用 work item |
-|---|---|---|---|
-| Requirement | `requirement.md` | draft / approved / N/A | 通用 |
-| Reproduction（DTS） | `reproduction.md` | present / N/A | DTS |
-| Root Cause（DTS） | `root-cause.md` | present / N/A | DTS |
-| Fix Design（DTS） | `fix-design.md` | present / N/A | DTS |
-| Component Design Draft | `component-design-draft.md` | draft / approved / N/A | SR / AR component-impact |
-| AR Design Draft | `ar-design-draft.md` | draft / approved / N/A | AR / DTS（**不**适用 SR） |
-| Traceability | `traceability.md` | live | 通用（列集按类型） |
-| Implementation Log | `implementation-log.md` | live / N/A | AR / DTS / CHANGE |
-| Progress | `progress.md` | live | 通用 |
-| Completion | `completion.md` | pending / present / N/A | AR / DTS / CHANGE（SR 写 N/A） |
-| Closeout | `closeout.md` | pending / present | 通用 |
+| 工件 | 路径 | 状态 |
+|---|---|---|
+| Requirement | `requirement.md` | pending / present / approved |
+| Traceability | `traceability.md` | pending / present |
+| Component Design Draft | `component-design-draft.md` | N/A / pending / present / approved |
+| AR Design Draft | `ar-design-draft.md` | N/A / pending / present / approved |
+| Tasks | `tasks.md` | N/A / pending / present / approved |
+| 任务看板 | `task-board.md` | N/A / pending / present |
+| Implementation Log | `implementation-log.md` | N/A / pending / present |
+| Evidence | `evidence/` | N/A / pending / present |
+| 完成门禁 | `completion.md` | N/A / pending / present |
+| 收尾 | `closeout.md` | pending / present |
 
-## Reviews & Gates
+## 评审与门禁
 
-| 节点 | 记录路径 | Verdict | 日期 | 适用 work item |
+| 节点 | 记录路径 | 结论 | 日期 | 适用工作项 |
 |---|---|---|---|---|
-| spec-review | `reviews/spec-review.md` | | | 通用 |
-| component-design-review | `reviews/component-design-review.md` | | | SR（修订组件设计时）/ AR component-impact |
-| ar-design-review | `reviews/ar-design-review.md` | | | AR / DTS（**不**适用 SR） |
-| test-check | `reviews/test-check.md` | | | AR / DTS / CHANGE |
-| code-review | `reviews/code-review.md` | | | AR / DTS / CHANGE |
-| completion-gate | `completion.md` | | | AR / DTS / CHANGE（**不**适用 SR） |
+| spec-review | `reviews/spec-review.md` |  |  | SR / AR / DTS / CHANGE |
+| component-design-review | `reviews/component-design-review.md` |  |  | SR / AR(component-impact) |
+| ar-design-review | `reviews/ar-design-review.md` |  |  | AR / DTS / CHANGE |
+| tasks-review | `reviews/tasks-review.md` |  |  | AR / DTS / CHANGE |
+| test-check | `reviews/test-check.md` |  |  | AR / DTS / CHANGE |
+| code-review | `reviews/code-review.md` |  |  | AR / DTS / CHANGE |
+| completion-gate | `completion.md` |  |  | AR / DTS / CHANGE |
 
-## Long-Term Assets Affected
+## 关联长期资产
 
-- Component Implementation Design:        # docs/component-design.md，本次是否新增/修订
-- AR Implementation Design:               # docs/ar-designs/AR<id>-<slug>.md
-- Interfaces:                             # 可选：docs/interfaces.md，仅当项目已启用；未启用写 N/A
-- Dependencies:                           # 可选：docs/dependencies.md，仅当项目已启用；未启用写 N/A
-- Runtime Behavior:                       # 可选：docs/runtime-behavior.md，仅当项目已启用；未启用写 N/A
+| 长期资产 | 路径 | 本工作项是否触发同步 | 备注 |
+|---|---|---|---|
+| Component Design | `docs/component-design.md` | yes / no / N/A |  |
+| AR Design | `docs/ar-designs/AR<id>-<slug>.md` | yes / no / N/A |  |
+| Interfaces | `docs/interfaces.md` | yes / no / N/A（项目未启用） |  |
+| Dependencies | `docs/dependencies.md` | yes / no / N/A（项目未启用） |  |
+| Runtime Behavior | `docs/runtime-behavior.md` | yes / no / N/A（项目未启用） |  |
 
-## Backlinks
+## 备注
 
-- Supersedes prior work item:
-- Superseded by future work item:
-- Related hotfix incidents:
+- 

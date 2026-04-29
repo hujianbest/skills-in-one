@@ -1,36 +1,33 @@
-# devflow Traceability Matrix
+# devflow 追溯矩阵模板
 
 使用说明：
 
-- 这是 `features/<Work Item Id>-<slug>/traceability.md` 模板。
-- 列集按 work item 类型有所不同：
-  - **SR**（需求分析子街区）：IR → SR → Affected Components → Component Design Section → Candidate AR Breakdown
-  - **AR / DTS / CHANGE**（实现子街区）：IR → SR → AR → 组件设计 → AR 设计 → Task → 代码 → 测试 → 测试有效性审查 → 代码检视
-- 由 `devflow-specify` 初始化骨架，后续 `devflow-component-design` / `devflow-ar-design` / `devflow-tdd-implementation` / `devflow-test-checker` / `devflow-code-review` 各自补充本节点对应行（实现子街区）；SR 由 `devflow-specify` / `devflow-component-design` 补充，止于 candidate breakdown 列。
+- 默认保存路径：`features/<工作项ID>-<slug>/traceability.md`。
+- 列集按工作项类型有所不同：
+  - SR（需求分析子街区）：IR -> SR -> Affected Components -> Component Design Section -> Candidate AR Breakdown
+  - AR / DTS / CHANGE（实现子街区）：IR -> SR -> AR -> 组件设计 -> AR 设计 -> Task -> 代码 -> 测试 -> 验证
 
-## Identity
+## 标识信息
 
-- Work Item Type:                          # SR / AR / DTS / CHANGE
-- Work Item ID:
-- Owning Component:                        # AR / DTS / CHANGE
-- Owning Subsystem:                        # SR
+- 工作项类型:                          # SR / AR / DTS / CHANGE
+- 工作项 ID:
+- 所属组件:                            # AR / DTS / CHANGE
+- 所属子系统:                          # SR
 
-## Trace Rows — Implementation 子街区（AR / DTS / CHANGE）
+## 追溯行 — 实现子街区（AR / DTS / CHANGE）
 
-| IR | SR | AR | Component Design Section | AR Design Section | Task ID | Test Design Case | Code File / Function | Test Code File | Verification Evidence |
+| IR | SR | AR | 组件设计章节 | AR 设计章节 | 任务 ID | 测试设计用例 | 代码文件 / 函数 | 测试代码文件 | 验证证据 |
 |---|---|---|---|---|---|---|---|---|---|
 |   |   |   |   |   |   |   |   |   |   |
 
-## Trace Rows — Requirement-Analysis 子街区（SR）
+## 追溯行 — 需求分析子街区（SR）
 
-| IR | SR | Affected Component | Modification Surface | Component Design Section | Candidate AR ID | Covers SR Rows |
+| IR | SR | 受影响组件 | 修改面 | 组件设计章节 | 候选 AR ID | 覆盖 SR 行 |
 |---|---|---|---|---|---|---|
 |   |   |   |   |   |   |   |
 
-## Notes
+## 备注
 
-- 若某行不存在对应链接（例如 AR 不修改组件设计、SR 不修订组件设计），标记 `N/A` 并简述理由。
-- 跨组件 AR 在每个受影响组件仓库内分别维护对应行，本文件只覆盖**当前组件仓库**的视角。
-- 跨组件 SR 通常只在**主子系统的组件仓库**内维护本表（按团队约定）；其他受影响组件由 SR 拆出的 AR 各自落表。
-- 测试设计 Case 必须能在 AR 实现设计的测试设计章节中找到对应条目，形成双向锚点。
-- SR 的 Candidate AR ID 在 SR 内部使用 `CAR-001` 等编号；当需求负责人新建对应 AR work item 时，再在新 AR 的 traceability 表中填入正式 AR ID 并反向回指本 SR。
+- 若某行不存在对应链接，标记 `N/A` 并简述理由。
+- 跨组件 AR 在每个受影响组件仓库内分别维护对应行，本文件只覆盖当前组件仓库视角。
+- 测试设计用例必须能在 AR 实现设计的测试设计章节中找到对应条目，形成双向锚点。

@@ -13,7 +13,7 @@
 
 | 字段 | 内容 |
 |---|---|
-| Work Item ID |  |
+| 工作项 ID |  |
 | AR 系统流水号 |  |
 | AR 描述 |  |
 | 所属组件 |  |
@@ -55,8 +55,8 @@ autonumber
 
 - Recommended Option:
 - Rationale:
-- Confirmation Owner: 开发负责人 / 模块架构师
-- Confirmation Status: confirmed / pending / N/A (Single obvious option)
+- 确认负责人: 开发负责人 / 模块架构师
+- 确认状态: confirmed / pending / N/A（单一明显方案）
 
 ### 4.1 功能实现思路（必要）
 
@@ -257,7 +257,7 @@ stop
 
 单元测试主要覆盖哪些功能点。
 
-| Case ID | 功能点 | 前置条件 | Steps / Trigger | Expected Result | Mocks / Stubs / Sim | RED / GREEN Evidence Plan |
+| 用例 ID | 功能点 | 前置条件 | 步骤 / 触发 | 预期结果 | Mock / Stub / 仿真 | RED / GREEN 证据计划 |
 |---|---|---|---|---|---|---|
 |  |  |  |  |  |  |  |
 
@@ -265,7 +265,7 @@ stop
 
 接口测试必须按照接口说明来测试，包括必选字段、可选字段、字段长度、错误码等校验。
 
-| Case ID | 接口名 | 测试类型 | 测试内容 | Expected Result |
+| 用例 ID | 接口名 | 测试类型 | 测试内容 | 预期结果 |
 |---|---|---|---|---|
 |  |  | 必选字段 / 可选字段 / 字段长度 / 错误码 |  |  |
 
@@ -273,7 +273,7 @@ stop
 
 描述涉及的业务 / 功能场景。
 
-| Case ID | 场景 | 测试步骤 | Expected Result |
+| 用例 ID | 场景 | 测试步骤 | 预期结果 |
 |---|---|---|---|
 |  |  |  |  |
 
@@ -281,7 +281,7 @@ stop
 
 描述异常场景下的可靠性测试，包括交互部件之间的断链 / 超时、批处理消息全部失败 / 部分失败 / 全部成功等。
 
-| Case ID | 场景 | 处理方式 | Expected Result |
+| 用例 ID | 场景 | 处理方式 | 预期结果 |
 |---|---|---|---|
 |  |  |  |  |
 
@@ -306,6 +306,6 @@ stop
 
 ## 7. 模板修订记录
 
-| 日期 Date | 修订版本 Version | 描述 Description | Author |
+| 日期 | 修订版本 | 描述 | 作者 |
 |---|---|---|---|
 |  |  |  |  |

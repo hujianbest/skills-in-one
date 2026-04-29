@@ -1,33 +1,33 @@
-# devflow Task Board
+# devflow 任务看板模板
 
 使用说明：
 
-- 这是 `devflow-tdd-implementation` 用于 task-to-task 推进的队列投影模板，默认保存为 `features/<Work Item Id>-<slug>/task-board.md`。
-- `tasks.md` 定义任务拓扑、依赖与完成条件；task board 只投影当前状态。
-- `Current Active Task` 以 `progress.md` 为权威；本文件最多一个 `in_progress`，且必须与 `progress.md` 保持一致。
-- 若 task board 与已批准 tasks.md 冲突，或无法唯一判断 next-ready task，停止自动推进并回 `devflow-router`。
+- 默认保存路径：`features/<工作项ID>-<slug>/task-board.md`。
+- `tasks.md` 定义任务拓扑、依赖与完成条件；task-board 只投影当前状态。
+- `Current Active Task（当前活跃任务）` 以 `progress.md` 为权威；本文件最多一个 `in_progress`，且必须与 `progress.md` 保持一致。
+- 若 task-board 与已批准 tasks.md 冲突，或无法唯一判断 next-ready task，停止自动推进并回 `devflow-router`。
 
-## Metadata
+## 元数据
 
-- Work Item ID:
-- Source Task Plan:
-- Board Path:
+- 工作项 ID:
+- 来源任务计划:
+- 看板路径:
 - Owner:
-- Last Updated:
-- Board Mode: `artifact-first + board-assisted`
-- Implementation Mode: controller-direct / implementer-subagent
+- 最后更新:
+- 看板模式: `artifact-first + board-assisted`
+- 实现模式: controller-direct / implementer-subagent
 
-## Selection Rules
+## 选择规则
 
-- Current Active Task:
-- Selection Rule:
+- 当前活跃任务:
+- 选择规则:
   - 选择依赖已满足、状态为 `ready` 的唯一最高优先级任务
-- Conflict Policy:
+- 冲突策略:
   - 若存在多个同等候选，或依赖 / 状态冲突，则回 `devflow-router`
-- Ready Semantics:
-- Done Semantics:
+- Ready 语义:
+- Done 语义:
 
-## Status Vocabulary
+## 状态词汇
 
 - `pending`: 前置依赖或 ready 条件尚未满足
 - `ready`: 可被 router 锁定为下一任务
@@ -36,46 +36,46 @@
 - `blocked`: 任务当前无法推进，需要外部条件或上游修订
 - `cancelled`: 任务已失效、被改范围覆盖或不再执行
 
-## Implementer Dispatch Vocabulary
+## 实现派发状态词汇
 
-- `not_dispatched`: controller has not sent this task to an implementer
-- `dispatched`: fresh implementer subagent has received the context pack
-- `needs_context`: implementer asked for missing information
-- `blocked`: implementer cannot continue safely
-- `done`: implementer reported DONE
-- `done_with_concerns`: implementer reported DONE_WITH_CONCERNS
-- `review_ready`: controller resolved concerns and can dispatch `devflow-test-checker`
+- `not_dispatched`: controller 尚未将此任务派发给实现者
+- `dispatched`: 新的实现者 subagent 已收到上下文包
+- `needs_context`: 实现者请求补充信息
+- `blocked`: 实现者无法安全继续
+- `done`: 实现者报告 DONE
+- `done_with_concerns`: 实现者报告 DONE_WITH_CONCERNS
+- `review_ready`: controller 已处理 concerns，可派发 `devflow-test-checker`
 
-## Queue Snapshot
+## 队列快照
 
-- Ready Tasks:
-- Pending Tasks:
-- Blocked Tasks:
-- Done Tasks:
-- Last Completion Record:
-- Current Implementer Dispatch:
-- Current Context Pack:
-- Current Implementation Report:
-- Next Router Action:
+- Ready 任务:
+- Pending 任务:
+- Blocked 任务:
+- Done 任务:
+- 最近完成记录:
+- 当前实现派发状态:
+- 当前上下文包:
+- 当前实现报告:
+- 下一步 router 动作:
 
-## Task Queue
+## 任务队列
 
-| Task ID | Title | Status | Depends On | Ready When | Selection Priority | Test Design Case IDs | Dispatch Status | Context Pack | Implementation Report | Evidence Paths | Blocked Reason | Last Outcome / Record | Notes |
+| 任务 ID | 标题 | 状态 | 依赖 | 就绪条件 | 选择优先级 | 测试设计用例 ID | 派发状态 | 上下文包 | 实现报告 | 证据路径 | 阻塞原因 | 最近结果 / 记录 | 备注 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| T1 | <task title> | ready | - | task queue preflight passed | P1 |  | not_dispatched |  |  |  |  | N/A |  |
+| T1 | <任务标题> | ready | - | task queue preflight passed | P1 |  | not_dispatched |  |  |  |  | N/A |  |
 
-## Implementer Context Pack Index
+## 实现上下文包索引
 
-| Task ID | Context Pack Path / Summary | Allowed Files | Verify Commands | Hard Stops |
+| 任务 ID | 上下文包路径 / 摘要 | 允许修改文件 | 验证命令 | 硬停止条件 |
 |---|---|---|---|---|
 | T1 |  |  |  |  |
 
-## State Change Log
+## 状态变更日志
 
-- Date:
-  - Change:
-  - Evidence / Record:
+- 日期:
+  - 变更:
+  - 证据 / 记录:
 
-## Notes
+## 备注
 
-- Additional Notes:
+- 其他备注:

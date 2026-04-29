@@ -1,32 +1,41 @@
-# DTS Work Item README Template
+# DTS 工作项 README 模板
 
-# DTS<id>-<slug>
+使用说明：
 
-## Summary
+- 默认保存路径：`features/DTS<id>-<slug>/README.md`。
+- 用于问题修改 / hotfix 工作项入口索引。
 
-- Problem statement:
-- Owning component:
-- Severity / urgency:
-- Reporter / owner:
+## 摘要
 
-## Reproduction
+- 工作项类型: DTS
+- DTS ID:
+- 标题:
+- 所属组件:
+- 问题来源:
+- Owner / 经办人:
+- 创建日期:
 
-- Reproduction record: reproduction.md
-- Environment / build:
-- Logs / traces:
+## 状态快照
 
-## Root Cause And Fix Boundary
+- 当前阶段:
+- 工作流 Profile: hotfix
+- 下一步动作或推荐 Skill:
+- 阻塞项:
 
-- Root cause record: root-cause.md
-- Fix design: fix-design.md
-- Non-scope:
+## 过程工件
 
-## Process Artifacts
-
-| Artifact | Path | Status |
+| 工件 | 路径 | 状态 |
 |---|---|---|
-| Progress | progress.md | |
-| Reproduction | reproduction.md | |
-| Root Cause | root-cause.md | |
-| Fix Design | fix-design.md | |
-| Evidence | evidence/ | |
+| Reproduction | `reproduction.md` | pending / present |
+| Root Cause | `root-cause.md` | pending / present |
+| Fix Design | `fix-design.md` | pending / present |
+| AR Design Draft | `ar-design-draft.md` | N/A / pending / present |
+| Tasks | `tasks.md` | N/A / pending / present |
+| Evidence | `evidence/` | pending / present |
+| Reviews | `reviews/` | pending / present |
+| 完成门禁 | `completion.md` | pending / present |
+| 收尾 | `closeout.md` | pending / present |
+
+## 备注
+
+- 

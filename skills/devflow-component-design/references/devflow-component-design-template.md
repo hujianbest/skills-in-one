@@ -84,8 +84,8 @@
 
 - Recommended Option:
 - Rationale:
-- Confirmation Owner: 模块架构师
-- Confirmation Status: confirmed / pending / N/A (Single obvious option)
+- 确认负责人: 模块架构师
+- 确认状态: confirmed / pending / N/A（单一明显方案）
 
 ### 5.1 软件 1 层实现设计
 

@@ -1,178 +1,127 @@
-# devflow Reproduction / Root Cause / Fix Design Templates
+# devflow 复现 / 根因 / 修复设计模板
 
-> 配套 `devflow-problem-fix/SKILL.md`。提供 DTS / hotfix 三个核心过程文件的最小模板。
+## `reproduction.md`
 
-## reproduction.md
-
-```markdown
-# DTS<id>-<slug> Reproduction
-
-## Identity
+### 元数据
 
 - DTS ID:
-- Owning Component:
-- Owner / Reporter:
-- Severity:                                # critical / important / minor
-- 已上线版本:                              # 触发缺陷的部署版本 / commit
-- 复现稳定性: `stable` | `flaky` | `unable-to-reproduce`
+- 所属组件:
+- 问题来源:
+- Owner / 报告人:
+- 日期:
 
-## 期望行为
+### 问题摘要
 
-- 锚点（已批准 spec / 设计 / API 契约 / 文档段落）:
-- 期望:
+- 现象:
+- 影响范围:
+- 严重程度:
+- 触发频率:
 
-## 实际行为
+### 复现路径
 
-- 实际:
+| 步骤 | 操作 / 输入 | 预期结果 | 实际结果 | 证据 |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
 
-## 复现步骤
+### 环境信息
 
-- 环境:                                    # OS、目标平台、固件版本
-- 软件版本 / 包:
+- 版本 / 分支:
+- 硬件 / 板卡:
 - 配置:
-- 步骤:
-  1.
-  2.
-- 触发条件 / 频率:
+- 日志 / 采集文件:
 
-## 失败证据
+### 复现结论
 
-- 命令 / 操作:
-- 退出码 / 状态:
-- 关键日志摘要 / Stack Trace:
-- 详细日志路径:                            # features/DTS<id>-<slug>/evidence/...
+- 是否可复现: yes / no / flaky
+- 无法复现说明（如适用）:
+- 下一步:
 
-## 横向影响初步评估
+## `root-cause.md`
 
-- 是否可能在相似路径上也存在:
-- 已知绕过方法:
-```
-
-## root-cause.md
-
-```markdown
-# DTS<id>-<slug> Root Cause Analysis
-
-## Identity
+### 元数据
 
 - DTS ID:
-- Owning Component:
-- Reproduction Reference: features/DTS<id>-<slug>/reproduction.md
+- 所属组件:
+- Owner:
+- 日期:
 
-## 5 Whys
+### 事实证据
 
-- Why 1:
-- Why 2:
-- Why 3:
-- Why 4:
-- Why 5:                                   # 不强制 5 层；最少到根因
+- 日志:
+- core / crash / trace:
+- 相关代码:
+- 最近变更:
 
-## 根因维度
+### 根因分析
 
-- [ ] 编码错误（off-by-one、空指针、类型转换）
-- [ ] 设计缺陷（接口契约不一致、状态机覆盖不全）
-- [ ] 内存（生命周期、池化、栈溢出）
-- [ ] 并发（中断上下文、临界区、竞态、死锁）
-- [ ] 实时性（截止时间、调度、节拍）
-- [ ] 资源生命周期（句柄 / 文件 / 缓冲区）
-- [ ] 错误处理（输入校验、降级、恢复）
-- [ ] 配置 / 编译条件
-- [ ] 依赖 / 接口（跨组件 / 第三方 / 协议）
-- [ ] ABI / API 兼容
-- [ ] 其他:
+- 直接原因:
+- 深层原因:
+- 影响模块:
+- 是否涉及组件边界 / SOA 接口 / 状态机:
+- 是否涉及内存 / 并发 / 实时性 / 资源生命周期:
 
-## 信心程度
+### 排除项
 
-- Confidence: `demonstrated` | `probable`
-- 直接证据:
-- 间接证据:
+| 假设 | 排除证据 | 结论 |
+|---|---|---|
+|  |  |  |
 
-## 横向影响
+### 根因结论
 
-- 是否在其他相似路径上也存在:
-- 是否与既有 ADR / 组件设计章节冲突:
-- 是否影响其他 work item:
+- Root Cause:
+- 置信度:
+- 未关闭问题:
 
-## 是否触发组件级修订
+## `fix-design.md`
 
-- 是否需要修订 docs/component-design.md（以及项目已启用的可选子资产 docs/interfaces.md / docs/dependencies.md / docs/runtime-behavior.md；未启用的写 N/A）:
-- 如是，说明触发的修订点:
-```
-
-## fix-design.md
-
-```markdown
-# DTS<id>-<slug> Fix Design
-
-## Identity
+### 元数据
 
 - DTS ID:
-- Owning Component:
-- Reproduction Reference: features/DTS<id>-<slug>/reproduction.md
-- Root Cause Reference: features/DTS<id>-<slug>/root-cause.md
-- 当前 profile: `hotfix`
+- 所属组件:
+- Owner:
+- 日期:
 
-## 修复边界（最小安全）
+### 修复边界
 
-- 改什么:                                  # 文件 / 函数 / 配置
-- 不改什么:                                # 显式列出避免顺手扩散
-- 影响什么:
-  - 用户可见行为:
-  - 公共接口:
-  - 数据契约:
-  - 跨组件:
-- 修复信心: `demonstrated-minimal` | `probable-narrow`
+- 最小安全修复范围:
+- 不修改范围:
+- 涉及文件 / 模块:
+- 是否需要 AR 实现设计:
+- 是否需要组件实现设计:
 
-## 修复策略
+### 修复方案
 
-- 实现策略概要:                            # 仅描述思路，不写完整代码
-- 与既有 docs/component-design.md / docs/ar-designs/ 的一致性:
-- 是否需要补正式 AR 实现设计: yes / no
-- 是否需要修订组件实现设计: yes / no
+- 方案摘要:
+- 错误处理:
+- 资源生命周期:
+- 并发 / 实时性影响:
+- ABI / API 兼容:
+- 回退策略:
 
-## 测试设计要点
+### 测试设计要点
 
-> 这是临时的测试设计要点。若需要正式 AR 实现设计，下一节点是 `devflow-ar-design`，测试设计章节应在那里完整化。
+> 这是临时测试设计要点。若需要正式 AR 实现设计，下一节点是 `devflow-ar-design`，测试设计章节应在那里完整化。
 
-- 复现脚本作为 RED 用例:
-- 额外覆盖的边界 / 异常 / 嵌入式风险用例:
-- 集成 / 仿真测试需求（如适用）:
-- RED / GREEN 证据要求:
-- 嵌入式风险覆盖矩阵:
-  - 内存:
-  - 并发:
-  - 实时性:
-  - 资源生命周期:
-  - 错误处理:
-  - ABI / API 兼容:
+| Case ID | 覆盖行为 | 测试层级 | 预期结果 | 证据路径 |
+|---|---|---|---|---|
+|  |  | unit / integration / simulation |  |  |
 
-## 嵌入式风险审计
+### 回流判断
 
-- 修复是否引入新风险:
-- 是否需要补静态分析配置:
-- 是否需要更新编译告警基线:
+| 条件 | 下一步 |
+|---|---|
+| 复现 + 根因 + 修复边界清晰，不触组件边界，不需要正式 AR 设计 | `devflow-tdd-implementation` |
+| 修复需要正式 AR 实现设计 | `devflow-ar-design` |
+| 修复触及组件边界 | `devflow-component-design` |
+| 实际是需求变更 | `devflow-specify` |
+| 证据不足以确认根因 | `devflow-router` |
 
-## 回流节点
+### 交接块
 
-- Next Action Or Recommended Skill:        # devflow-tdd-implementation / devflow-ar-design / devflow-component-design / devflow-specify / devflow-router
-- 选择理由:
-
-## Open Questions
-
-- 阻塞 (blocking):
-- 非阻塞 (non-blocking):
-```
-
-## 反例
-
-```text
-❌ reproduction.md：「问题如下：服务起不来」
-❌ root-cause.md：「应该是某个变量没初始化」
-❌ fix-design.md：「改一下那个函数让它不崩了」
-```
-
-```text
-✅ reproduction.md 含完整环境、版本、命令、退出码、可放进 RED 的失败证据
-✅ root-cause.md 走完 5 Whys，明确根因维度（如「中断上下文中调用了阻塞 API」），信心 `demonstrated`
-✅ fix-design.md 列出改 X.c 的 Y 函数；不改公共接口；用户可见行为不变；嵌入式风险审计每维度有结论
-```
+- 当前节点: devflow-problem-fix
+- DTS ID:
+- 所属组件:
+- 产出工件:
+- 证据摘要:
+- 阻塞项:
+- 下一步动作或推荐 Skill:

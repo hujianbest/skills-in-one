@@ -1,91 +1,88 @@
-# devflow Completion Record
+# devflow 完成门禁记录模板
 
 使用说明：
 
-- 这是 `devflow-completion-gate` 的完成门禁记录模板。
-- **默认保存路径：`features/<Work Item Id>-<slug>/completion.md`**
-- 若项目在 `AGENTS.md` 中声明了等价路径或专用模板，优先遵循项目约定。
+- 默认保存路径：`features/<工作项ID>-<slug>/completion.md`。
+- 用于记录 task-level 或 work-item-level 的完成判断、验证命令、新鲜度锚点和下一步。
 
-## Metadata
+## 元数据
 
-- Work Item Type:                          # AR / DTS / CHANGE
-- Work Item ID:
-- Owning Component:
-- Workflow Profile:                        # standard / component-impact / hotfix / lightweight
-- Current Active Task:
-- Task Plan Path:
-- Task Board Path:
-- Date:
-- Record Path:
+- 工作项类型:                          # AR / DTS / CHANGE
+- 工作项 ID:
+- 所属组件:
+- 工作流 Profile:                      # standard / component-impact / hotfix / lightweight
+- 当前活跃任务:
+- 任务计划路径:
+- 任务看板路径:
+- 日期:
+- 记录路径:
 
-## Upstream Evidence Bundle
+## 上游证据包
 
 | 工件 | 路径 | 状态 |
 |---|---|---|
-| Requirement / Spec | `requirement.md` | present / approved |
-| Spec Review | `reviews/spec-review.md` | 通过 / 需修改 / 阻塞 |
-| Component Design | `docs/component-design.md` | unchanged / updated / N/A |
-| Component Design Review | `reviews/component-design-review.md` | 通过 / N/A |
-| AR Design | `ar-design-draft.md` + `docs/ar-designs/AR<id>-<slug>.md` | approved |
-| AR Design Review | `reviews/ar-design-review.md` | 通过 |
-| Tasks | `tasks.md` | approved |
-| Task Board | `task-board.md` | active task locked / all done |
-| Task Queue Preflight | `tasks.md` / `task-board.md` | passed |
-| Implementation Log | `implementation-log.md` | present |
-| Test Evidence | `evidence/unit/`、`evidence/integration/` | present |
-| Static Analysis Evidence | `evidence/static-analysis/` | present / N/A |
-| Build Evidence | `evidence/build/` | present |
-| Test Effectiveness Review | `reviews/test-check.md` | 通过 |
-| Code Review | `reviews/code-review.md` | 通过 |
+| 需求 / 规格 | `requirement.md` | present / approved |
+| 规格评审 | `reviews/spec-review.md` | 通过 / 需修改 / 阻塞 |
+| 组件设计 | `docs/component-design.md` | unchanged / updated / N/A |
+| 组件设计评审 | `reviews/component-design-review.md` | 通过 / N/A |
+| AR 设计 | `ar-design-draft.md` + `docs/ar-designs/AR<id>-<slug>.md` | approved |
+| AR 设计评审 | `reviews/ar-design-review.md` | 通过 |
+| 任务队列前置检查 | `tasks.md` / `task-board.md` | passed |
+| 实现日志 | `implementation-log.md` | present |
+| 测试证据 | `evidence/unit/`、`evidence/integration/` | present |
+| 静态分析证据 | `evidence/static-analysis/` | present / N/A |
+| 构建证据 | `evidence/build/` | present |
+| 测试有效性评审 | `reviews/test-check.md` | 通过 |
+| 代码检视 | `reviews/code-review.md` | 通过 |
 
-## Completion Claim
+## 完成声明
 
-- Claim:                                   # 准备宣告什么完成了
-- Scope:                                   # 本次完成覆盖的 Current Active Task / AR 行为 / DTS 修复范围
+- 声明:                                   # 准备宣告什么完成了
+- 范围:                                   # 本次完成覆盖的当前活跃任务 / AR 行为 / DTS 修复范围
 
-## Task Queue Result
+## 任务队列结果
 
-- Completed Task:
-- Task Status After Gate:                  # done / blocked
-- Next Ready Task:                         # <Task ID> / none / conflict
-- Next Action Decision:                    # devflow-tdd-implementation / devflow-finalize / devflow-router
+- 已完成任务:
+- 门禁后任务状态:                         # done / blocked
+- 下一 ready 任务:                        # <Task ID> / none / conflict
+- 下一步动作判断:                         # devflow-tdd-implementation / devflow-finalize / devflow-router
 
-## Verification Commands Run In This Round
+## 本轮执行的验证命令
 
 ```text
 <command 1>
 ```
 
-- Exit Code:
-- Summary:
+- 退出码:
+- 摘要:
 
 ```text
 <command 2>
 ```
 
-- Exit Code:
-- Summary:
+- 退出码:
+- 摘要:
 
-## Freshness Anchor
+## 新鲜度锚点
 
-- Commit / Build ID:
+- Commit / 构建 ID:
 - 为什么这些证据属于当前最新代码状态:
-- 大体量原始日志路径:                      # features/<id>/evidence/...
+- 大体量原始日志路径:
 
-## Quality Risk Audit
+## 质量风险审计
 
 - 嵌入式风险（内存 / 并发 / 实时性 / 资源生命周期 / 错误处理）:
 - 已知 critical 静态分析 / 编译告警 / 编码规范违反:
 - 未覆盖的 AR 行为或边界:
 - SOA 边界 / 跨组件依赖风险:
 
-## Verdict
+## 结论
 
-- Conclusion: `通过` | `需修改` | `阻塞`
-- Verdict Rationale:
-- Next Action Or Recommended Skill:        # canonical devflow-* 节点：devflow-tdd-implementation / devflow-finalize / devflow-router 等
-- reroute_via_router:                      # true / false
+- 结论: `通过` | `需修改` | `阻塞`
+- 结论理由:
+- 下一步动作或推荐 Skill:                # canonical devflow-* 节点：devflow-tdd-implementation / devflow-finalize / devflow-router 等
+- reroute_via_router: true / false
 
-## Notes
+## 备注
 
-- Limits / Open Items:
+- 限制 / 未关闭项:

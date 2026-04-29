@@ -1,20 +1,27 @@
-# DTS Progress Template
+# DTS 进度模板
 
-Use this compact progress record for a DTS / hotfix work item.
+使用说明：
 
-- Work Item Type: DTS
-- Work Item ID:
-- Owning Component:
-- Workflow Profile: hotfix
-- Execution Mode: interactive | auto
-- Current Stage: devflow-problem-fix
-- Reproduction Path:
-- Root Cause Record Path:
-- Fix Design Path:
-- Pending Reviews And Gates:
-- Current Active Task:
-- Task Plan Path:
-- Task Board Path:
-- Next Action Or Recommended Skill:
-- Blockers:
-- Last Updated:
+- 默认保存路径：`features/DTS<id>-<slug>/progress.md`。
+- 仅用于问题修改 / hotfix 分析阶段的最小进度记录。
+
+## 标识信息
+
+- 工作项类型: DTS
+- 工作项 ID:
+- 所属组件:
+- 工作流 Profile: hotfix
+- 执行模式: interactive / auto
+
+## 问题分析状态
+
+- 复现记录路径:
+- 根因记录路径:
+- 修复设计路径:
+- 待完成评审与门禁:
+- 当前活跃任务:
+- 任务计划路径:
+- 任务看板路径:
+- 下一步动作或推荐 Skill:
+- 阻塞项:
+- 最后更新:

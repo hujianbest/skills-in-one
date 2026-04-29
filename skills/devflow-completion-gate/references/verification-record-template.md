@@ -1,78 +1,78 @@
-# Verification Record Template
+# 验证记录模板
 
-> 配套 `devflow-completion-gate/SKILL.md`。本模板继承旧 MDC 通用验证记录结构，用于保存命令、结果摘要、新鲜度锚点和门禁结论。
+> 配套 `devflow-completion-gate/SKILL.md`。用于保存验证命令、结果摘要、新鲜度锚点和门禁结论。
 
-## Metadata
+## 元数据
 
-- Verification Type:                       # unit / integration / simulation / build / static-analysis / regression / completion
-- Work Item Type:                          # AR / DTS / CHANGE
-- Work Item ID:
-- Current Active Task:
-- Scope:
-- Date:
-- Record Path:
-- Worktree Path / Worktree Branch（若适用）:
+- 验证类型:                             # unit / integration / simulation / build / static-analysis / regression / completion
+- 工作项类型:                           # AR / DTS / CHANGE
+- 工作项 ID:
+- 当前活跃任务:
+- 范围:
+- 日期:
+- 记录路径:
+- Worktree 路径 / 分支（如适用）:
 
-## Upstream Evidence Consumed
+## 已消费的上游证据
 
-- Implementation Handoff:
-- Review / Gate Records:
-  - Spec Review:
-  - Component Design Review:
-  - AR Design Review:
-  - Task Queue Preflight:
-  - Test Check:
-  - Code Review:
-- Task / Progress Anchors:
-  - Task Plan:
-  - Task Board:
-  - Progress:
-- Traceability:
+- 实现交接:
+- 评审 / 门禁记录:
+  - 规格评审:
+  - 组件设计评审:
+  - AR 设计评审:
+  - 任务队列前置检查:
+  - 测试有效性评审:
+  - 代码检视:
+- 任务 / 进度锚点:
+  - 任务计划:
+  - 任务看板:
+  - 进度:
+- 追溯矩阵:
 
-## Claim Being Verified
+## 被验证的声明
 
-- Claim:
-- Claim Type: task-level completion / work-item completion / regression / environment recovery
+- 声明:
+- 声明类型: task-level completion / work-item completion / regression / environment recovery
 
-## Verification Scope
+## 验证范围
 
-- Included Coverage:
-- Uncovered Areas:
-- Rationale For Scope:
+- 覆盖范围:
+- 未覆盖范围:
+- 范围理由:
 
-## Commands And Results
+## 命令与结果
 
-### Command 1
-
-```text
-<command>
-```
-
-- Exit Code:
-- Summary:
-- Notable Output:
-- Evidence Path:
-
-### Command 2（如适用）
+### 命令 1
 
 ```text
 <command>
 ```
 
-- Exit Code:
-- Summary:
-- Notable Output:
-- Evidence Path:
+- 退出码:
+- 摘要:
+- 关键输出:
+- 证据路径:
 
-## Freshness Anchor
+### 命令 2（如适用）
 
-- Commit / Build ID:
-- Toolchain / Target:
-- Configuration:
-- Why this evidence is for the latest relevant code state:
-- Output Log / Terminal / Artifact:
+```text
+<command>
+```
 
-## Embedded Risk Audit
+- 退出码:
+- 摘要:
+- 关键输出:
+- 证据路径:
+
+## 新鲜度锚点
+
+- Commit / 构建 ID:
+- 工具链 / 目标平台:
+- 配置:
+- 为什么该证据对应最新相关代码状态:
+- 输出日志 / 终端 / 工件:
+
+## 嵌入式风险审计
 
 | 维度 | 状态 | 证据 / 说明 |
 |---|---|---|
@@ -84,21 +84,21 @@
 | ABI / API 兼容 | clean / documented-debt / critical-open / N/A |  |
 | SOA 边界 / 跨组件依赖 | clean / documented-debt / critical-open / N/A |  |
 
-## Conclusion
+## 结论
 
-- Conclusion: `通过` | `需修改` | `阻塞`
-- Verdict Rationale:
-- Next Action Or Recommended Skill:
+- 结论: `通过` | `需修改` | `阻塞`
+- 结论理由:
+- 下一步动作或推荐 Skill:
 - reroute_via_router: true / false
 
-## Scope / Remaining Work Notes
+## 范围 / 剩余工作说明
 
-- Remaining Task Decision（若适用）:
-- If unique next-ready task exists:
-- If no ready / pending tasks remain:
-- If task-board state conflicts:
-- Notes:
+- 剩余任务判断（如适用）:
+- 如果存在唯一 next-ready task:
+- 如果没有 ready / pending task:
+- 如果 task-board 状态冲突:
+- 备注:
 
-## Related Artifacts
+## 关联工件
 
-- Related Artifacts:
+- 关联工件:

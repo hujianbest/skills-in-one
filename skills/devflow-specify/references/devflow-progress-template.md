@@ -1,52 +1,51 @@
-# devflow Work Item Progress
+# devflow 工作项进度模板
 
 使用说明：
 
-- 这是 `features/<Work Item Id>-<slug>/progress.md` 模板。
-- 是 work item 唯一权威 progress 落点，所有 `devflow-*` skill 完成节点工作时必须用 canonical 字段同步。
-- `Next Action Or Recommended Skill` 只能写 canonical `devflow-*` 节点名，**不允许**自由文本，**不允许**写 `using-devflow`。
-- 若项目在 `AGENTS.md` 中声明了等价模板或路径，优先遵循项目约定。
+- 默认保存路径：`features/<工作项ID>-<slug>/progress.md`。
+- `Next Action Or Recommended Skill（下一步动作或推荐 Skill）` 只能写 canonical `devflow-*` 节点名，不允许自由文本，不允许写 `using-devflow`。
+- 若项目在 `AGENTS.md` 中声明等价模板或路径，优先遵循项目约定。
 
-## Identity
+## 标识信息
 
-- Work Item Type:                          # SR / AR / DTS / CHANGE
-- Work Item ID:
-- Owning Component:                        # AR / DTS / CHANGE 必填；SR 可空
-- Owning Subsystem:                        # SR 必填；AR / DTS / CHANGE 可空
-- Related IR:
-- Related SR:                              # AR 必填
-- Related AR:                              # DTS 影响功能需求时填写
-- AR Breakdown Candidates:                 # 仅 SR 适用；spec-review 后定稿，analysis closeout 时写入 closeout.md
+- 工作项类型:                          # SR / AR / DTS / CHANGE
+- 工作项 ID:
+- 所属组件:                            # AR / DTS / CHANGE 必填；SR 可空
+- 所属子系统:                          # SR 必填；AR / DTS / CHANGE 可空
+- 关联 IR:
+- 关联 SR:                             # AR 必填
+- 关联 AR:                             # DTS 影响功能需求时填写
+- AR 拆分候选:                         # 仅 SR 适用；spec-review 后定稿，analysis closeout 时写入 closeout.md
 
-## Workflow State
+## 工作流状态
 
-- Current Stage:                           # canonical devflow-* 节点
-- Workflow Profile:                        # requirement-analysis（SR）/ standard / component-impact / hotfix / lightweight
-- Execution Mode:                          # interactive / auto
-- Current Active Task:                     # task queue preflight 通过后填写唯一 active task；无则留空
-- Task Plan Path:                          # features/<id>/tasks.md
-- Task Board Path:                         # features/<id>/task-board.md
-- Last Updated:
+- 当前阶段:                            # canonical devflow-* 节点
+- 工作流 Profile:                      # requirement-analysis / standard / component-impact / hotfix / lightweight
+- 执行模式:                            # interactive / auto
+- 当前活跃任务:                        # task queue preflight 通过后填写唯一 active task；无则留空
+- 任务计划路径:                        # features/<id>/tasks.md
+- 任务看板路径:                        # features/<id>/task-board.md
+- 最后更新:
 
-## Pending Reviews And Gates
+## 待完成评审与门禁
 
-- Pending Reviews And Gates:
-- Blockers:
+- 待完成评审与门禁:
+- 阻塞项:
 
-## Progress Notes
+## 进度说明
 
-- What Changed In This Round:
-- Evidence Paths:                          # 例：features/<id>/evidence/...
-- Open Risks:
+- 本轮变化:
+- 证据路径:                            # 例：features/<id>/evidence/...
+- 未关闭风险:
 
-## Traceability Anchors
+## 追溯锚点
 
-- IR / SR / AR Refs:
-- Component Design Refs:
-- AR Design Refs:                          # ar-design-draft.md 章节锚点 + docs/ar-designs/...
-- Test Design Refs:                        # AR 实现设计中测试设计章节锚点
+- IR / SR / AR 引用:
+- 组件设计引用:
+- AR 设计引用:
+- 测试设计引用:
 
-## Next Step
+## 下一步
 
-- Next Action Or Recommended Skill:        # canonical devflow-* 节点
-- Notes:
+- 下一步动作或推荐 Skill:              # canonical devflow-* 节点
+- 备注:
