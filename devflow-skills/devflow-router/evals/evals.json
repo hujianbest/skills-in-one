@@ -1,0 +1,71 @@
+{
+  "skill_name": "devflow-router",
+  "evals": [
+    {
+      "id": 1,
+      "name": "multiple-next-ready-tasks-hard-stop",
+      "prompt": "需要继续推进 AR-DRYRUN-002。progress.md 当前阶段是 devflow-completion-gate，Task Board Path 指向 task-board.md。task-board 中 T1=done，T2=ready，T3=ready，T2 和 T3 都 depends on T1，Selection Priority 都是 P2，Current Active Task 为空。请判断下一步。",
+      "expected_output": "应识别 next-ready task 不唯一，不能猜测 T2 或 T3，必须 hard stop 并路由到 devflow-router，reroute_via_router=true。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "detect-non-unique-next-ready",
+          "text": "明确指出 T2 和 T3 都是 ready 且优先级相同，next-ready task 不唯一",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "no-arbitrary-task-choice",
+          "text": "不直接选择 T2 或 T3 进入 devflow-tdd-implementation",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "route-to-router",
+          "text": "Next Action Or Recommended Skill 为 devflow-router",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "reroute-true",
+          "text": "reroute_via_router 为 true",
+          "met": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "progress-task-board-active-task-mismatch-hard-stop",
+      "prompt": "需要继续推进 AR-DRYRUN-003。progress.md 中 Current Active Task = T2，但 task-board.md 中唯一 in_progress task 是 T3，T2 的状态是 pending。Workflow Profile=standard，Current Stage=devflow-tdd-implementation。请判断下一步。",
+      "expected_output": "应识别 progress.md 与 task-board.md 的 Current Active Task 冲突，不能继续实现，必须 hard stop 回 devflow-router。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "detect-active-task-mismatch",
+          "text": "明确指出 progress.md 的 T2 与 task-board.md 的 T3 冲突",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "no-implementation",
+          "text": "不进入 devflow-tdd-implementation 开始实现",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "route-to-router",
+          "text": "Next Action Or Recommended Skill 为 devflow-router",
+          "met": false,
+          "details": ""
+        },
+        {
+          "name": "reroute-true",
+          "text": "reroute_via_router 为 true",
+          "met": false,
+          "details": ""
+        }
+      ]
+    }
+  ]
+}

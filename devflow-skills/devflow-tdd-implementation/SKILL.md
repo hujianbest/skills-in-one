@@ -1,0 +1,236 @@
+---
+name: devflow-tdd-implementation
+description: Use when the AR implementation design and task execution index have passed review and the developer must implement the Current Active Task in C/C++ via TDD, when revisiting implementation after devflow-test-checker / devflow-code-review returned 需修改, or when devflow-problem-fix has handed off a confirmed reproducer + fix boundary. Not for designing the AR (→ devflow-ar-design), not for planning tasks (→ devflow-tasks), not for changing component design (→ devflow-component-design), not for evaluating test effectiveness (→ devflow-test-checker), not for code review (→ devflow-code-review).
+---
+
+# devflow TDD 实现
+
+按已通过评审的 AR 实现设计（含测试设计章节）和已通过评审的 tasks 执行当前唯一 active task 的 C / C++ TDD：先写失败用例（RED）、再写最小实现使其通过（GREEN）、必要时做受控重构（REFACTOR），并保留可独立审查的证据。
+
+本 skill 不写设计、不改 AR 范围、不替自己代码做有效性审查（那是 `devflow-test-checker` 的职责），也不替自己做代码检视（那是 `devflow-code-review`）。
+
+## When to Use
+
+适用：
+
+- `devflow-ar-design-review` verdict = `通过`、`devflow-tasks-review` verdict = `通过`，且 `progress.md` / `task-board.md` 已锁定唯一 Current Active Task
+- `devflow-test-checker` 或 `devflow-code-review` 返回 `需修改`，本 AR 仍是当前活跃 work item
+- `devflow-problem-fix` 已交付复现路径 + 根因 + 最小修复边界，可消费现有 AR 设计或 fix-design.md
+
+不适用 → 改用：
+
+- AR 设计未通过 review / 缺测试设计 → `devflow-ar-design`
+- 修改影响组件边界 → `devflow-component-design`
+- 实现完成、需审查测试有效性 → `devflow-test-checker`
+- 实现完成、测试已审、需审代码 → `devflow-code-review`
+- 阶段不清 / 多 work item 切换 → `devflow-router`
+
+## Hard Gates
+
+- AR 实现设计未通过 `devflow-ar-design-review` 前不得开始
+- tasks 未通过 `devflow-tasks-review` 前不得开始
+- `Current Active Task` 为空、不唯一或与 task-board 不一致 → 不得开始，回 `devflow-router`
+- AR 实现设计的测试设计章节缺失 / 不完整 → 不得开始；回 `devflow-ar-design`
+- 修改影响组件接口 / 依赖 / 状态机 → 立即停下，回 `devflow-router` 升级 component-impact
+- 新增组件 / 新测试目标没有可运行测试 harness 时，不得把测试工程缺失当作 RED；必须先完成测试上下文探索与最小 harness bootstrap
+- 不得跳过 RED：先写失败用例并跑出失败证据，再写实现
+- GREEN 步内**不得**做 cleanup / 重构（违反 Two Hats）
+- REFACTOR 步只做 task 触碰范围内、可解释、可验证的清理；跨 ≥3 模块的结构性重构 / 改 ADR / 改组件边界 → 立即停下回 `devflow-router`
+- 不得自我宣称代码质量通过 / 测试有效；交接给 `devflow-test-checker`
+- 写回 fresh evidence 与 canonical handoff 前不得声称完成
+
+## Object Contract
+
+- Primary Object: implementation slice（针对单个 AR 或 DTS 修复的代码变化 + RED/GREEN/REFACTOR 证据）
+- Frontend Input Object: 已通过 review 的 `features/<id>/ar-design-draft.md`（含测试设计章节）、`features/<id>/tasks.md`、`features/<id>/task-board.md`、`docs/component-design.md`、当前代码现状、`features/<id>/reviews/ar-design-review.md`、`features/<id>/reviews/tasks-review.md`
+- Backend Output Object:
+  - C / C++ 代码改动（含新增 / 修改 / 删除）
+  - 测试代码改动（基于测试设计章节）
+  - `features/<id>/implementation-log.md`
+  - `features/<id>/evidence/unit/`、`features/<id>/evidence/integration/`、`features/<id>/evidence/static-analysis/`、`features/<id>/evidence/build/`
+  - `features/<id>/progress.md` canonical 同步
+- Object Transformation: 把 AR 设计 + 测试设计章节落成 C / C++ 代码变化 + 可独立审查的测试证据
+- Object Boundaries: 不修改组件接口 / 依赖 / 状态机；不补 / 改 AR 设计的范围；不审查自己测试或代码
+- Object Invariants: AR ID、所属组件、AR 设计版本锚点稳定；REFACTOR 不引入新行为
+
+## Methodology
+
+- **Embedded TDD (Beck)**：RED → GREEN → REFACTOR 严格分步
+- **Two Hats**：同一时刻只戴 Changer 帽（写新行为）或 Refactor 帽（保持行为不变改结构）
+- **Task-Scoped Test Design Execution**：测试用例已在 AR 设计的测试设计章节中预先声明，并由 tasks.md 映射到 Current Active Task；本 skill 不再创造测试用例，只执行当前 task 引用的 Case ID
+- **Test Harness Discovery First**：新增组件或新测试目标先探索 `AGENTS.md`、既有测试目录、构建脚本、CI 配置和相邻组件测试；缺 harness 时只搭建最小可运行测试工程，不替代业务 RED
+- **Fresh Evidence Principle**：所有 RED / GREEN / REFACTOR 证据在当前会话产生，可独立审查
+- **Refactoring Discipline**：REFACTOR 只清扫 task 触碰范围；超出范围（跨模块、改 ADR、改组件边界）立即升级
+- **C / C++ Defensive Implementation**：内存、生命周期、并发、实时性、错误处理、资源回收按 AR 设计落地
+- **Static / Dynamic Quality Inspection**：编译告警、静态分析、单测 / 集成 / 仿真测试结果共同组成证据
+
+## Workflow
+
+### 1. 对齐输入与单 work item 锁定
+
+按 Read-On-Presence 读取 ar-design-draft.md（含测试设计章节）、reviews/ar-design-review.md（应 `通过`）、tasks.md、task-board.md、reviews/tasks-review.md（应 `通过`）、`docs/component-design.md`、`docs/ar-designs/AR<id>-<slug>.md`（若已存在）、`AGENTS.md`、`features/<id>/progress.md`。AR 设计未通过 review → 阻塞，回 `devflow-router`；tasks-review 未通过 → 阻塞，回 `devflow-tasks`；测试设计章节缺失 → 阻塞，回 `devflow-ar-design`；Current Active Task 不唯一 → 阻塞，回 `devflow-router`。
+
+### 2. 检查是否触及组件边界
+
+对照计划改动 vs `docs/component-design.md`，触及组件接口 / 依赖 / 状态机 → 立即停下，标 `reroute_via_router=true`，回 `devflow-router` 升级 component-impact。
+
+### 3. 把测试设计章节落成可运行测试用例
+
+先做 Test Harness Discovery：读取 `AGENTS.md`（若存在）、既有 `test/` / `tests/` / `unittest/`、构建脚本（CMake / Bazel / Make / Ninja 等）、CI 配置、相邻组件测试和团队 mock / fixture 风格。若已有测试框架与 target 模式，沿用既有风格；若新增组件没有可运行 harness，先搭建最小 test target / runner / fixture / mock 接入，并跑 smoke / empty test 证明测试工程可执行，把命令与结果记录到 `features/<id>/evidence/test-harness/BOOTSTRAP-YYYY-MM-DD.md`。
+
+bootstrap 只证明“测试工程能运行”，不是业务 RED。harness 未通过时不得进入 RED；harness 失败不能写成 `RED-<case-id>`。测试框架选择必须优先服从团队上下文；上下文缺失时可采用仓库已存在依赖或最小新增依赖，并在 implementation-log.md 记录选择理由、影响范围和后续 reviewer 关注点。
+
+随后按 Task-Scoped Test Design Execution，只把 Current Active Task 引用的 Test Design Case ID 落成单元 / 集成 / 仿真测试代码。在测试代码中保留 Task ID 与测试设计 Case ID 的双向锚点（注释或命名约定），方便 `devflow-test-checker` 反向核对。**不**自创测试用例；task 缺 Case ID → 回 `devflow-tasks`；AR 设计缺对应用例 → 回 `devflow-ar-design`。
+
+### 4. RED — 戴 Changer 帽
+
+按 Embedded TDD，先跑步骤 3 的测试代码并保留**有效 RED 证据**到 `features/<id>/evidence/unit/RED-<case-id>-YYYY-MM-DD.md`（或 integration 子目录）：命令、退出码、失败摘要、为什么这个失败对应 AR 行为缺口、新鲜度锚点（commit / build ID）。
+
+有效 RED：实际跑过、失败原因匹配预期、能说清证明的是什么。无效 RED（只写没跑、一跑就绿、无关旧失败）→ 不得继续。失败原因与预期不一致 → 检查测试代码是否对齐设计；**不**调整 AR 设计。
+
+测试 runner 不存在、test target 未注册、fixture / mock 未接入、编译系统未识别测试文件等 harness 问题，属于 bootstrap 未完成，不是有效 RED。
+
+### 5. GREEN — 戴 Changer 帽（不混戴 Refactor）
+
+按 Embedded TDD，写最小实现使 RED 用例通过，并保留 GREEN 证据到 `features/<id>/evidence/unit/GREEN-<case-id>-YYYY-MM-DD.md`：命令、退出码、通过摘要、关键结果、新鲜度锚点。GREEN 步内**不**做 cleanup / 重构；看见 cleanup 机会记下来留给步骤 6（详见 `references/red-green-refactor-discipline.md` 的 Two Hats 规则）。
+
+有效 GREEN：本次会话执行、测试转绿、保留 fresh evidence。
+
+### 6. REFACTOR — 戴 Refactor 帽（若必要）
+
+仅在所有任务测试 + 相关回归 + 静态分析 / 编译告警均为绿后进入。按 Refactoring Discipline + Two Hats（详见 `references/red-green-refactor-discipline.md`）做 in-task cleanups（用 Fowler vocabulary 命名：Extract Method / Rename / Replace Magic Number / Decompose Conditional / Remove Dead Code / ...）。每次 cleanup 后跑完整测试，重新评估静态分析 / 编译告警。如有 cleanup，REFACTOR 证据落 `features/<id>/evidence/unit/REFACTOR-<case-id>-YYYY-MM-DD.md`。
+
+**Escalation 边界**（任一命中即停 task，回 `devflow-router`）：cleanup 跨 ≥3 模块 / 改 ADR / 改组件边界 / 引入 AR 设计未声明的新抽象层。
+
+### 7. 跑静态 / 动态质量证据
+
+按 Static / Dynamic Quality Inspection 跑编译命令、静态分析命令、本 AR 相关回归测试，按 `references/embedded-evidence-checklist.md` 的最小字段保留到 `features/<id>/evidence/build/` / `static-analysis/` / `integration/`（如适用）。critical 告警 / 违反项无解释 → 不得进入交接；先按团队规则修或显式标注。
+
+### 8. 写实现日志与 traceability
+
+把本轮 Current Active Task、修改摘要、关键决策、RED / GREEN / REFACTOR 锚点、测试结果摘要、未解决风险写入 `features/<id>/implementation-log.md`；按 Requirements Traceability 在 `features/<id>/traceability.md` 补 Task ID / Code File / Test Code File / Verification Evidence 列。
+
+### 9. 同步 progress 与 handoff
+
+把 `features/<id>/progress.md` 写为 `Current Stage = devflow-tdd-implementation`、`Pending Reviews And Gates` 含 `test-check` / `code-review`、`Next Action Or Recommended Skill = devflow-test-checker`。父会话准备派发独立 reviewer subagent 执行 `devflow-test-checker`，不内联。
+
+实现交接块（写到 implementation-log.md 末尾或单独 handoff 块）：
+
+```md
+## 实现交接块
+- Work Item Type / ID:
+- Owning Component:
+- Current Active Task:
+- 触碰文件:
+- RED 证据路径:
+- GREEN 证据路径:
+- REFACTOR 证据路径（如适用）:
+- 测试 harness bootstrap 证据路径（如适用）:
+- 静态分析 / 编译告警证据路径:
+- 与测试设计章节的差异:
+- 剩余风险 / 未覆盖项:
+- Pending Reviews And Gates:
+- Next Action Or Recommended Skill: devflow-test-checker
+```
+
+Refactor Note 必填字段见 `references/red-green-refactor-discipline.md`。
+
+## Output Contract
+
+- C / C++ 代码改动（含当前 active task 必要的测试代码）
+- `features/<id>/implementation-log.md` 含实现交接块
+- `features/<id>/evidence/{unit,integration,static-analysis,build}/` 完整 fresh evidence
+- `features/<id>/traceability.md` 补充 Task ID / Code File / Test Code File / Verification Evidence
+- `features/<id>/progress.md` canonical 同步：`Current Stage = devflow-tdd-implementation`、`Next Action Or Recommended Skill = devflow-test-checker`
+- handoff 摘要按 Local DevFlow Conventions
+
+## Red Flags
+
+- 跳过 RED：先写实现再补失败测试
+- 把测试 harness / runner / build target 未搭好导致的失败当作业务 RED
+- 未锁定 Current Active Task 就实现
+- 任务中未引用 Test Design Case ID，却在 TDD 中补脑新增用例
+- GREEN 步内做 cleanup
+- REFACTOR 顺手改 ADR / 组件边界 / 接口契约
+- 引入 AR 设计未声明的新抽象 / 新模式
+- 旧绿测结果当作当前证据
+- 自我宣称测试有效 / 代码通过
+- 把命令日志、性能基线塞进 implementation-log.md 而不是 evidence/
+- 把跨 work item 的修改一起做掉
+- 缺 traceability 更新就交接
+
+## Common Mistakes
+
+| 错误 | 修复 |
+|---|---|
+| 测试通过却没说清证明的是什么 | 在 RED/GREEN 证据中补 "为什么预期失败 / 为什么通过等于行为达成" |
+| 新增组件没有测试工程，直接把构建失败记为 RED | 先做 Test Harness Discovery + bootstrap smoke，测试工程可运行后再跑业务 RED |
+| GREEN 步内顺手 rename / extract method | 抽到 REFACTOR 步独立做 |
+| REFACTOR 触发 cross-module 变更 | 立即停下回 router |
+
+## Verification
+
+- [ ] 唯一活跃 work item 锁定
+- [ ] 唯一 Current Active Task 已锁定，且与 task-board 一致
+- [ ] AR 设计 + tasks.md 引用的测试设计 Case ID 作为驱动，未自创测试用例
+- [ ] 新增组件 / 新测试目标已探索团队测试上下文；缺 harness 时已有 bootstrap smoke 证据
+- [ ] 修改未触及组件边界（或已升级 component-impact 路线）
+- [ ] RED / GREEN / REFACTOR（如适用）证据齐全且属于本会话
+- [ ] 静态分析 / 编译告警证据齐全
+- [ ] implementation-log.md 含完整实现交接块
+- [ ] traceability.md 已补充 Code File / Test Code File / Verification Evidence
+- [ ] progress.md canonical 同步，下一步 `devflow-test-checker`
+- [ ] 父会话准备派发独立 reviewer subagent
+
+## Local DevFlow Conventions
+
+This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
+
+### Progress Fields
+
+Use canonical progress fields when this skill reads or writes features/<id>/progress.md:
+
+- Work Item Type: SR / AR / DTS / CHANGE
+- Work Item ID: SR1234, AR12345, DTS67890, or CHANGE id
+- Owning Component: required for AR / DTS / CHANGE
+- Owning Subsystem: required for SR
+- Workflow Profile: requirement-analysis / standard / component-impact / hotfix / lightweight
+- Execution Mode: interactive / auto
+- Current Stage: current canonical devflow node
+- Pending Reviews And Gates: pending review or gate list
+- Next Action Or Recommended Skill: one canonical node only
+- Blockers: open blockers
+- Last Updated: timestamp
+
+### Handoff Fields
+
+Return a structured handoff with the fields this skill knows:
+
+- current_node
+- work_item_id
+- owning_component or owning_subsystem
+- result or verdict
+- artifact_paths
+- record_path, when a review / gate / verification record exists
+- evidence_summary
+- traceability_links
+- blockers
+- next_action_or_recommended_skill
+- reroute_via_router
+
+Do not set next_action_or_recommended_skill to using-devflow or free text.
+
+### Implementation Inputs
+
+Read approved AR design, embedded test design, tasks.md, task-board.md, tasks-review, component design, AGENTS.md, and progress.md.
+
+### Evidence Paths
+
+Put unit evidence under features/<id>/evidence/unit/, integration or simulation evidence under evidence/integration/, static analysis under evidence/static-analysis/, and build output under evidence/build/. Evidence records include command, environment, version/config, result, and freshness anchor.
+## Supporting References
+
+| 文件 | 用途 |
+|---|---|
+| `references/red-green-refactor-discipline.md` | RED / GREEN / REFACTOR 步骤纪律、Two Hats、Fowler vocabulary |
+| `references/embedded-evidence-checklist.md` | 嵌入式静态 / 动态证据采集清单 |
+| `devflow-ar-design/references/test-design-section-contract.md` | 测试设计章节契约 |
