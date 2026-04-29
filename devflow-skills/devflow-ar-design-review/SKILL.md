@@ -84,7 +84,7 @@ description: Use when devflow-ar-design has produced an ar-design-draft.md ready
 
 ### 4. 正式 checklist 审查
 
-按 Checklist-Based Review（详见 `references/ar-design-review-rubric.md` Group AD1-AD8 子规则）逐项审查；每条 finding 带 `severity` / `classification` / `rule_id` / `anchor` / 描述 / 建议修复。Test Design Adequacy 维度按 `devflow-ar-design/references/test-design-section-contract.md` 校验最小字段。
+按 Checklist-Based Review（详见 `references/ar-design-review-rubric.md` Group AD1-AD8 子规则）逐项审查；每条 finding 带 `severity` / `classification` / `rule_id` / `anchor` / 描述 / 建议修复。Test Design Adequacy 维度按 `references/test-design-section-contract.md` 校验最小字段。
 
 ### 5. 形成 verdict
 
@@ -185,6 +185,6 @@ Review AR code-level design, component-design consistency, embedded test design,
 | 文件 | 用途 |
 |---|---|
 | `references/ar-design-review-rubric.md` | 8 维度 rubric + rule IDs |
-| `devflow-ar-design/references/test-design-section-contract.md` | 测试设计章节最小契约 |
+| `references/test-design-section-contract.md` | 测试设计章节最小契约 |
 | `references/devflow-review-record-template.md` | review record 模板 |
 | `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |

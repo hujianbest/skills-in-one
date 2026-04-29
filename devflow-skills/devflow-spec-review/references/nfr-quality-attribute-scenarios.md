@@ -168,7 +168,7 @@ QAS:
 
 - 单条 NFR 的最小字段（ID / Statement / Acceptance / Priority / Source）：`requirement-rows-contract.md`
 - NFR row 是否过大、是否应拆分：`granularity-and-split.md`
-- spec-review 对核心 NFR 的检查（必须有 QAS、Response Measure 阈值、Acceptance 与 QAS 一致）：`../../devflow-spec-review/references/spec-review-rubric.md`
+- spec-review 对核心 NFR 的检查（必须有 QAS、Response Measure 阈值、Acceptance 与 QAS 一致）：`references/spec-review-rubric.md`
 
 ## 写法约定
 

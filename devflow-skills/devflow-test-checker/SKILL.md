@@ -83,7 +83,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 
 ### 3. 正式 checklist 审查
 
-按 Checklist-Based Review + Mutation Mindset 跑 Group TC1-TC7 子规则（详见 `references/test-check-rubric.md`）。每条 finding 带 `severity` / `classification`（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT） / `rule_id` / `anchor` / 描述 / 建议修复。Mock Boundary 维度按 `devflow-ar-design/references/test-design-section-contract.md` 的 mock 规则核对；嵌入式风险矩阵按 `devflow-tdd-implementation/references/embedded-evidence-checklist.md` 反向核对实测覆盖。
+按 Checklist-Based Review + Mutation Mindset 跑 Group TC1-TC7 子规则（详见 `references/test-check-rubric.md`）。每条 finding 带 `severity` / `classification`（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT） / `rule_id` / `anchor` / 描述 / 建议修复。Mock Boundary 维度按 `references/test-design-section-contract.md` 的 mock 规则核对；嵌入式风险矩阵按 `references/embedded-evidence-checklist.md` 反向核对实测覆盖。
 
 ### 4. 形成 verdict
 
@@ -185,7 +185,7 @@ Review freshly written tests against AR design test cases, requirement coverage,
 |---|---|
 | `references/test-check-rubric.md` | 7 维度 rubric + rule IDs（TC1-TC7） |
 | `references/team-test-review-rubric.md` | 团队 UT 审查准则完整继承版 |
-| `devflow-ar-design/references/test-design-section-contract.md` | 测试设计章节契约（用例最小字段） |
-| `devflow-tdd-implementation/references/embedded-evidence-checklist.md` | 嵌入式证据落点 |
+| `references/test-design-section-contract.md` | 测试设计章节契约（用例最小字段） |
+| `references/embedded-evidence-checklist.md` | 嵌入式证据落点 |
 | `references/devflow-review-record-template.md` | review record 模板 |
 | `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |

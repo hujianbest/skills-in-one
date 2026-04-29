@@ -126,4 +126,4 @@ reviewer 不得放过未确认的「无可拆分 AR」声明给出 `通过`。
 
 - 单条 row 的最小字段、句式、acceptance、priority、anchor：`requirement-rows-contract.md`
 - NFR 行的 QAS 五要素：`nfr-quality-attribute-scenarios.md`
-- spec-review 中对粒度的 rubric 检查（含 G1-G6 与 SR 候选 AR 拆分质量）：`../../devflow-spec-review/references/spec-review-rubric.md`
+- spec-review 中对粒度的 rubric 检查（含 G1-G6 与 SR 候选 AR 拆分质量）：`references/spec-review-rubric.md`

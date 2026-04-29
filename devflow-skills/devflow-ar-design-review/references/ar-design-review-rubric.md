@@ -58,7 +58,7 @@
 
 ### Group AD6 - Test Design
 
-- `AD6.1` 测试用例最小字段齐全（见 `devflow-ar-design/references/test-design-section-contract.md`）
+- `AD6.1` 测试用例最小字段齐全（见 `references/test-design-section-contract.md`）
 - `AD6.2` 每个用例回指 requirement row
 - `AD6.3` 每条核心 requirement row 至少被一个用例覆盖
 - `AD6.4` NFR 含 `embedded-risk` 用例

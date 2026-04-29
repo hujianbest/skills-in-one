@@ -8,8 +8,8 @@
 |---|---|---|
 | **S1 Identity & Traceability** | Work Item Type / ID 唯一；Owning Component / Subsystem 按类型必填且唯一；上游单据锚点齐全可解析 | SR 缺所属子系统；AR 多组件混写；上游锚点无版本号 |
 | **S2 Scope & Non-Scope Clarity** | 范围内 / 范围外显式；当前轮目标可被设计者 / 需求负责人冷读 | 仅有"做这个 SR / AR"一句话；非范围隐藏在正文 |
-| **S3 Requirement Row Quality** | 每条核心 row 含 ID / Statement（EARS 句式）/ Acceptance（BDD Given/When/Then）/ Priority / Source；按类型必填 Component Impact（AR）或 Affected Components（SR）。详见 `devflow-specify/references/requirement-rows-contract.md` | 缺 Acceptance；Source 是口头会议；SR row 缺 Affected Components；Statement 不是 EARS 句式；Acceptance 不是 BDD 格式 |
-| **S4 Embedded NFR Quality** | 核心 NFR 已归类到 ISO/IEC 25010 维度并含 QAS 五要素（Stimulus Source / Stimulus / Environment / Response / Response Measure）；Response Measure 含可判定阈值；Acceptance 与 QAS 一致。详见 `devflow-specify/references/nfr-quality-attribute-scenarios.md` | "性能要好"、"低内存"；Response Measure 无阈值；QAS 与 Acceptance 矛盾；一条 NFR 覆盖多个 25010 维度 |
+| **S3 Requirement Row Quality** | 每条核心 row 含 ID / Statement（EARS 句式）/ Acceptance（BDD Given/When/Then）/ Priority / Source；按类型必填 Component Impact（AR）或 Affected Components（SR）。详见 `references/requirement-rows-contract.md` | 缺 Acceptance；Source 是口头会议；SR row 缺 Affected Components；Statement 不是 EARS 句式；Acceptance 不是 BDD 格式 |
+| **S4 Embedded NFR Quality** | 核心 NFR 已归类到 ISO/IEC 25010 维度并含 QAS 五要素（Stimulus Source / Stimulus / Environment / Response / Response Measure）；Response Measure 含可判定阈值；Acceptance 与 QAS 一致。详见 `references/nfr-quality-attribute-scenarios.md` | "性能要好"、"低内存"；Response Measure 无阈值；QAS 与 Acceptance 矛盾；一条 NFR 覆盖多个 25010 维度 |
 | **S6 Open Questions Closure** | 阻塞 / 非阻塞分类；阻塞项闭合或显式 USER-INPUT | 阻塞项隐藏在正文 |
 
 ## AR / DTS / CHANGE 额外维度
@@ -33,10 +33,10 @@
 | Rule | 检查 |
 |---|---|
 | Q1 | 模糊词（"足够快"、"合适"、"必要时"）已被量化或转 USER-INPUT |
-| Q2 | Acceptance 使用 BDD Given/When/Then 格式且可判定，不依赖隐含上下文（详见 `devflow-specify/references/requirement-rows-contract.md` Acceptance Criteria Rules） |
+| Q2 | Acceptance 使用 BDD Given/When/Then 格式且可判定，不依赖隐含上下文（详见 `references/requirement-rows-contract.md` Acceptance Criteria Rules） |
 | Q3 | 需求间无冲突或重复 |
 | Q4 | Priority（MoSCoW 或团队等价）已逐条标注 |
-| Q5 | 嵌入式相关 NFR 已显式落到 NFR 行（不是只散落正文）；含 QAS 五要素（详见 `devflow-specify/references/nfr-quality-attribute-scenarios.md`） |
+| Q5 | 嵌入式相关 NFR 已显式落到 NFR 行（不是只散落正文）；含 QAS 五要素（详见 `references/nfr-quality-attribute-scenarios.md`） |
 | Q6 | NFR 的 ISO/IEC 25010 维度归类正确，一条 NFR 不混多维度 |
 
 ## Group A：Anti-Patterns
@@ -62,7 +62,7 @@
 
 ## Group G：Granularity And Split
 
-详细启发式与拆分规则见 `devflow-specify/references/granularity-and-split.md`。
+详细启发式与拆分规则见 `references/granularity-and-split.md`。
 
 | Rule | 检查 |
 |---|---|
@@ -79,7 +79,7 @@
 
 ## Group SR：SR-only
 
-仅在 work item type = `SR` 时检查。详细启发式见 `devflow-specify/references/granularity-and-split.md` 的 SR Breakdown Heuristics 节。
+仅在 work item type = `SR` 时检查。详细启发式见 `references/granularity-and-split.md` 的 SR Breakdown Heuristics 节。
 
 | Rule | 检查 |
 |---|---|
@@ -127,8 +127,8 @@
 
 | 评分维度 / Rule Group | 对应的 authoring 端契约 |
 |---|---|
-| S3 / Group A / Group Q（部分） | `devflow-specify/references/requirement-rows-contract.md`（EARS / BDD / MoSCoW / Brainstorming Notes / Common Failure Modes） |
-| Group G + S3 中的拆分判断 + Group SR 的 SR9 | `devflow-specify/references/granularity-and-split.md` |
-| S4 + Group Q 的 Q5 / Q6 + Group SR 的 SR10 | `devflow-specify/references/nfr-quality-attribute-scenarios.md` |
+| S3 / Group A / Group Q（部分） | `references/requirement-rows-contract.md`（EARS / BDD / MoSCoW / Brainstorming Notes / Common Failure Modes） |
+| Group G + S3 中的拆分判断 + Group SR 的 SR9 | `references/granularity-and-split.md` |
+| S4 + Group Q 的 Q5 / Q6 + Group SR 的 SR10 | `references/nfr-quality-attribute-scenarios.md` |
 | S5 / Group C 的 C4 | ?? skill ? `SKILL.md` / Local DevFlow Conventions 的「Component Impact Assessment」与 work item 类型必含章节集 |
-| S5-SR / S7-SR / S8-SR / Group SR | `devflow-specify/references/requirement-rows-contract.md` 的 SR-only 章节 + `devflow-specify/references/granularity-and-split.md` SR Breakdown Heuristics |
+| S5-SR / S7-SR / S8-SR / Group SR | `references/requirement-rows-contract.md` 的 SR-only 章节 + `references/granularity-and-split.md` SR Breakdown Heuristics |

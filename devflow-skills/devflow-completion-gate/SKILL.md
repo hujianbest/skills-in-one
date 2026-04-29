@@ -101,7 +101,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 
 ### 6. 形成 completion evidence bundle
 
-按 Evidence Bundle Pattern + `references/devflow-completion-record-template.md` 写入 `features/<id>/completion.md`。bundle 任一字段缺 → 视为 `需修改`。
+按 Evidence Bundle Pattern + `references/devflow-completion-record-template.md` 写入 `features/<id>/completion.md`。若本轮执行了具体验证命令，可按 `references/verification-record-template.md` 为 unit / integration / simulation / build / static-analysis / regression 等命令级证据补充独立 verification record。bundle 任一字段缺 → 视为 `需修改`。
 
 ### 7. 完成判定
 
@@ -206,4 +206,5 @@ Check approved design, completed current task, test-check verdict, code-review v
 |---|---|
 | `references/definition-of-done.md` | devflow Definition of Done 各 profile 表 |
 | `references/devflow-completion-record-template.md` | completion record 模板 |
+| `references/verification-record-template.md` | 通用验证记录模板（命令、结果、新鲜度锚点、验证结论） |
 | `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |

@@ -218,4 +218,4 @@ Store reproduction evidence, logs, unit/integration evidence, static-analysis ou
 | `references/repro-and-rca-templates.md` | reproduction.md / root-cause.md / fix-design.md 模板 |
 | `references/devflow-work-item-readme-template.md` | DTS work item README 模板 |
 | `references/devflow-progress-template.md` | progress.md 模板 |
-| `devflow-router/references/profile-and-route-map.md` | hotfix route 触发条件 |
+| `references/profile-and-route-map.md` | hotfix route 触发条件 |

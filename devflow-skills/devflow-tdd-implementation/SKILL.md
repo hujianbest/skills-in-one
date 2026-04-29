@@ -233,4 +233,4 @@ Put unit evidence under features/<id>/evidence/unit/, integration or simulation 
 |---|---|
 | `references/red-green-refactor-discipline.md` | RED / GREEN / REFACTOR 步骤纪律、Two Hats、Fowler vocabulary |
 | `references/embedded-evidence-checklist.md` | 嵌入式静态 / 动态证据采集清单 |
-| `devflow-ar-design/references/test-design-section-contract.md` | 测试设计章节契约 |
+| `references/test-design-section-contract.md` | 测试设计章节契约 |

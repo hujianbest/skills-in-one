@@ -188,6 +188,6 @@ Review correctness, SOA boundary, memory/resource lifetime, concurrency, realtim
 | `references/code-review-rubric.md` | 8 维度 rubric + rule IDs |
 | `references/team-code-review-checklist.md` | 团队通用代码检视完整检查清单（继承 MDC checklist） |
 | `references/embedded-cpp-risk-checklist.md` | 嵌入式 C / C++ 风险检视速查（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI） |
-| `devflow-tdd-implementation/references/red-green-refactor-discipline.md` | Refactor Note 字段约定 |
-| `references/devflow-review-record-template.md` | review record 模板 |
+| `references/red-green-refactor-discipline.md` | Refactor Note 字段约定 |
+| `references/devflow-review-record-template.md` | code review record 模板（含变更分析、测试覆盖分析、嵌入式风险评估、Merge Readiness） |
 | `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |

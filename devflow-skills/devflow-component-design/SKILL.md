@@ -204,4 +204,4 @@ Cover component responsibilities, SOA services/interfaces, dependencies, data mo
 | 文件 | 用途 |
 |---|---|
 | `references/devflow-component-design-template.md` | 团队组件设计模板（待团队补齐） |
-| `devflow-router/references/profile-and-route-map.md` | component-impact route 触发条件 |
+| `references/profile-and-route-map.md` | component-impact route 触发条件 |
