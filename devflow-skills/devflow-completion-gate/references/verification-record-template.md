@@ -20,7 +20,7 @@
   - Spec Review:
   - Component Design Review:
   - AR Design Review:
-  - Tasks Review:
+  - Task Queue Preflight:
   - Test Check:
   - Code Review:
 - Task / Progress Anchors:

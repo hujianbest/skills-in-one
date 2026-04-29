@@ -207,4 +207,3 @@ Check approved design, completed current task, test-check verdict, code-review v
 | `references/definition-of-done.md` | devflow Definition of Done 各 profile 表 |
 | `references/devflow-completion-record-template.md` | completion record 模板 |
 | `references/verification-record-template.md` | 通用验证记录模板（命令、结果、新鲜度锚点、验证结论） |
-| `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |

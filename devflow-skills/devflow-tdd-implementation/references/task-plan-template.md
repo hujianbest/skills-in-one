@@ -2,7 +2,7 @@
 
 使用说明：
 
-- 这是 `devflow-tasks` 的任务计划模板，默认保存为 `features/<Work Item Id>-<slug>/tasks.md`。
+- 这是 `devflow-tdd-implementation` 的任务计划模板，默认保存为 `features/<Work Item Id>-<slug>/tasks.md`。
 - tasks 是 AR 实现设计到 TDD 执行的索引层，不是测试设计层；不得新增 AR 设计中没有的测试用例或业务事实。
 - 每个任务必须能回指 requirement row、AR 设计章节和 Test Design Case ID。
 
@@ -59,7 +59,7 @@
 
 | Task ID | Depends On | Ready When | Can Run In Parallel With | Notes |
 |---|---|---|---|---|
-| T1 | - | tasks-review 通过 |  |  |
+| T1 | - | task queue preflight 通过 |  |  |
 
 ## Traceability
 
@@ -79,7 +79,7 @@
 |---|---|---|---|---|
 | R1 |  |  | yes / no |  |
 
-## Ready For Tasks Review
+## Ready For TDD Preflight
 
 - [ ] 每个关键任务具备 Acceptance、Files、Verify、Definition of Done
 - [ ] 每个任务回指 requirement row、AR 设计章节、Test Design Case ID

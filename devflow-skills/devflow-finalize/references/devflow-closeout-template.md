@@ -33,7 +33,7 @@
 | Spec Review | `reviews/spec-review.md` | 通过 | 通过 |
 | Component Design Review | `reviews/component-design-review.md` | 通过 / N/A | 通过 / N/A |
 | AR Design Review | `reviews/ar-design-review.md` | 通过 | **N/A** |
-| Tasks Review | `reviews/tasks-review.md` | 通过 | **N/A** |
+| Task Queue Preflight | `tasks.md` / `task-board.md` | passed | **N/A** |
 | Task Board | `task-board.md` | all done / cancelled | **N/A** |
 | Test Effectiveness Review | `reviews/test-check.md` | 通过 | **N/A** |
 | Code Review | `reviews/code-review.md` | 通过 | **N/A** |

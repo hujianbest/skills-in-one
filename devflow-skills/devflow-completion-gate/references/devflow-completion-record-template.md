@@ -30,7 +30,7 @@
 | AR Design Review | `reviews/ar-design-review.md` | 通过 |
 | Tasks | `tasks.md` | approved |
 | Task Board | `task-board.md` | active task locked / all done |
-| Tasks Review | `reviews/tasks-review.md` | 通过 |
+| Task Queue Preflight | `tasks.md` / `task-board.md` | passed |
 | Implementation Log | `implementation-log.md` | present |
 | Test Evidence | `evidence/unit/`、`evidence/integration/` | present |
 | Static Analysis Evidence | `evidence/static-analysis/` | present / N/A |

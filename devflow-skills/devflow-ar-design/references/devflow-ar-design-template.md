@@ -44,6 +44,20 @@ autonumber
 
 ## 4. 实现设计（必要）
 
+### 4.0 Design Options / 方案选择（必要）
+
+在写完整实现设计前记录候选方案、trade-off、推荐项和确认状态。若只有一个显然方案，写 `Single obvious option` 并说明为什么不展开多方案。
+
+| Option | 改动范围 | 控制流 / 数据结构要点 | 测试策略 | 风险 | 成本 / 取舍 | 结论 |
+|---|---|---|---|---|---|---|
+| A |  |  |  |  |  | recommended / rejected |
+| B |  |  |  |  |  | recommended / rejected |
+
+- Recommended Option:
+- Rationale:
+- Confirmation Owner: 开发负责人 / 模块架构师
+- Confirmation Status: confirmed / pending / N/A (Single obvious option)
+
 ### 4.1 功能实现思路（必要）
 
 描述清楚从规格到代码的实现思路，体现需求相关人（BA、开发、测试等）对系统实现诉求和理解一致，能够支持后续评估开发工作量。至少覆盖：
@@ -220,7 +234,7 @@ stop
 
 ## 6. 测试设计（必要）
 
-对接口、算法、关键功能进行测试策略和测试场景设计，同时对可测试性需求进行设计。测试设计驱动后续 `devflow-tasks` 与 `devflow-tdd-implementation`。每个用例必须回指功能点和 requirement row。
+对接口、算法、关键功能进行测试策略和测试场景设计，同时对可测试性需求进行设计。测试设计驱动后续 `devflow-tdd-implementation` 与 `devflow-tdd-implementation`。每个用例必须回指功能点和 requirement row。
 
 ### 6.1 测试点汇总
 

@@ -121,7 +121,7 @@
 
 `通过` verdict 后的 `next_action_or_recommended_skill` 由 SKILL.md 的 verdict 决策表按 work item 类型决定（SR → component-design / finalize；AR / DTS / CHANGE → component-design / ar-design）。
 
-定向回修协议（reviewer 返回 `需修改` / `阻塞`(内容) 后 authoring 节点的处理顺序、interactive vs auto、单次回合最小问询、反复循环阻断）见 `references/reviewer-dispatch-protocol.md` 的「定向回修协议」节。
+定向回修协议（reviewer 返回 `需修改` / `阻塞`(内容) 后 authoring 节点的处理顺序、interactive vs auto、单次回合最小问询、反复循环阻断）见 `SKILL.md` 的 Reviewer Contract。
 
 ## 与 authoring 端的对应关系
 

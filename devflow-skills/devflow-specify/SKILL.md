@@ -165,7 +165,6 @@ SR 还需在 progress 中写入 `Owning Subsystem`；可空字段 `AR Breakdown 
 
 ### 8. Handoff
 
-按 `references/reviewer-dispatch-protocol.md`，由父会话派发独立 reviewer subagent 执行 `devflow-spec-review`（不内联）。同时更新 feature `README.md` 中 Process Artifacts 表的 Requirement 行。自检未过 → 不伪造 handoff，明确写出仍缺什么。
 
 ## Output Contract
 
@@ -294,4 +293,3 @@ Default process directories are features/SR<id>-<slug>/, features/AR<id>-<slug>/
 | `references/devflow-work-item-readme-template.md` | work item README 模板 |
 | `references/devflow-progress-template.md` | progress.md 模板 |
 | `references/devflow-traceability-template.md` | traceability.md 模板 |
-| `references/reviewer-dispatch-protocol.md` | reviewer 派发协议 + 定向回修协议（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT 处理顺序、interactive vs auto、单次回合最小问询、反复循环阻断） |

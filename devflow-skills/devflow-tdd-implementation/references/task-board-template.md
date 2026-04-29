@@ -2,7 +2,7 @@
 
 使用说明：
 
-- 这是 `devflow-tasks` 用于 task-to-task 推进的队列投影模板，默认保存为 `features/<Work Item Id>-<slug>/task-board.md`。
+- 这是 `devflow-tdd-implementation` 用于 task-to-task 推进的队列投影模板，默认保存为 `features/<Work Item Id>-<slug>/task-board.md`。
 - `tasks.md` 定义任务拓扑、依赖与完成条件；task board 只投影当前状态。
 - `Current Active Task` 以 `progress.md` 为权威；本文件最多一个 `in_progress`，且必须与 `progress.md` 保持一致。
 - 若 task board 与已批准 tasks.md 冲突，或无法唯一判断 next-ready task，停止自动推进并回 `devflow-router`。
@@ -48,7 +48,7 @@
 
 | Task ID | Title | Status | Depends On | Ready When | Selection Priority | Test Design Case IDs | Last Outcome / Record | Notes |
 |---|---|---|---|---|---|---|---|---|
-| T1 | <task title> | ready | - | tasks-review 通过 | P1 |  | N/A |  |
+| T1 | <task title> | ready | - | task queue preflight 通过 | P1 |  | N/A |  |
 
 ## State Change Log
 

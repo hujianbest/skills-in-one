@@ -7,7 +7,7 @@
 | 维度 | 关键检查 | < 6 的典型信号 |
 |---|---|---|
 | **CD1 Identity & Template Conformance** | 组件名 / 子系统 / Owner / 模板版本完整；旧组件模板章节齐全且无模板提示 / 占位符残留 | 模板章节缺失；Owner 缺失；残留模板提示 |
-| **CD2 Responsibility & Non-Responsibility** | 职责 / 非职责清晰，未越界承接其他组件 | 职责模糊；与相邻组件重叠 |
+| **CD2 Responsibility & Non-Responsibility** | 职责 / 非职责清晰，未越界承接其他组件；Design Options 含候选方案、trade-off、推荐项和模块架构师确认状态 | 职责模糊；与相邻组件重叠；缺方案取舍 |
 | **CD3 SOA Interface Quality** | 接口名 / 参数 / 错误码 / 时序约束 / 并发约束 / 兼容性 | 缺错误码；缺时序；缺并发约束；接口聚合多个无关用途（违反 ISP） |
 | **CD4 Dependency & Direction** | 依赖方向无环；初始化 / shutdown 顺序明确；版本约束清晰 | 循环依赖；初始化顺序模糊 |
 | **CD5 Data Model & State Machine** | 数据模型与状态机覆盖核心生命周期；转换条件清晰 | 状态机缺关键路径；异常状态无说明 |
@@ -31,6 +31,8 @@
 - `CD2.1` 职责正向描述清晰可冷读
 - `CD2.2` 非职责显式列出，未模糊化（"按需"、"必要时"）
 - `CD2.3` 与相邻组件无职责重叠（或解释了边界协议）
+- `CD2.4` 起草正式设计前已列 2-3 个组件级方案，或写明 `Single obvious option` 理由
+- `CD2.5` 推荐方案的接口 / 依赖 / 状态机 / 成本 trade-off 与模块架构师确认状态清晰
 
 ### Group CD3 - SOA Interface
 
@@ -90,7 +92,7 @@
 
 | 评分 / findings 状态 | verdict | needs_human_confirmation |
 |---|---|---|
-| 7 维度均 ≥ 6、无 critical USER-INPUT、模块架构师可被请求 sign-off | `通过` | `true`（等 sign-off） |
+| 7 维度均 ≥ 6、Design Options 已确认、无 critical USER-INPUT、模块架构师可被请求 sign-off | `通过` | `true`（等 sign-off） |
 | 评分某项 < 6 但 findings 可 1-2 轮定向修订 | `需修改` | `false` |
 | 评分多项 < 6 / critical TEAM-EXPERT 阻塞 / 组件边界严重不清 | `阻塞`（内容） | `false` |
 | route / stage / profile / 上游证据冲突 | `阻塞`（workflow） + `reroute_via_router=true` | `false` |

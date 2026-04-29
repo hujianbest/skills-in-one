@@ -5,7 +5,7 @@ description: Use when devflow-ar-design has produced an ar-design-draft.md ready
 
 # devflow AR 实现设计评审
 
-独立评审 `features/<id>/ar-design-draft.md`，判断它是否可作为 `devflow-tasks` 的稳定输入，以及测试设计章节是否足以驱动后续 TDD。
+独立评审 `features/<id>/ar-design-draft.md`，判断它是否可作为 `devflow-tdd-implementation` 的稳定输入，以及测试设计章节是否足以驱动后续 TDD。
 
 本 skill 不写设计、不补测试用例、不替开发负责人或模块架构师拍板。它只产出 verdict + findings + 唯一下一步。
 
@@ -25,7 +25,7 @@ description: Use when devflow-ar-design has produced an ar-design-draft.md ready
 
 ## Hard Gates
 
-- AR 设计通过本 review 之前，不得进入 `devflow-tasks` / `devflow-tdd-implementation`
+- AR 设计通过本 review 之前，不得进入 `devflow-tdd-implementation`
 - reviewer 不修改设计草稿、不补写测试用例
 - reviewer 不替开发负责人 / 模块架构师拍板
 - reviewer 不返回多个候选下一步
@@ -84,7 +84,7 @@ description: Use when devflow-ar-design has produced an ar-design-draft.md ready
 
 ### 4. 正式 checklist 审查
 
-按 Checklist-Based Review（详见 `references/ar-design-review-rubric.md` Group AD1-AD8 子规则）逐项审查；每条 finding 带 `severity` / `classification` / `rule_id` / `anchor` / 描述 / 建议修复。Test Design Adequacy 维度按 `references/test-design-section-contract.md` 校验最小字段。
+按 Checklist-Based Review（详见 `references/ar-design-review-rubric.md` Group AD1-AD8 子规则）逐项审查；每条 finding 带 `severity` / `classification` / `rule_id` / `anchor` / 描述 / 建议修复。Test Design Adequacy 维度按 Local Test Design Contract Excerpt 校验最小字段。
 
 ### 5. 形成 verdict
 
@@ -92,14 +92,13 @@ description: Use when devflow-ar-design has produced an ar-design-draft.md ready
 
 | 条件 | conclusion | `next_action_or_recommended_skill` | reroute_via_router | needs_human_confirmation |
 |---|---|---|---|---|
-| 8 维度均 ≥ 6、组件边界未被改写、测试设计章节充分、无 critical USER-INPUT | `通过` | `devflow-tasks` | `false` | `true`（开发负责人确认进入任务执行索引） |
+| 8 维度均 ≥ 6、组件边界未被改写、测试设计章节充分、无 critical USER-INPUT | `通过` | `devflow-tdd-implementation` | `false` | `true`（开发负责人确认进入任务执行索引） |
 | findings 可 1-2 轮定向修订 | `需修改` | `devflow-ar-design` | `false` | `false` |
 | 测试设计章节缺失 / 测试设计被拆独立文件 / 嵌入式风险覆盖矩阵缺失 / 设计严重不清 | `阻塞`（内容） | `devflow-ar-design` | `false` | `false` |
 | AR 设计修改组件接口 / 依赖 / 状态机 / 上游证据冲突 | `阻塞`（workflow） | `devflow-router` | `true` | `false` |
 
 ### 6. 写 review 记录并回传
 
-按 `references/devflow-review-record-template.md` 写 `features/<id>/reviews/ar-design-review.md`，并按 `references/reviewer-dispatch-protocol.md` 回传结构化摘要。`通过` 时 `needs_human_confirmation=true`，等开发负责人确认后由父会话进入 `devflow-tasks`。
 
 ## Output Contract
 
@@ -134,6 +133,46 @@ description: Use when devflow-ar-design has produced an ar-design-draft.md ready
 - [ ] `通过` 时 `needs_human_confirmation=true`
 - [ ] 测试设计章节充分性已显式审查（含嵌入式风险覆盖矩阵）
 - [ ] 结构化摘要已回传父会话
+
+## Embedded Review Record Template
+
+Write the review record to this skill's expected path unless AGENTS.md overrides it. Include only sections relevant to this review type.
+
+- Metadata: review type, work item type/id, owning component/subsystem, reviewer identity, date, record path.
+- Inputs Consumed: primary artifact path + freshness anchor, commit/branch, supporting context paths, AGENTS.md/team standards used.
+- Multi-Dimension Scoring: rubric dimensions, 0-10 score, and evidence for each score; any critical dimension below threshold prevents pass.
+- Findings: ID, severity, classification, rule_id, anchor/location, description, impact, suggested fix.
+- Verdict: conclusion (pass / needs changes / blocked), rationale, next_action_or_recommended_skill, reroute_via_router, needs_human_confirmation.
+- Follow-up Actions: owner and status for any required rework or confirmation.
+
+## Reviewer Contract
+
+This review skill is executed by an independent reviewer role or subagent. The reviewer must not modify the reviewed artifact, write code, add tests, or make team decisions.
+
+Minimum structured return:
+
+```yaml
+target_skill: <this skill name>
+work_item_id: <id>
+owning_component: <component or N/A>
+record_path: <written review record>
+conclusion: pass | needs_changes | blocked
+verdict_rationale: <1-3 lines>
+key_findings: []
+finding_breakdown:
+  critical: 0
+  important: 0
+  minor: 0
+next_action_or_recommended_skill: <one canonical devflow node>
+needs_human_confirmation: true | false
+reroute_via_router: true | false
+```
+
+Rules: return exactly one next_action_or_recommended_skill; workflow conflicts route to devflow-router with reroute_via_router=true; a passing verdict cannot include critical findings.
+
+## Local Test Design Contract Excerpt
+
+When this skill checks test design, require each case to include: case id, requirement row / design anchor, behavior under test, preconditions, inputs or stimuli, expected output or observable effect, mock/stub/simulation boundary, verification command or evidence path, and embedded risk covered. DevFlow does not use a separate test-design.md; test design lives in the AR design.
 
 ## Local DevFlow Conventions
 
@@ -185,6 +224,4 @@ Review AR code-level design, component-design consistency, embedded test design,
 | 文件 | 用途 |
 |---|---|
 | `references/ar-design-review-rubric.md` | 8 维度 rubric + rule IDs |
-| `references/test-design-section-contract.md` | 测试设计章节最小契约 |
-| `references/devflow-review-record-template.md` | review record 模板 |
-| `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |
+| Local Test Design Contract Excerpt | 测试设计章节最小契约 |

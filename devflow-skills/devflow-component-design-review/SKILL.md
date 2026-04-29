@@ -105,7 +105,6 @@ description: Use when devflow-component-design has produced a component-design-d
 
 ### 5. 写 review 记录并回传
 
-按 `references/devflow-review-record-template.md` 写 `features/<id>/reviews/component-design-review.md`，并按 `references/reviewer-dispatch-protocol.md` 回传结构化摘要。`通过` 时 `needs_human_confirmation=true`，等模块架构师 sign-off 后由父会话进入 `devflow-ar-design`。
 
 ## Output Contract
 
@@ -140,6 +139,42 @@ description: Use when devflow-component-design has produced a component-design-d
 - [ ] `通过` 时 `needs_human_confirmation=true` 等模块架构师 sign-off
 - [ ] 结构化摘要已回传父会话
 - [ ] 未顺手修改设计草稿
+
+## Embedded Review Record Template
+
+Write the review record to this skill's expected path unless AGENTS.md overrides it. Include only sections relevant to this review type.
+
+- Metadata: review type, work item type/id, owning component/subsystem, reviewer identity, date, record path.
+- Inputs Consumed: primary artifact path + freshness anchor, commit/branch, supporting context paths, AGENTS.md/team standards used.
+- Multi-Dimension Scoring: rubric dimensions, 0-10 score, and evidence for each score; any critical dimension below threshold prevents pass.
+- Findings: ID, severity, classification, rule_id, anchor/location, description, impact, suggested fix.
+- Verdict: conclusion (pass / needs changes / blocked), rationale, next_action_or_recommended_skill, reroute_via_router, needs_human_confirmation.
+- Follow-up Actions: owner and status for any required rework or confirmation.
+
+## Reviewer Contract
+
+This review skill is executed by an independent reviewer role or subagent. The reviewer must not modify the reviewed artifact, write code, add tests, or make team decisions.
+
+Minimum structured return:
+
+```yaml
+target_skill: <this skill name>
+work_item_id: <id>
+owning_component: <component or N/A>
+record_path: <written review record>
+conclusion: pass | needs_changes | blocked
+verdict_rationale: <1-3 lines>
+key_findings: []
+finding_breakdown:
+  critical: 0
+  important: 0
+  minor: 0
+next_action_or_recommended_skill: <one canonical devflow node>
+needs_human_confirmation: true | false
+reroute_via_router: true | false
+```
+
+Rules: return exactly one next_action_or_recommended_skill; workflow conflicts route to devflow-router with reroute_via_router=true; a passing verdict cannot include critical findings.
 
 ## Local DevFlow Conventions
 
@@ -191,5 +226,3 @@ Review component responsibilities, SOA interfaces, dependencies, state machines,
 | 文件 | 用途 |
 |---|---|
 | `references/component-design-review-rubric.md` | 7 维度 rubric + rule IDs |
-| `references/devflow-review-record-template.md` | review record 模板 |
-| `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |

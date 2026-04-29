@@ -73,6 +73,20 @@
 
 ## 5. 组件详细设计
 
+### 5.0 Design Options / 方案选择（必要）
+
+在写完整组件详细设计前记录组件级候选方案、trade-off、推荐项和模块架构师确认状态。若只有一个显然方案，写 `Single obvious option` 并说明为什么不展开多方案。
+
+| Option | 职责 / 非职责变化 | 接口 / 依赖 / 状态机影响 | 并发 / 实时 / 资源风险 | 跨组件协调 | 成本 / 取舍 | 结论 |
+|---|---|---|---|---|---|---|
+| A |  |  |  |  |  | recommended / rejected |
+| B |  |  |  |  |  | recommended / rejected |
+
+- Recommended Option:
+- Rationale:
+- Confirmation Owner: 模块架构师
+- Confirmation Status: confirmed / pending / N/A (Single obvious option)
+
 ### 5.1 软件 1 层实现设计
 
 #### 5.1.1 开发视图

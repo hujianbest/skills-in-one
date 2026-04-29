@@ -6,7 +6,7 @@
 - 列集按 work item 类型有所不同：
   - **SR**（需求分析子街区）：IR → SR → Affected Components → Component Design Section → Candidate AR Breakdown
   - **AR / DTS / CHANGE**（实现子街区）：IR → SR → AR → 组件设计 → AR 设计 → Task → 代码 → 测试 → 测试有效性审查 → 代码检视
-- 由 `devflow-specify` 初始化骨架，后续 `devflow-component-design` / `devflow-ar-design` / `devflow-tasks` / `devflow-tdd-implementation` / `devflow-test-checker` / `devflow-code-review` 各自补充本节点对应行（实现子街区）；SR 由 `devflow-specify` / `devflow-component-design` 补充，止于 candidate breakdown 列。
+- 由 `devflow-specify` 初始化骨架，后续 `devflow-component-design` / `devflow-ar-design` / `devflow-tdd-implementation` / `devflow-test-checker` / `devflow-code-review` 各自补充本节点对应行（实现子街区）；SR 由 `devflow-specify` / `devflow-component-design` 补充，止于 candidate breakdown 列。
 
 ## Identity
 

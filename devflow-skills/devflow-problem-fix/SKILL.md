@@ -166,6 +166,10 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 - [ ] progress.md canonical 同步，下一步唯一指向回流节点
 - [ ] 未写生产代码
 
+## Local Hotfix Route Notes
+
+Enter this skill when devflow-router selects hotfix for DTS / urgent production defects, or when evidence shows reproduction and root-cause work is needed before safe implementation. If the issue is actually a new requirement or scope change, route to devflow-specify or devflow-router.
+
 ## Local DevFlow Conventions
 
 This section is owned by this skill. Do not load a shared conventions file. Project AGENTS.md may override equivalent paths or templates.
@@ -218,4 +222,3 @@ Store reproduction evidence, logs, unit/integration evidence, static-analysis ou
 | `references/repro-and-rca-templates.md` | reproduction.md / root-cause.md / fix-design.md 模板 |
 | `references/devflow-work-item-readme-template.md` | DTS work item README 模板 |
 | `references/devflow-progress-template.md` | progress.md 模板 |
-| `references/profile-and-route-map.md` | hotfix route 触发条件 |

@@ -83,7 +83,6 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 
 ### 3. 正式 checklist 审查
 
-按 Checklist-Based Review + Mutation Mindset 跑 Group TC1-TC7 子规则（详见 `references/test-check-rubric.md`）。每条 finding 带 `severity` / `classification`（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT） / `rule_id` / `anchor` / 描述 / 建议修复。Mock Boundary 维度按 `references/test-design-section-contract.md` 的 mock 规则核对；嵌入式风险矩阵按 `references/embedded-evidence-checklist.md` 反向核对实测覆盖。
 
 ### 4. 形成 verdict
 
@@ -98,7 +97,6 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 
 ### 5. 写 review 记录并回传
 
-按 `references/devflow-review-record-template.md` 写 `features/<id>/reviews/test-check.md`，并按 `references/reviewer-dispatch-protocol.md` 回传结构化摘要。reviewer **不**补写测试 / **不**修改生产代码 / **不**返回多个候选下一步。
 
 ## Output Contract
 
@@ -133,6 +131,50 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 - [ ] 嵌入式风险覆盖矩阵已被实际测试落实情况已显式审查
 - [ ] 结构化摘要已回传父会话
 - [ ] 未顺手修改测试 / 生产代码
+
+## Embedded Review Record Template
+
+Write the review record to this skill's expected path unless AGENTS.md overrides it. Include only sections relevant to this review type.
+
+- Metadata: review type, work item type/id, owning component/subsystem, reviewer identity, date, record path.
+- Inputs Consumed: primary artifact path + freshness anchor, commit/branch, supporting context paths, AGENTS.md/team standards used.
+- Multi-Dimension Scoring: rubric dimensions, 0-10 score, and evidence for each score; any critical dimension below threshold prevents pass.
+- Findings: ID, severity, classification, rule_id, anchor/location, description, impact, suggested fix.
+- Verdict: conclusion (pass / needs changes / blocked), rationale, next_action_or_recommended_skill, reroute_via_router, needs_human_confirmation.
+- Follow-up Actions: owner and status for any required rework or confirmation.
+
+## Reviewer Contract
+
+This review skill is executed by an independent reviewer role or subagent. The reviewer must not modify the reviewed artifact, write code, add tests, or make team decisions.
+
+Minimum structured return:
+
+```yaml
+target_skill: <this skill name>
+work_item_id: <id>
+owning_component: <component or N/A>
+record_path: <written review record>
+conclusion: pass | needs_changes | blocked
+verdict_rationale: <1-3 lines>
+key_findings: []
+finding_breakdown:
+  critical: 0
+  important: 0
+  minor: 0
+next_action_or_recommended_skill: <one canonical devflow node>
+needs_human_confirmation: true | false
+reroute_via_router: true | false
+```
+
+Rules: return exactly one next_action_or_recommended_skill; workflow conflicts route to devflow-router with reroute_via_router=true; a passing verdict cannot include critical findings.
+
+## Local Test Design Contract Excerpt
+
+When this skill checks test design, require each case to include: case id, requirement row / design anchor, behavior under test, preconditions, inputs or stimuli, expected output or observable effect, mock/stub/simulation boundary, verification command or evidence path, and embedded risk covered. DevFlow does not use a separate test-design.md; test design lives in the AR design.
+
+## Local Evidence Coverage Excerpt
+
+When checking tests, map evidence to AR design cases and embedded risks: unit, integration/simulation, build, static analysis, and any regression evidence. Each evidence item must include command, environment/config, result, and freshness anchor.
 
 ## Local DevFlow Conventions
 
@@ -185,7 +227,4 @@ Review freshly written tests against AR design test cases, requirement coverage,
 |---|---|
 | `references/test-check-rubric.md` | 7 维度 rubric + rule IDs（TC1-TC7） |
 | `references/team-test-review-rubric.md` | 团队 UT 审查准则完整继承版 |
-| `references/test-design-section-contract.md` | 测试设计章节契约（用例最小字段） |
-| `references/embedded-evidence-checklist.md` | 嵌入式证据落点 |
-| `references/devflow-review-record-template.md` | review record 模板 |
-| `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |
+| Local Test Design Contract Excerpt | 测试设计章节契约（用例最小字段） |

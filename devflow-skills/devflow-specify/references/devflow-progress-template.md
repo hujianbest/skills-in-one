@@ -23,7 +23,7 @@
 - Current Stage:                           # canonical devflow-* 节点
 - Workflow Profile:                        # requirement-analysis（SR）/ standard / component-impact / hotfix / lightweight
 - Execution Mode:                          # interactive / auto
-- Current Active Task:                     # tasks-review 通过后填写唯一 active task；无则留空
+- Current Active Task:                     # task queue preflight 通过后填写唯一 active task；无则留空
 - Task Plan Path:                          # features/<id>/tasks.md
 - Task Board Path:                         # features/<id>/task-board.md
 - Last Updated:

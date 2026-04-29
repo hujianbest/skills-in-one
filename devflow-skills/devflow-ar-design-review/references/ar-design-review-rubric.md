@@ -7,7 +7,7 @@
 | 维度 | 关键检查 |
 |---|---|
 | **AD1 Identity & Template Conformance** | AR ID、SR / IR、Owner、所属组件、模板版本与团队模板对齐；旧 AR 模板章节齐全且无模板提示 / 占位符残留 |
-| **AD2 Goal & Scope Clarity** | 设计目标、当前 AR 范围 / 非范围、与 requirement.md 的范围一致 |
+| **AD2 Goal & Scope Clarity** | 设计目标、当前 AR 范围 / 非范围、与 requirement.md 的范围一致；Design Options 含候选方案、trade-off、推荐项和确认状态 |
 | **AD3 Affected Files & Control Flow** | 受影响文件 / 模块 / 函数 / 类清单准确；动态行为、流程图、类图和关键控制流可冷读 |
 | **AD4 Component Design Conformance** | 与 `docs/component-design.md` 的对 AR 设计的约束一致；未越界改写组件接口 / 依赖 / 状态机 |
 | **AD5 C / C++ Defensive Design** | 错误处理、内存、并发（中断上下文 / 锁）、实时性、资源生命周期、ABI / API 兼容；MDC 五场景均有分析 |
@@ -30,6 +30,8 @@
 
 - `AD2.1` 设计目标 / 范围 / 非范围清晰
 - `AD2.2` 与 requirement.md 范围一致
+- `AD2.3` 起草正式设计前已列 2-3 个实现方案，或写明 `Single obvious option` 理由
+- `AD2.4` 推荐方案的 trade-off、风险、测试策略和开发负责人确认状态清晰
 
 ### Group AD3 - Affected & Control Flow
 
@@ -58,7 +60,7 @@
 
 ### Group AD6 - Test Design
 
-- `AD6.1` 测试用例最小字段齐全（见 `references/test-design-section-contract.md`）
+- `AD6.1` 测试用例最小字段齐全（见 `SKILL.md` 的 Local Test Design Contract Excerpt）
 - `AD6.2` 每个用例回指 requirement row
 - `AD6.3` 每条核心 requirement row 至少被一个用例覆盖
 - `AD6.4` NFR 含 `embedded-risk` 用例
@@ -96,7 +98,7 @@
 
 | 评分 / findings 状态 | verdict | needs_human_confirmation |
 |---|---|---|
-| 8 维度均 ≥ 6、组件边界未被改写、测试设计章节充分、无 critical USER-INPUT | `通过` | `true`（开发负责人确认） |
+| 8 维度均 ≥ 6、Design Options 已确认、组件边界未被改写、测试设计章节充分、无 critical USER-INPUT | `通过` | `true`（开发负责人确认） |
 | 评分某项 < 6 但 findings 可 1-2 轮定向修订 | `需修改` | `false` |
 | 测试设计缺失 / 嵌入式风险矩阵缺失 / 设计严重不清 / critical TEAM-EXPERT 阻塞 | `阻塞`（内容） | `false` |
 | AR 设计修改组件边界 / 上游证据冲突 | `阻塞`（workflow） + `reroute_via_router=true` | `false` |

@@ -97,7 +97,6 @@ description: Use when devflow-test-checker has passed and the C/C++ code change 
 
 ### 5. 写 review 记录并回传
 
-按 `references/devflow-review-record-template.md` 写 `features/<id>/reviews/code-review.md`，并按 `references/reviewer-dispatch-protocol.md` 回传结构化摘要。reviewer **不**改代码 / **不**重审组件级架构（那是 `devflow-component-design-review` 的职责）/ **不**返回多个候选下一步。
 
 ## Output Contract
 
@@ -135,6 +134,46 @@ description: Use when devflow-test-checker has passed and the C/C++ code change 
 - [ ] SOA 边界与 AR 设计一致性已显式审查
 - [ ] 结构化摘要已回传父会话
 - [ ] 未顺手修改代码
+
+## Embedded Review Record Template
+
+Write the review record to this skill's expected path unless AGENTS.md overrides it. Include only sections relevant to this review type.
+
+- Metadata: review type, work item type/id, owning component/subsystem, reviewer identity, date, record path.
+- Inputs Consumed: primary artifact path + freshness anchor, commit/branch, supporting context paths, AGENTS.md/team standards used.
+- Multi-Dimension Scoring: rubric dimensions, 0-10 score, and evidence for each score; any critical dimension below threshold prevents pass.
+- Findings: ID, severity, classification, rule_id, anchor/location, description, impact, suggested fix.
+- Verdict: conclusion (pass / needs changes / blocked), rationale, next_action_or_recommended_skill, reroute_via_router, needs_human_confirmation.
+- Follow-up Actions: owner and status for any required rework or confirmation.
+
+## Reviewer Contract
+
+This review skill is executed by an independent reviewer role or subagent. The reviewer must not modify the reviewed artifact, write code, add tests, or make team decisions.
+
+Minimum structured return:
+
+```yaml
+target_skill: <this skill name>
+work_item_id: <id>
+owning_component: <component or N/A>
+record_path: <written review record>
+conclusion: pass | needs_changes | blocked
+verdict_rationale: <1-3 lines>
+key_findings: []
+finding_breakdown:
+  critical: 0
+  important: 0
+  minor: 0
+next_action_or_recommended_skill: <one canonical devflow node>
+needs_human_confirmation: true | false
+reroute_via_router: true | false
+```
+
+Rules: return exactly one next_action_or_recommended_skill; workflow conflicts route to devflow-router with reroute_via_router=true; a passing verdict cannot include critical findings.
+
+## Local Refactor Note Check
+
+When reviewing code, check that refactor notes distinguish GREEN implementation from REFACTOR cleanup, name touched files/functions, explain why cleanup is inside the current task boundary, and list verification rerun after cleanup. Cross-module cleanup or component-boundary changes must route to devflow-router.
 
 ## Local DevFlow Conventions
 
@@ -188,6 +227,3 @@ Review correctness, SOA boundary, memory/resource lifetime, concurrency, realtim
 | `references/code-review-rubric.md` | 8 维度 rubric + rule IDs |
 | `references/team-code-review-checklist.md` | 团队通用代码检视完整检查清单（继承 MDC checklist） |
 | `references/embedded-cpp-risk-checklist.md` | 嵌入式 C / C++ 风险检视速查（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI） |
-| `references/red-green-refactor-discipline.md` | Refactor Note 字段约定 |
-| `references/devflow-review-record-template.md` | code review record 模板（含变更分析、测试覆盖分析、嵌入式风险评估、Merge Readiness） |
-| `references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |
