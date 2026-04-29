@@ -52,6 +52,11 @@
   - 
 - Expected Evidence Paths:
   - 
+- Suggested Implementer Context Pack:
+  - Allowed Files:
+  - Files Out Of Scope:
+  - Verify Commands:
+  - Hard Stops:
 - Notes / Assumptions:
   - 
 
@@ -69,9 +74,9 @@
 
 ## Verification Strategy
 
-| Task ID | Verify Command / Check | Expected Result | Evidence Path |
-|---|---|---|---|
-| T1 |  |  |  |
+| Task ID | Verify Command / Check | Expected Result | Evidence Path | Implementer Context Notes |
+|---|---|---|---|---|
+| T1 |  |  |  |  |
 
 ## Risks And Open Items
 

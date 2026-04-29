@@ -4,7 +4,7 @@
 
 ## 角色边界
 
-devflow 的 review 节点（spec-review / component-design-review / ar-design-review / task queue preflight / test-checker / code-review）必须由**独立 reviewer 角色或 subagent** 执行，理由：
+devflow 的 review 节点（spec-review / component-design-review / ar-design-review / test-checker / code-review）必须由**独立 reviewer 角色或 subagent** 执行，理由：
 
 - devflow-soul 要求**不自我验收**
 - author 与 reviewer 必须分离，避免确认偏差
@@ -14,7 +14,7 @@ devflow 的 review 节点（spec-review / component-design-review / ar-design-re
 
 派发 reviewer subagent 时，父会话（router 或上游 leaf）必须传入：
 
-- `target_skill`：`devflow-spec-review` / `devflow-component-design-review` / `devflow-ar-design-review` / `devflow-tdd-implementation` task queue preflight / `devflow-test-checker` / `devflow-code-review`
+- `target_skill`：`devflow-spec-review` / `devflow-component-design-review` / `devflow-ar-design-review` / `devflow-test-checker` / `devflow-code-review`
 - `work_item_type`：`SR` / `AR` / `DTS` / `CHANGE`
 - `work_item_id`
 - `owning_component`：AR / DTS / CHANGE 必填
@@ -25,11 +25,10 @@ devflow 的 review 节点（spec-review / component-design-review / ar-design-re
   - spec-review（任何 work item）：`features/<id>/requirement.md`
   - component-design-review（SR-analysis 或 AR component-impact）：`features/<id>/requirement.md` + `features/<id>/component-design-draft.md` + 当前 `docs/component-design.md`
   - ar-design-review（**仅** AR / DTS / CHANGE）：`features/<id>/requirement.md` + `features/<id>/ar-design-draft.md` + `docs/component-design.md`
-  - task queue preflight（**仅** AR / DTS / CHANGE）：`features/<id>/tasks.md` + `features/<id>/task-board.md` + `features/<id>/ar-design-draft.md` + `features/<id>/requirement.md`
   - test-checker（**仅** AR / DTS / CHANGE）：`features/<id>/ar-design-draft.md`（含测试设计章节）+ `features/<id>/evidence/unit/`、`features/<id>/evidence/integration/` + `features/<id>/implementation-log.md`
   - code-review（**仅** AR / DTS / CHANGE）：上述全部 + 代码 diff + `features/<id>/reviews/test-check.md`
 - `agents_md_anchor`：项目 `AGENTS.md` 中相关约定路径（编码规范、静态分析配置、模板覆盖路径）
-- `expected_record_path`：默认见 ?? skill ? `SKILL.md` / Local DevFlow Conventions，项目覆写优先
+- `expected_record_path`：默认见目标 skill 的 `SKILL.md` / Local DevFlow Conventions，项目覆写优先
 
 reviewer subagent 不得读取 dispatch request 之外的全量代码库；只读最少必要内容。
 
@@ -72,7 +71,7 @@ reroute_via_router: true | false
 | `devflow-spec-review` | `devflow-component-design`（SR 触发组件设计修订）/ `devflow-finalize`（仅澄清，无组件设计修订；写 analysis closeout） | `devflow-specify` | `devflow-specify` | `devflow-router` |
 | `devflow-component-design-review` | `devflow-finalize`（写 analysis closeout） | `devflow-component-design` | `devflow-component-design` | `devflow-router` |
 
-SR-flow 中 `devflow-ar-design-review` / `devflow-tdd-implementation` task queue preflight / `devflow-test-checker` / `devflow-code-review` 不应被派发；如果发生，`devflow-router` 应在派发前拦截，或 reviewer 返回 `阻塞`(workflow) + `reroute_via_router=true`。
+SR-flow 中 `devflow-ar-design-review` / `devflow-test-checker` / `devflow-code-review` 不应被派发；如果发生，`devflow-router` 应在派发前拦截，或 reviewer 返回 `阻塞`(workflow) + `reroute_via_router=true`。
 
 ### 实现子街区（profile = `standard` / `component-impact` / `hotfix` / `lightweight`）
 
@@ -81,7 +80,6 @@ SR-flow 中 `devflow-ar-design-review` / `devflow-tdd-implementation` task queue
 | `devflow-spec-review` | `devflow-component-design`（component-impact）/ `devflow-ar-design`（其余） | `devflow-specify` | `devflow-specify` | `devflow-router` |
 | `devflow-component-design-review` | `devflow-ar-design` | `devflow-component-design` | `devflow-component-design` | `devflow-router` |
 | `devflow-ar-design-review` | `devflow-tdd-implementation` | `devflow-ar-design` | `devflow-ar-design` | `devflow-router` |
-| `devflow-tdd-implementation` task queue preflight | `devflow-tdd-implementation` | `devflow-tdd-implementation` | `devflow-tdd-implementation` / `devflow-ar-design` | `devflow-router` |
 | `devflow-test-checker` | `devflow-code-review` | `devflow-tdd-implementation` | `devflow-tdd-implementation` | `devflow-router` |
 | `devflow-code-review` | `devflow-completion-gate` | `devflow-tdd-implementation` | `devflow-tdd-implementation` | `devflow-router` |
 

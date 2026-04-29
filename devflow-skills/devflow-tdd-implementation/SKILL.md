@@ -5,7 +5,7 @@ description: Use when devflow-ar-design-review has passed and the approved AR de
 
 # DevFlow TDD Implementation
 
-This skill turns an approved AR design into a task queue, locks one Current Active Task, implements that task with C/C++ TDD, and records fresh evidence. Task planning is now an internal preflight of this skill, not a standalone workflow node.
+This skill turns an approved AR design into a task queue, locks one Current Active Task, dispatches a focused implementer subagent when implementation context would be large, and records fresh evidence. Task planning is now an internal preflight of this skill, not a standalone workflow node.
 
 This skill does not write AR design, change AR scope, review its own tests, or review its own code. Those responsibilities remain with `devflow-ar-design`, `devflow-test-checker`, and `devflow-code-review`.
 
@@ -52,6 +52,50 @@ Do not use when:
 - **Embedded TDD**: RED -> GREEN -> REFACTOR.
 - **Two Hats**: implementation and refactoring stay separate.
 - **Fresh Evidence**: RED / GREEN / REFACTOR evidence is generated in the current session.
+- **Fresh Implementer Context**: the controller gives each implementer subagent only the current task context pack, not the whole session history.
+
+## Subagent Execution Mode
+
+Use this mode by default when implementing the Current Active Task, especially when code reading or editing would pull substantial context into the controller session. The controller remains responsible for routing, task queue state, evidence paths, and final handoff.
+
+Do not make the implementer subagent read the whole plan, prior chat, or broad repository context. Build a context pack and paste the required facts directly into the dispatch prompt.
+
+### Implementer Context Pack
+
+Before dispatching an implementer subagent, write or assemble this context pack from approved artifacts:
+
+```markdown
+## Implementer Context Pack
+- Work Item Type / ID:
+- Owning Component:
+- Current Active Task:
+- Task Goal:
+- Acceptance:
+- Files allowed to inspect/edit:
+- Files explicitly out of scope:
+- Requirement Rows:
+- AR Design Anchors:
+- Test Design Case IDs:
+- Existing Test Harness / Commands:
+- Verify Commands:
+- Evidence Paths To Write:
+- Component Boundary Constraints:
+- Hard Stops:
+  - ask if requirements, acceptance, approach, or dependencies are unclear
+  - stop if task requires component-boundary or architecture decisions
+  - do not add tests or behavior not present in approved AR design
+```
+
+### Implementer Status Handling
+
+The implementer subagent reports one status:
+
+- `DONE`: implementation and fresh evidence are ready; controller records report and dispatches `devflow-test-checker`.
+- `DONE_WITH_CONCERNS`: implementation exists but the subagent flagged uncertainty; controller resolves concerns before test-checker.
+- `NEEDS_CONTEXT`: controller supplies missing context and re-dispatches with a tighter context pack.
+- `BLOCKED`: controller decides whether to route to `devflow-ar-design`, `devflow-router`, or split the task further.
+
+The implementer self-review is useful but never replaces `devflow-test-checker` or `devflow-code-review`.
 
 ## Workflow
 
@@ -82,41 +126,52 @@ If preflight fails because information is missing from the AR design, route to `
 
 Compare planned changes with component design. If the task touches component interfaces, dependencies, state machines, or SOA boundary, stop and route to `devflow-router` for component-impact handling.
 
-### 4. Materialize Tests From Test Design
+### 4. Prepare Implementer Context Pack
+
+Create the Implementer Context Pack for the Current Active Task. Record its path or summary in `task-board.md` before dispatch. If the pack cannot be made small and precise, the task is too broad; split or refine the task before implementation.
+
+### 5. Dispatch Implementer Subagent
+
+Dispatch a fresh implementer subagent with only the context pack, allowed file scope, and expected evidence paths. The implementer performs steps 6-10 below inside that limited context. If the subagent asks questions, answer them in the controller session and re-dispatch with the clarified context pack.
+
+For trivial, single-file edits with already-small context, the controller may implement directly, but it must still follow the same RED / GREEN / REFACTOR evidence rules.
+
+### 6. Materialize Tests From Test Design
 
 Discover existing test harnesses, build scripts, CI config, nearby component tests, and team mock/fixture style. If no runnable harness exists for this target, build the smallest smoke-tested harness first and record bootstrap evidence. Harness failure is not business RED.
 
 Implement only tests for the Current Active Task's Test Design Case IDs. Preserve Task ID and Case ID anchors in names or comments.
 
-### 5. RED
+### 7. RED
 
 Run the new test and record valid RED evidence under `features/<id>/evidence/unit/` or `evidence/integration/`. Evidence includes command, exit code, failure summary, why the failure matches the intended behavior gap, and freshness anchor.
 
-### 6. GREEN
+### 8. GREEN
 
 Write the smallest implementation that turns RED green. Record GREEN evidence with command, exit code, pass summary, key result, and freshness anchor. Do not refactor in GREEN.
 
-### 7. REFACTOR
+### 9. REFACTOR
 
 Only after tests are green, perform task-scoped cleanup if needed. Follow `references/red-green-refactor-discipline.md`. Rerun tests after every cleanup and record REFACTOR evidence if cleanup occurred.
 
-### 8. Static And Dynamic Evidence
+### 10. Static And Dynamic Evidence
 
 Run build, static analysis, and relevant regression checks. Follow `references/embedded-evidence-checklist.md`. Critical unexplained issues block handoff.
 
-### 9. Implementation Log And Traceability
+### 11. Implementation Log And Traceability
 
-Write Current Active Task, changed files, decisions, RED/GREEN/REFACTOR evidence, test results, and open risks to `implementation-log.md`. Update traceability with Task ID, Code File, Test Code File, and Verification Evidence.
+Write Current Active Task, implementer status/report, changed files, decisions, RED/GREEN/REFACTOR evidence, test results, and open risks to `implementation-log.md`. Update traceability with Task ID, Code File, Test Code File, and Verification Evidence.
 
-### 10. Progress And Handoff
+### 12. Progress And Handoff
 
-Update progress fields: Current Stage, Task Plan Path, Task Board Path, Current Active Task, Pending Reviews And Gates, and Next Action Or Recommended Skill = `devflow-test-checker`.
+Update progress fields: Current Stage, Task Plan Path, Task Board Path, Current Active Task, Pending Reviews And Gates, and Next Action Or Recommended Skill = `devflow-test-checker`. Update `task-board.md` with dispatch status, context pack location/summary, implementation report, evidence paths, and any blocked reason.
 
 Dispatch an independent reviewer subagent for `devflow-test-checker`; do not run test review inline.
 
 ## Output Contract
 
 - `features/<id>/tasks.md` and `task-board.md` created or validated.
+- Implementer Context Pack recorded for Current Active Task when subagent mode is used.
 - C/C++ code and test code for Current Active Task.
 - `implementation-log.md` with handoff block.
 - Fresh evidence under `evidence/{unit,integration,static-analysis,build}/`.
@@ -126,6 +181,8 @@ Dispatch an independent reviewer subagent for `devflow-test-checker`; do not run
 ## Red Flags
 
 - Starting implementation before task queue preflight passes.
+- Dispatching an implementer subagent with broad chat history instead of a curated context pack.
+- Making the implementer discover the whole plan or unrestricted repository context.
 - Multiple active or in-progress tasks.
 - Adding tests not present in AR design.
 - Treating harness setup failure as business RED.
@@ -140,6 +197,8 @@ Dispatch an independent reviewer subagent for `devflow-test-checker`; do not run
 - [ ] Work item identity is stable.
 - [ ] Task queue preflight passed.
 - [ ] Current Active Task is unique and matches task-board.
+- [ ] Implementer Context Pack is small, explicit, and recorded when subagent mode is used.
+- [ ] Implementer status is DONE or DONE_WITH_CONCERNS with concerns resolved before review.
 - [ ] Test Design Case IDs drive the work.
 - [ ] RED, GREEN, and optional REFACTOR evidence are fresh.
 - [ ] Build/static/regression evidence is recorded.
@@ -169,6 +228,9 @@ Use canonical progress fields when this skill reads or writes `features/<id>/pro
 - Task Plan Path
 - Task Board Path
 - Current Active Task
+- Implementer Dispatch Status
+- Implementer Context Pack
+- Implementation Report
 - Next Action Or Recommended Skill
 - Blockers
 - Last Updated

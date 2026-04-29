@@ -15,6 +15,7 @@
 - Owner:
 - Last Updated:
 - Board Mode: `artifact-first + board-assisted`
+- Implementation Mode: controller-direct / implementer-subagent
 
 ## Selection Rules
 
@@ -35,6 +36,16 @@
 - `blocked`: 任务当前无法推进，需要外部条件或上游修订
 - `cancelled`: 任务已失效、被改范围覆盖或不再执行
 
+## Implementer Dispatch Vocabulary
+
+- `not_dispatched`: controller has not sent this task to an implementer
+- `dispatched`: fresh implementer subagent has received the context pack
+- `needs_context`: implementer asked for missing information
+- `blocked`: implementer cannot continue safely
+- `done`: implementer reported DONE
+- `done_with_concerns`: implementer reported DONE_WITH_CONCERNS
+- `review_ready`: controller resolved concerns and can dispatch `devflow-test-checker`
+
 ## Queue Snapshot
 
 - Ready Tasks:
@@ -42,13 +53,22 @@
 - Blocked Tasks:
 - Done Tasks:
 - Last Completion Record:
+- Current Implementer Dispatch:
+- Current Context Pack:
+- Current Implementation Report:
 - Next Router Action:
 
 ## Task Queue
 
-| Task ID | Title | Status | Depends On | Ready When | Selection Priority | Test Design Case IDs | Last Outcome / Record | Notes |
-|---|---|---|---|---|---|---|---|---|
-| T1 | <task title> | ready | - | task queue preflight 通过 | P1 |  | N/A |  |
+| Task ID | Title | Status | Depends On | Ready When | Selection Priority | Test Design Case IDs | Dispatch Status | Context Pack | Implementation Report | Evidence Paths | Blocked Reason | Last Outcome / Record | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| T1 | <task title> | ready | - | task queue preflight passed | P1 |  | not_dispatched |  |  |  |  | N/A |  |
+
+## Implementer Context Pack Index
+
+| Task ID | Context Pack Path / Summary | Allowed Files | Verify Commands | Hard Stops |
+|---|---|---|---|---|
+| T1 |  |  |  |  |
 
 ## State Change Log
 
