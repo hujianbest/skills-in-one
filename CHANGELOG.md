@@ -26,7 +26,7 @@ First official DevFlow release. Scope: development-stage workflow on **OpenCode*
 - `docs/guides/opencode-setup.md` — installation, skill discovery, automatic invocation, agent expectations, limitations.
 - `docs/guides/devflow-usage-guide.md` — usage scenarios and FAQ for end users.
 - `docs/principles/00-05` — internal principle docs (DevFlow soul, skill-node contract, skill anatomy, artifact layout, workflow architecture, coding principles).
-- `agents/` — four reviewer personas dispatched by `devflow-router`: spec reviewer, component-design reviewer, AR-design reviewer, C/C++ code reviewer.
+- `agents/` — four reviewer personas dispatched by `devflow-router`: spec reviewer, component-design reviewer, AR-design reviewer, C/C++ code reviewer. Personas follow the three-layer style adopted from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills): each file is a thin **role + review scope + verdict scale + output format + rules + composition** layer that defers all workflow contract details (hard gates, rubric thresholds, rationalization refutations, step-by-step process) to its parent `skills/devflow-*-review/SKILL.md`. `agents/README.md` documents the skill / persona / router three-layer separation.
 - Per-skill `## 反向理由化（Common Rationalizations）` table on every leaf skill, listing the most common LLM excuses with pre-written counter-arguments.
 - `LICENSE` (MIT) and `CONTRIBUTING.md`.
 - User-perspective skills directory table and lifecycle diagram in both English and Chinese READMEs.
