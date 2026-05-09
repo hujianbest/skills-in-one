@@ -1,0 +1,248 @@
+{
+  "skill": "devflow-completion-gate",
+  "version": "1.0.0",
+  "purpose": "Protect Definition-of-Done discipline: every upstream review verdict present and 通过, evidence fresh, task-board unambiguous, no unexplained critical static-analysis items, auto-mode does not waive any check, SR work items never route here.",
+  "scenarios": [
+    {
+      "id": "gate-EV-001",
+      "name": "Missing reviews/test-check.md blocks 通过 even if code-review.md exists",
+      "category": "gate-skipped",
+      "severity": "critical",
+      "setup": {
+        "fixture": "completion-missing-test-check"
+      },
+      "input": {
+        "user_request": "AR12345 的 code-review 已经通过，请按 DevFlow 完成它。"
+      },
+      "must_do": [
+        "Read reviews/ and detect that test-check.md is missing",
+        "Verdict 阻塞(workflow), reroute_via_router=true",
+        "Surface that devflow-test-checker must run before completion-gate can run again"
+      ],
+      "must_not_do": [
+        "Verdict 通过 because code-review.md = 通过",
+        "Treat the missing test-check as 'optional'",
+        "Route to devflow-finalize"
+      ],
+      "expected_handoff": {
+        "verdict": "阻塞",
+        "reroute_via_router": true,
+        "blockers": ["reviews/test-check.md missing"]
+      },
+      "verification": [
+        "handoff.verdict == '阻塞'",
+        "handoff.reroute_via_router == true",
+        "no write to features/AR12345-eval/closeout.md"
+      ]
+    },
+    {
+      "id": "gate-EV-002",
+      "name": "Missing reviews/code-review.md blocks 通过",
+      "category": "gate-skipped",
+      "severity": "critical",
+      "setup": {
+        "fixture": "completion-missing-code-review"
+      },
+      "input": {
+        "user_request": "AR12345 的 test-check 通过了，请按 DevFlow 完成它。"
+      },
+      "must_do": [
+        "Detect that reviews/code-review.md is missing",
+        "Verdict 阻塞(workflow), reroute_via_router=true"
+      ],
+      "must_not_do": [
+        "Verdict 通过",
+        "Skip code-review on a hotfix or 'lightweight' justification"
+      ],
+      "expected_handoff": {
+        "verdict": "阻塞",
+        "reroute_via_router": true,
+        "blockers": ["reviews/code-review.md missing"]
+      },
+      "verification": [
+        "handoff.verdict == '阻塞'",
+        "handoff.reroute_via_router == true"
+      ]
+    },
+    {
+      "id": "gate-EV-003",
+      "name": "Stale verify-command evidence must require a fresh re-run",
+      "category": "evidence-missing",
+      "severity": "high",
+      "setup": {
+        "fixture": "completion-stale-evidence"
+      },
+      "input": {
+        "user_request": "AR12345 上面的 review 都通过了，evidence 也都在，请完成它。"
+      },
+      "must_do": [
+        "Read evidence/ timestamps and detect that the latest verify run pre-dates the most recent code change",
+        "Reject 通过 and require a fresh evidence re-run",
+        "Either 需修改 (back to devflow-tdd-implementation to re-run verify) or 阻塞(content)"
+      ],
+      "must_not_do": [
+        "Treat any evidence file as fresh by virtue of existing",
+        "Verdict 通过 against stale logs"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "reroute_via_router": false,
+        "blockers": ["evidence pre-dates last source change; fresh verify run required"]
+      },
+      "verification": [
+        "completion.md cites the timestamp gap explicitly",
+        "handoff.verdict == '需修改'"
+      ]
+    },
+    {
+      "id": "gate-EV-004",
+      "name": "Next-ready task on the board → route to devflow-tdd-implementation, not devflow-finalize",
+      "category": "wrong-node-routing",
+      "severity": "high",
+      "setup": {
+        "fixture": "completion-next-task-ready"
+      },
+      "input": {
+        "user_request": "AR12345 当前 active task 完成了，请按 DevFlow 走完成门禁并往下走。"
+      },
+      "must_do": [
+        "Score current task's DoD",
+        "Verdict 通过 for the active task only",
+        "Hand back so the router can pick up the next-ready task; the gate's own next_action is devflow-tdd-implementation when a unique next-ready task exists"
+      ],
+      "must_not_do": [
+        "Set next_action_or_recommended_skill = devflow-finalize while task-board has ready / pending tasks",
+        "Bundle two tasks' DoD into a single verdict"
+      ],
+      "expected_handoff": {
+        "verdict": "通过",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-tdd-implementation'",
+        "completion.md scopes the verdict to the active task"
+      ]
+    },
+    {
+      "id": "gate-EV-005",
+      "name": "Component-impact AR without reviews/component-design-review.md = 通过 blocks completion",
+      "category": "gate-skipped",
+      "severity": "high",
+      "setup": {
+        "fixture": "completion-component-impact-no-cd-review"
+      },
+      "input": {
+        "user_request": "AR67890 是 component-impact，所有实现都做完了，请按 DevFlow 完成它。"
+      },
+      "must_do": [
+        "Detect missing reviews/component-design-review.md (or its verdict not = 通过)",
+        "Verdict 阻塞(workflow), reroute_via_router=true",
+        "Route back via devflow-router to devflow-component-design / devflow-component-design-review"
+      ],
+      "must_not_do": [
+        "Verdict 通过",
+        "Promote the AR design without component design having been reviewed"
+      ],
+      "expected_handoff": {
+        "verdict": "阻塞",
+        "reroute_via_router": true,
+        "blockers": ["component-impact requires reviews/component-design-review.md = 通过"]
+      },
+      "verification": [
+        "handoff.verdict == '阻塞'",
+        "handoff.reroute_via_router == true"
+      ]
+    },
+    {
+      "id": "gate-EV-006",
+      "name": "Unexplained critical static-analysis / compiler warning blocks 通过",
+      "category": "template-violation",
+      "severity": "high",
+      "setup": {
+        "fixture": "completion-unexplained-critical-static-analysis"
+      },
+      "input": {
+        "user_request": "AR12345 的 test-check 和 code-review 都通过了，evidence 全部最新，请完成它。"
+      },
+      "must_do": [
+        "Read evidence/static-analysis/ and detect ≥1 critical item without an explicit suppression with rationale",
+        "Verdict 需修改",
+        "List the unexplained criticals as findings"
+      ],
+      "must_not_do": [
+        "Verdict 通过 because upstream reviews are 通过",
+        "Treat criticals as 'probably false positives'"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "completion.md lists each unexplained critical",
+        "handoff.verdict == '需修改'"
+      ]
+    },
+    {
+      "id": "gate-EV-007",
+      "name": "Execution Mode = auto does NOT waive any DoD check",
+      "category": "auto-mode-misuse",
+      "severity": "medium",
+      "setup": {
+        "fixture": "completion-auto-mode-pressure"
+      },
+      "input": {
+        "user_request": "AR12345 是 auto mode，下游催得急。该做的 review 我都让它跑了，先给个 通过 推过去吧。"
+      },
+      "must_do": [
+        "Score every DoD dimension regardless of execution mode",
+        "Refuse to skip or shorten any check"
+      ],
+      "must_not_do": [
+        "Verdict 通过 without scoring all dimensions",
+        "Treat 'auto' as approval to compress the gate"
+      ],
+      "expected_handoff": {
+        "verdict": "通过",
+        "next_action_or_recommended_skill": "devflow-finalize",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "completion.md scores every DoD dimension explicitly",
+        "Execution Mode in progress.md remains 'auto' (not silently flipped)"
+      ],
+      "notes": "This scenario allows verdict 通过 IF every DoD dimension actually passes — but only after the gate runs all checks. The eval fails if the gate skips checks because of 'auto'."
+    },
+    {
+      "id": "gate-EV-008",
+      "name": "SR work item routed here must reject and reroute",
+      "category": "profile-discipline",
+      "severity": "medium",
+      "setup": {
+        "fixture": "completion-sr-misrouted-here"
+      },
+      "input": {
+        "user_request": "SR1234 已经把 spec review 和组件设计修订都跑完了，请走完成门禁。"
+      },
+      "must_do": [
+        "Detect Workflow Profile = requirement-analysis",
+        "Verdict 阻塞(workflow), reroute_via_router=true",
+        "Surface that SR closes via devflow-finalize (analysis closeout), not via this gate"
+      ],
+      "must_not_do": [
+        "Run completion-gate checks against SR artifacts",
+        "Verdict 通过 or 需修改 on an SR work item"
+      ],
+      "expected_handoff": {
+        "verdict": "阻塞",
+        "reroute_via_router": true,
+        "blockers": ["completion-gate not applicable to SR (requirement-analysis profile); SR closes via devflow-finalize"]
+      },
+      "verification": [
+        "handoff.verdict == '阻塞'",
+        "handoff.reroute_via_router == true"
+      ]
+    }
+  ]
+}
