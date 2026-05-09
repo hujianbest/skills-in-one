@@ -185,6 +185,20 @@ Analysis 专属：
 - 把闭口后的 work item 移到 `features/archived/`（破坏反向引用）
 - closeout 后再写 `Next Action Or Recommended Skill = devflow-router`（应为 `null`）
 
+## 反向理由化（Common Rationalizations）
+
+收尾常见的偷懒话术与反驳。命中任意一条 → 停下。
+
+| 话术 | 反驳 |
+|---|---|
+| 「ar-design-draft.md 改个名直接放到 `docs/ar-designs/`」 | 必须按 promotion 规则做语义化改写：去掉草稿过程笔记、补长期资产章节标题、保留追溯锚点 |
+| 「完成了，把 `features/<id>/` 移到 `features/archived/`」 | 禁止。会破坏追溯链接。closed work item 留在 `features/<id>/` 原位 |
+| 「上游 verdict 还差一两个，先 closeout 后补」 | implementation closeout 必须 `devflow-completion-gate` = `通过`；analysis closeout 必须 spec / component-design review 完整 |
+| 「component-impact 但 `docs/component-design.md` 我下次再同步」 | 必须**本轮**同步。component-impact 不同步 → 阻塞 |
+| 「closeout pack 里 N/A 项太琐碎，省略」 | 必须显式列 N/A，否则下次路由会被误判 blocked |
+| 「analysis closeout 顺便给候选 AR 起头实现」 | 越界。SR 子街区到 closeout 即止；候选 AR 由需求负责人新建 work item |
+| 「handoff 字段写自由文本下一步」 | 必须使用 canonical 字段名 + canonical 节点；不允许自由文本 |
+
 ## 常见错误
 
 | 错误 | 修复 |

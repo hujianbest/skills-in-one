@@ -2,10 +2,10 @@
 
 - 定位: 定义 `DevFlow`（简称 `devflow`）skills 在团队日常需求开发 / 问题修改中的工件组织、命名与生命周期。
 - 关联:
-  - 最高原则: `docs/devflow-principles/00 soul.md`
-  - Skill-node 设计契约: `docs/devflow-principles/01 skill-node-define.md`
-  - Skill 写作原则: `docs/devflow-principles/02 skill-anatomy.md`
-  - Workflow 架构: `docs/devflow-principles/04 workflow-architecture.md`
+  - 最高原则: `docs/principles/00 soul.md`
+  - Skill-node 设计契约: `docs/principles/01 skill-node-define.md`
+  - Skill 写作原则: `docs/principles/02 skill-anatomy.md`
+  - Workflow 架构: `docs/principles/04 workflow-architecture.md`
 
 ## Purpose
 
