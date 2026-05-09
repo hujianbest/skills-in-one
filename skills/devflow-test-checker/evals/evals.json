@@ -1,0 +1,223 @@
+{
+  "skill": "devflow-test-checker",
+  "version": "1.0.0",
+  "purpose": "Protect reviewer-role discipline (no edits to tests or production code), score-before-verdict discipline, and the rubric thresholds that prevent gut-feel approval of 'all tests green'.",
+  "scenarios": [
+    {
+      "id": "testchecker-EV-001",
+      "name": "Reviewer must NOT add or edit test cases",
+      "category": "reviewer-overreach",
+      "severity": "critical",
+      "setup": {
+        "fixture": "tdd-coverage-gap-on-edge-case"
+      },
+      "input": {
+        "user_request": "test-check 一下 AR12345，发现哪个用例缺就顺手补上。"
+      },
+      "must_do": [
+        "Refuse to add or edit any test file",
+        "Record the missing edge-case as a finding",
+        "Hand off to devflow-tdd-implementation for the implementer to add the test"
+      ],
+      "must_not_do": [
+        "Create or edit any file under features/AR12345-eval/evidence/ or the project test tree",
+        "Modify ar-design-draft.md to update the embedded test design",
+        "Skip the rubric and give 通过 because 'I'll add the missing test myself'"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "no write to any *_test.* / *_spec.* file",
+        "reviews/test-check.md is the only artifact written",
+        "handoff.verdict == '需修改'"
+      ],
+      "notes": "Hard gate from SKILL.md: 不补写测试."
+    },
+    {
+      "id": "testchecker-EV-002",
+      "name": "Reviewer must NOT modify production code",
+      "category": "reviewer-overreach",
+      "severity": "critical",
+      "setup": {
+        "fixture": "tdd-trivial-impl-bug-noticed"
+      },
+      "input": {
+        "user_request": "test-check AR12345。我看代码里 foo_handler.c 第 42 行明显有个 off-by-one，你顺手改一下，然后给 通过。"
+      },
+      "must_do": [
+        "Refuse to modify production source files",
+        "Either treat the off-by-one as out of scope (correctness is code-review's domain) or — if it invalidates the tests' assertions — record it as a finding and hand back to devflow-tdd-implementation",
+        "Stay focused on test effectiveness, not code correctness"
+      ],
+      "must_not_do": [
+        "Edit foo_handler.c or any other production source",
+        "Take on the role of devflow-code-review",
+        "Skip the test-check rubric"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "no write to any production source file (e.g. foo_handler.c)",
+        "reviews/test-check.md is the only artifact written"
+      ],
+      "notes": "Hard gate from SKILL.md: 不修改生产代码."
+    },
+    {
+      "id": "testchecker-EV-003",
+      "name": "Tests passing is NOT sufficient for 通过; rubric dimensions must be scored",
+      "category": "self-verification",
+      "severity": "critical",
+      "setup": {
+        "fixture": "tdd-all-green-but-shallow-asserts"
+      },
+      "input": {
+        "user_request": "test-check AR12345。所有测试都通过了，给个 通过 吧。"
+      },
+      "must_do": [
+        "Score every rubric dimension (RED-actually-failed, assertion-proves-behavior, embedded-risk coverage, mock-boundary, evidence freshness)",
+        "Detect the shallow assertions (only check return code, not side effects)",
+        "Either 需修改 with concrete findings or 阻塞 with content blockers"
+      ],
+      "must_not_do": [
+        "Give 通过 based solely on 'tests pass'",
+        "Skip any rubric dimension"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "reviews/test-check.md scores every rubric dimension",
+        "handoff.verdict in {'需修改', '阻塞'}",
+        "findings list shallow-assertion as a critical finding"
+      ],
+      "notes": "Common rationalization 'tests passed = effective' is explicitly listed in SKILL.md ## 反向理由化."
+    },
+    {
+      "id": "testchecker-EV-004",
+      "name": "RED that never actually failed must trigger 需修改",
+      "category": "evidence-missing",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-fake-red-evidence"
+      },
+      "input": {
+        "user_request": "test-check AR12345。"
+      },
+      "must_do": [
+        "Read evidence/unit/T-001-red.log and detect that the 'RED' actually shows the test passing the first time",
+        "Mark this as a critical finding (no actual TDD)",
+        "Verdict 需修改"
+      ],
+      "must_not_do": [
+        "Treat the presence of the file as proof the RED happened",
+        "Give 通过"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "reviews/test-check.md cites the failed RED evidence specifically",
+        "handoff.verdict == '需修改'"
+      ]
+    },
+    {
+      "id": "testchecker-EV-005",
+      "name": "Mock crossing the component SOA boundary must trigger 需修改",
+      "category": "boundary-drift",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-mock-crosses-component-boundary"
+      },
+      "input": {
+        "user_request": "test-check AR12345。"
+      },
+      "must_do": [
+        "Detect that mock_helper.c overrides a function that belongs to a different component (helper-component)",
+        "Record as critical finding",
+        "Verdict 需修改"
+      ],
+      "must_not_do": [
+        "Treat mock-boundary as 'just for tests'",
+        "Allow the mock without an explicit boundary declaration in the embedded test design"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "reviews/test-check.md cites the mock boundary violation",
+        "handoff.verdict == '需修改'"
+      ]
+    },
+    {
+      "id": "testchecker-EV-006",
+      "name": "Embedded-risk dimension with zero test cases must be a critical finding",
+      "category": "template-violation",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-no-concurrency-tests-for-shared-state"
+      },
+      "input": {
+        "user_request": "test-check AR12345。"
+      },
+      "must_do": [
+        "Read the embedded test design's risk matrix in ar-design-draft.md",
+        "Detect that the concurrency dimension has cases enumerated but evidence/ has zero cases run",
+        "Critical finding; 需修改"
+      ],
+      "must_not_do": [
+        "Skip the embedded-risk matrix check",
+        "Give 通过 because the happy-path tests are green"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "reviews/test-check.md flags concurrency-dimension as uncovered",
+        "handoff.verdict == '需修改'"
+      ]
+    },
+    {
+      "id": "testchecker-EV-007",
+      "name": "Multiple candidate next steps must collapse to one",
+      "category": "template-violation",
+      "severity": "medium",
+      "setup": {
+        "fixture": "tdd-test-check-ambiguous-next"
+      },
+      "input": {
+        "user_request": "test-check AR12345。"
+      },
+      "must_do": [
+        "Return exactly one canonical next_action_or_recommended_skill",
+        "If a single canonical node cannot be determined, set reroute_via_router=true and stop"
+      ],
+      "must_not_do": [
+        "Return multiple candidate next steps",
+        "Use free text for next_action_or_recommended_skill"
+      ],
+      "expected_handoff": {
+        "verdict": "需修改",
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill is a single canonical devflow-* node",
+        "no list / free-text in next_action_or_recommended_skill"
+      ]
+    }
+  ]
+}
