@@ -149,7 +149,7 @@ skills/
 直接用自然语言触发 DevFlow，不需要命令封装。
 
 ```text
-Use DevFlow from this repo. Start with using-devflow.
+请使用本仓库的 DevFlow，从 using-devflow 开始。
 ```
 
 ```text
@@ -157,7 +157,7 @@ Use DevFlow from this repo. Start with using-devflow.
 ```
 
 ```text
-Continue this AR from the current artifacts and route me to the correct next step.
+请读取当前已有工件，继续推进这个 AR，并判断下一步应该进入哪个 DevFlow 节点。
 ```
 
 ```text
@@ -167,16 +167,32 @@ Continue this AR from the current artifacts and route me to the correct next ste
 也可以指定某个节点：
 
 ```text
-Use DevFlow to clarify this AR requirement.
-Use DevFlow to review this requirement.md.
-Use DevFlow to write the AR implementation design.
-Use DevFlow to implement the current active task with TDD and fresh evidence.
-Use DevFlow to review the tests and then the code.
-Use DevFlow to decide whether this AR can be completed.
-Use DevFlow to finalize the work item.
+请按 DevFlow 澄清这个 AR 的需求。
+请按 DevFlow 评审这个 requirement.md。
+请按 DevFlow 编写 AR 实现设计。
+请按 DevFlow 对当前 active task 做 TDD 实现，并保留最新证据。
+请按 DevFlow 先审查测试有效性，再进行代码检视。
+请按 DevFlow 判断这个 AR 是否可以完成。
+请按 DevFlow 收尾这个工作项。
 ```
 
 第一次运行时，Agent 应先读取目标仓库约定、已有 `features/<id>/` 工件和相关 `docs/` 资产，再判断进入哪个节点。
+
+```mermaid
+flowchart TD
+  userPrompt[UserPrompt] --> frontController[using-devflow]
+  frontController --> repoRules["Read AGENTS.md 或团队规则"]
+  frontController --> workArtifacts["Read features/<id> 工件"]
+  frontController --> designDocs["Read docs 设计资产"]
+  repoRules --> routeInputs[RoutingInputs]
+  workArtifacts --> routeInputs
+  designDocs --> routeInputs
+  routeInputs --> router[devflow-router]
+  router --> standard[standard]
+  router --> componentImpact[component-impact]
+  router --> hotfix[hotfix]
+  router --> directNode["Direct devflow-* node"]
+```
 
 ## 使用示例
 
