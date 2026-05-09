@@ -114,6 +114,20 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 - 评审中补写测试 / 改生产代码（reviewer 不是 author）
 - 返回多个候选下一步
 
+## 反向理由化（Common Rationalizations）
+
+测试有效性审查常见的偷懒话术与反驳。命中任意一条 → 停下。
+
+| 话术 | 反驳 |
+|---|---|
+| 「测试都跑通了，效力肯定够」 | 跑通 ≠ 有效。必须按 rubric 验：RED 真失败过、断言证明行为而非证明被调用、覆盖嵌入式风险、mock 边界正确 |
+| 「RED 没真失败过，但 GREEN 通过了」 | 缺 RED 证据 → `需修改`。无失败-修-通过过程的测试不算 TDD 测试 |
+| 「断言只检查 return code，不检查 side effect」 | 断言必须能证明可观察行为；只 assert return code 容易被空实现骗过 → `需修改` |
+| 「mock 越过组件边界没事，反正只是测试」 | mock 边界必须在测试设计章节中已声明且不破组件边界。越界 → `需修改` |
+| 「顺手补两条测试用例」 | reviewer **不**补测试。返回 finding，让 `devflow-tdd-implementation` 修 |
+| 「NFR / 嵌入式风险用例少，但 happy path 都覆盖」 | 嵌入式风险维度任一无用例 → critical finding，verdict ≥ `需修改` |
+| 「下一步给两个候选让父会话选」 | 必须返回**唯一** `next_action_or_recommended_skill` |
+
 ## 常见错误
 
 | 错误 | 修复 |

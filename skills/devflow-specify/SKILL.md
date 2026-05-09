@@ -202,6 +202,20 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 - 把 USER-INPUT 阻塞项当 LLM-FIXABLE 自我硬补
 - 不更新 progress.md 就声称交接
 
+## 反向理由化（Common Rationalizations）
+
+需求澄清阶段最常见的偷懒话术与反驳。命中任意一条 → 停下，按反驳动作执行。
+
+| 话术 | 反驳 |
+|---|---|
+| 「用户描述很清楚，直接当 requirement 写下来」 | 必须按 EARS / BDD / MoSCoW 拆 row。原文≠规格，哪怕看起来再清楚 |
+| 「这条 NFR 写'尽快' / '足够快'就行」 | 必须 QAS 五要素 + 可判定阈值；写不出 → 阻塞，回需求负责人补阈值 |
+| 「接口签名我都想好了，写在规格里更省事」 | spec 阶段只能写**语义级** Interface Contract Candidate（provider / consumer / operation / inputs / outputs / error semantics）；C++ 函数签名 / 私有数据结构留给 design |
+| 「这个 SR 我顺手拆几个 AR 直接做了」 | SR work item **不**进入实现。候选 AR 必须由需求负责人**新建**独立 AR work item，由 router 重新分流 |
+| 「Open Questions 有 3 条，我自己猜个答案补上」 | 阻塞类 Open Questions 必须回需求负责人 / 模块架构师；devflow 不替团队角色拍板 |
+| 「row 太多了，挑核心的写就行」 | 缺 Acceptance / 缺 Priority 的核心 row 一律不得提交评审 |
+| 「Component Impact 看着就是不影响接口，跳过章节」 | 必须显式判断并在 Component Impact Assessment 里写明；隐式判断是 mid-AR 重路由的最大成因 |
+
 ## 常见错误
 
 | 错误 | 修复 |
