@@ -1,20 +1,20 @@
 # DevFlow (devflow) Soul — 把明确输入的需求或问题修改高质量落到软件版本
 
-> **角色定位 / 与 `devflow-skills` 包的关系**
+> **角色定位 / 与 DevFlow 包的关系**
 >
-> 本目录 `docs/devflow-principles/` 是**指导 `devflow-skills` 包设计与演进的内部原则文档**，**不**随 `devflow-skills` 包发布、**不**被 `devflow-skills` 包内任何 skill 引用。
+> 本目录 `docs/principles/` 是**指导 DevFlow skills 设计与演进的内部原则文档**，**不**作为 skill 运行时的引用，也**不**被 `skills/devflow-*/` 内任何 skill 加载。
 >
-> - 受众：`devflow-skills` 包的作者 / reviewer / 维护者
-> - 用法：在新增、修订、评审 `devflow-skills/` 下的 skill 时，先来这里对齐 soul / skill-node 契约 / skill anatomy / artifact layout / workflow architecture
-> - 包内权威共享文档是 `devflow-skills/docs/devflow-shared-conventions.md`；任何运行时约定（路径、字段、profile、handoff、Promotion Rules、必含章节集）必须先沉淀到该文档，skill 才能消费
+> - 受众：DevFlow skills 的作者 / reviewer / 维护者
+> - 用法：在新增、修订、评审 `skills/devflow-*/` 下的 skill 时，先来这里对齐 soul / skill-node 契约 / skill anatomy / artifact layout / workflow architecture
+> - DevFlow 不再维护一份集中式的「shared conventions」文档；任何运行时约定（路径、字段、profile、handoff、Promotion Rules、必含章节集）由各 skill 在自己的 `## 本地 DevFlow 约定` 节内自包含维护，项目级 `AGENTS.md` 可覆盖等价路径与模板
 
 - 定位: `DevFlow`（简称 `devflow`）skills 的最高原则文档，定义这套面向**软件开发阶段**的 skill family 的目标、协作关系与硬性纪律。
 - 背景: `DevFlow` 是 `*-flow` skill family 体系中**专注开发（development）阶段**的一员；同体系下还会陆续出现 `test-flow`、`design-flow` 等姊妹 family，分别覆盖独立测试、产品 / 架构设计等阶段。`devflow` 不替代它们，也不被它们替代——本 family 的范围严格限定在「拿到明确输入需求 / 问题修改后，把它落到代码与可追溯证据」这一段。
-- 关联（**仅**指导文档之间互引；不供 `devflow-skills` 包消费）:
-  - Skill-node 设计契约: `docs/devflow-principles/01 skill-node-define.md`
-  - Skill 写作原则: `docs/devflow-principles/02 skill-anatomy.md`
-  - 工件管理约定: `docs/devflow-principles/03 artifact-layout.md`
-  - Workflow 架构: `docs/devflow-principles/04 workflow-architecture.md`
+- 关联（**仅**指导文档之间互引；不供 DevFlow skills 在运行时消费）:
+  - Skill-node 设计契约: `docs/principles/01 skill-node-define.md`
+  - Skill 写作原则: `docs/principles/02 skill-anatomy.md`
+  - 工件管理约定: `docs/principles/03 artifact-layout.md`
+  - Workflow 架构: `docs/principles/04 workflow-architecture.md`
 
 ## 零、`*-flow` family 体系中的位置
 
@@ -30,7 +30,7 @@
 
 - `DevFlow` **不**承担产品发现、架构选型、跨子系统设计判断；这些应由 `design-flow` 给出已稳定的输入。
 - `DevFlow` **不**替代独立测试组织的系统 / 集成 / 验收级测试；devflow 内部的 TDD 与测试有效性审查保证「单元 / 组件层」的证据质量，但不豁免下游 `test-flow` 的独立验证。
-- 三个 family 共用相同的 skill anatomy（参见 `docs/devflow-principles/02 skill-anatomy.md`），保证跨 family 的对象交接、record / evidence 落盘风格、handoff 字段命名一致。
+- 三个 family 共用相同的 skill anatomy（参见 `docs/principles/02 skill-anatomy.md`），保证跨 family 的对象交接、record / evidence 落盘风格、handoff 字段命名一致。
 - 本文之外的 `*-flow` family soul 文档当它们落地时，应在 `docs/<flow>-principles/00 soul.md` 中显式与本文相互引用。
 
 ## 一、devflow 的目标
@@ -113,7 +113,7 @@ devflow 的质量至少包括：
 
 ## 五、这份 soul 的位置
 
-`docs/devflow-principles/` 下的所有原则文档共同构成 devflow skills 的宪法层。任何 skill、workflow、review 或 gate 规则发生冲突时，先检查两件事：
+`docs/principles/` 下的所有原则文档共同构成 devflow skills 的宪法层。任何 skill、workflow、review 或 gate 规则发生冲突时，先检查两件事：
 
 1. 当前做法是否仍服务于 **"把明确输入的需求或问题修改，高质量落到软件版本中"**？
 2. 当前做法是否仍尊重 **"团队专家负责判断，devflow 负责工程化执行与证据闭环"**？

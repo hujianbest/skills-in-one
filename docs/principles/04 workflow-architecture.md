@@ -2,10 +2,10 @@
 
 - 定位: 定义 `DevFlow`（简称 `devflow`）skills family 的主路径、条件插入节点、分支路径和质量门禁。
 - 关联:
-  - 最高原则: `docs/devflow-principles/00 soul.md`
-  - Skill-node 设计契约: `docs/devflow-principles/01 skill-node-define.md`
-  - Skill 写作原则: `docs/devflow-principles/02 skill-anatomy.md`
-  - 工件管理约定: `docs/devflow-principles/03 artifact-layout.md`
+  - 最高原则: `docs/principles/00 soul.md`
+  - Skill-node 设计契约: `docs/principles/01 skill-node-define.md`
+  - Skill 写作原则: `docs/principles/02 skill-anatomy.md`
+  - 工件管理约定: `docs/principles/03 artifact-layout.md`
 
 ## Purpose
 
