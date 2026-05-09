@@ -72,7 +72,7 @@ Pick by what you're trying to do — DevFlow auto-routes from the entry skill.
 | Close out, sync long-term assets, hand off | [`devflow-finalize`](skills/devflow-finalize/SKILL.md) | Closeout pack + long-term asset promotion |
 | Reproduce, root-cause, scope a hotfix / DTS | [`devflow-problem-fix`](skills/devflow-problem-fix/SKILL.md) | Reproduction + root cause + minimal safe fix |
 
-Reviewer **personas** (used by `devflow-router` to dispatch independent subagents) are listed in [`agents/`](agents/).
+Reviews are dispatched as **independent subagents** by `devflow-router`, each seeded with the matching `devflow-*-review` skill (or `devflow-test-checker` / `devflow-code-review`). The reviewer subagent reads only the artifact under review and returns a structured verdict — it never edits the artifact.
 
 ---
 
@@ -94,11 +94,6 @@ skills/
   devflow-completion-gate/
   devflow-finalize/
   devflow-problem-fix/
-agents/
-  devflow-spec-reviewer.md
-  devflow-component-design-reviewer.md
-  devflow-ar-design-reviewer.md
-  devflow-code-reviewer.md
 docs/
   guides/
     devflow-usage-guide.md
@@ -290,8 +285,7 @@ Review rubrics check that this checkpoint exists and was not used to hide a real
 
 ## Repository Notes
 
-- `skills/` holds the active DevFlow skill family.
-- `agents/` holds reviewer personas dispatched by `devflow-router`.
+- `skills/` holds the active DevFlow skill family. High-risk skills (`devflow-router`, `devflow-tdd-implementation`, `devflow-test-checker`, `devflow-completion-gate`) carry an `evals/` directory enumerating the misuse scenarios they MUST refuse.
 - `docs/principles/` contains design rationale for maintaining the DevFlow skills (not consumed by skills at runtime).
 - `docs/guides/` contains user-facing usage and setup guides.
 - Skill references are intentionally local to each skill to preserve independent installability.

@@ -2,7 +2,7 @@
 
 This file is the **hard contract** for any OpenCode agent that loads DevFlow skills. It is read by OpenCode at session start.
 
-The DevFlow skill family ships under [`skills/`](skills/). The reviewer personas it dispatches ship under [`agents/`](agents/). User-facing setup instructions live in [`docs/guides/opencode-setup.md`](docs/guides/opencode-setup.md).
+The DevFlow skill family ships under [`skills/`](skills/). High-risk skills carry an `evals/` directory enumerating misuse scenarios they MUST refuse. User-facing setup instructions live in [`docs/guides/opencode-setup.md`](docs/guides/opencode-setup.md).
 
 If you are using DevFlow inside a **component repository** (where the work item lives), copy this file to that repository's root and override paths via the `## Project overrides` section at the bottom.
 
@@ -184,12 +184,12 @@ Component repository layout (project `AGENTS.md` may override):
 When `devflow-router` reaches a review node, it MUST:
 
 1. Construct a minimal review request (`target_skill`, `work_item_id`, `owning_component`, `primary_artifact`, `supporting_context`, `agents_md_anchor`, `expected_return_contract`).
-2. Dispatch an **independent subagent** seeded with the matching persona from [`agents/`](agents/):
-   - `devflow-spec-review` → `agents/devflow-spec-reviewer.md`
-   - `devflow-component-design-review` → `agents/devflow-component-design-reviewer.md`
-   - `devflow-ar-design-review` → `agents/devflow-ar-design-reviewer.md`
-   - `devflow-code-review` → `agents/devflow-code-reviewer.md`
-   - `devflow-test-checker` is itself a reviewer skill and is dispatched directly.
+2. Dispatch an **independent subagent** seeded with the matching reviewer skill as its system prompt:
+   - `devflow-spec-review` → `skills/devflow-spec-review/SKILL.md`
+   - `devflow-component-design-review` → `skills/devflow-component-design-review/SKILL.md`
+   - `devflow-ar-design-review` → `skills/devflow-ar-design-review/SKILL.md`
+   - `devflow-test-checker` → `skills/devflow-test-checker/SKILL.md`
+   - `devflow-code-review` → `skills/devflow-code-review/SKILL.md`
 3. Consume the structured reviewer return (`verdict`, `findings`, `next_action_or_recommended_skill`, `reroute_via_router`).
 4. Never let the controller "score" the artifact alongside the reviewer — that is inlined review and is forbidden.
 

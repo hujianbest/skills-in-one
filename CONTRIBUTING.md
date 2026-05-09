@@ -70,14 +70,22 @@ Each leaf skill carries a `## 反向理由化（Common Rationalizations）` tabl
 
 MUST be proposed against `devflow-router/SKILL.md` and `devflow-router/references/profile-and-route-map.md` first, with each affected leaf updated in the same PR.
 
-## Reviewer personas
+## Reviewer dispatch
 
-Reviewer behaviour is encoded in two places:
+Reviewer behaviour is encoded entirely in the `devflow-*-review` / `devflow-test-checker` / `devflow-code-review` SKILL files. When `devflow-router` reaches a review node, it dispatches an independent subagent seeded with the corresponding skill body as its system prompt — the skill IS the reviewer prompt. Do not introduce a separate persona layer that paraphrases the skill.
 
-- The `devflow-*-review` / `devflow-test-checker` / `devflow-code-review` SKILL files (the workflow contract).
-- The `agents/devflow-*-reviewer.md` persona (the minimum prompt contract used when the router dispatches an independent subagent).
+## Skill `evals/`
 
-If you change a review skill, update the matching persona in `agents/` so the dispatched subagent stays in sync.
+High-risk skills (currently `devflow-router`, `devflow-tdd-implementation`, `devflow-test-checker`, `devflow-completion-gate`) carry an `evals/` directory that enumerates the misuse scenarios the skill MUST refuse, in the format defined by [`docs/principles/06 evals-format.md`](docs/principles/06%20evals-format.md):
+
+```
+skills/devflow-<name>/evals/
+  README.md
+  evals.json
+  fixtures/
+```
+
+When you change a hard gate, profile rule, or a key workflow step on one of these skills, update the matching `evals.json` scenario or add a new one in the same PR. Scenarios are reviewed against the skill body to ensure the skill actually refuses what the eval asserts.
 
 ## Pull request expectations
 

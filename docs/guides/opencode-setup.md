@@ -8,7 +8,7 @@ OpenCode supports custom `/commands` but does not have a native plugin system or
 
 - A strong root-level system prompt — the [`AGENTS.md`](../../AGENTS.md) at the repository root.
 - The built-in `skill` tool, which automatically discovers any `SKILL.md` under `skills/`.
-- Consistent canonical node names + reviewer personas under [`agents/`](../../agents/), so the agent picks the right skill from natural language and dispatches independent reviewer subagents.
+- Consistent canonical node names so the agent picks the right skill from natural language and dispatches independent reviewer subagents (each reviewer subagent is seeded with the corresponding `devflow-*-review` skill as its system prompt).
 
 This is an **agent-driven** workflow: skills are selected automatically by intent, not invoked through manual slash commands. It mirrors how Claude Code skills behave in practice.
 
@@ -109,12 +109,13 @@ HOTFIX     devflow-problem-fix
 
 ### 4. Reviewer subagents
 
-Reviews are dispatched as **independent subagents** by `devflow-router`. The personas live in [`agents/`](../../agents/):
+Reviews are dispatched as **independent subagents** by `devflow-router`. The reviewer subagent is seeded with the corresponding skill body as its system prompt:
 
-- `devflow-spec-reviewer.md`
-- `devflow-component-design-reviewer.md`
-- `devflow-ar-design-reviewer.md`
-- `devflow-code-reviewer.md`
+- `devflow-spec-review` → `skills/devflow-spec-review/SKILL.md`
+- `devflow-component-design-review` → `skills/devflow-component-design-review/SKILL.md`
+- `devflow-ar-design-review` → `skills/devflow-ar-design-review/SKILL.md`
+- `devflow-test-checker` → `skills/devflow-test-checker/SKILL.md`
+- `devflow-code-review` → `skills/devflow-code-review/SKILL.md`
 
 Reviewers are read-only on the artifact under review: they return `verdict + findings + next_action`, never edit the artifact themselves. The controller routes the verdict back to the authoring leaf.
 
@@ -162,7 +163,7 @@ The agent will:
 
 1. Enter via `using-devflow`.
 2. Hand off to `devflow-router` whenever stage / profile / evidence is unclear.
-3. Dispatch reviewer subagents from `agents/` as needed.
+3. Dispatch reviewer subagents (each seeded with the matching `devflow-*-review` skill) as needed.
 4. Write process artifacts under `features/<id>/` and promote long-term assets under `docs/` only at `devflow-finalize`.
 
 ---
@@ -181,4 +182,4 @@ The agent will:
 
 ## Summary
 
-DevFlow on OpenCode = `AGENTS.md` (hard contract) + `skills/` (13 canonical nodes) + `agents/` (reviewer personas) + automatic `skill`-tool invocation driven by natural language. No plugins, no manual commands, full process discipline.
+DevFlow on OpenCode = `AGENTS.md` (hard contract) + `skills/` (13 canonical nodes, with `evals/` enumerating misuse scenarios on the high-risk ones) + automatic `skill`-tool invocation driven by natural language. No plugins, no manual commands, full process discipline.
