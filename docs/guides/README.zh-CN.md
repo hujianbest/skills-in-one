@@ -176,22 +176,32 @@ skills/
 请按 DevFlow 收尾这个工作项。
 ```
 
-第一次运行时，Agent 应先读取目标仓库约定、已有 `features/<id>/` 工件和相关 `docs/` 资产，再判断进入哪个节点。
+第一次运行时，Agent 应先读取目标仓库约定、已有 `features/<id>/` 工件和相关 `docs/` 资产，再交给 `devflow-router` 按交付件状态判断下一节点。路由的核心不是“用户说想去哪”，而是看当前工件链缺哪一环、哪一环未通过评审、哪一类证据还没有闭合。
 
 ```mermaid
 flowchart TD
-  userPrompt[UserPrompt] --> frontController[using-devflow]
-  frontController --> repoRules["Read AGENTS.md 或团队规则"]
-  frontController --> workArtifacts["Read features/<id> 工件"]
-  frontController --> designDocs["Read docs 设计资产"]
-  repoRules --> routeInputs[RoutingInputs]
-  workArtifacts --> routeInputs
-  designDocs --> routeInputs
-  routeInputs --> router[devflow-router]
-  router --> standard[standard]
-  router --> componentImpact[component-impact]
-  router --> hotfix[hotfix]
-  router --> directNode["Direct devflow-* node"]
+  artifacts["AGENTS.md, features 工件, docs 资产, reviews, evidence"] --> router[devflow-router]
+  router --> problemFixCheck{"DTS 或 Hotfix 缺问题分析?"}
+  problemFixCheck -->|"是"| problemFix[devflow-problem-fix]
+  problemFixCheck -->|"否"| requirementCheck{"缺 requirement.md 或需求未澄清?"}
+  requirementCheck -->|"是"| specify[devflow-specify]
+  requirementCheck -->|"否"| specReviewCheck{"缺 spec-review 或未通过?"}
+  specReviewCheck -->|"是"| specReview[devflow-spec-review]
+  specReviewCheck -->|"否"| componentImpactCheck{"存在组件影响?"}
+  componentImpactCheck -->|"是"| componentDesignCheck{"缺组件设计或组件评审未通过?"}
+  componentDesignCheck -->|"是"| componentDesign["devflow-component-design / review"]
+  componentDesignCheck -->|"否"| arDesignCheck{"缺 AR 设计或 AR 评审未通过?"}
+  componentImpactCheck -->|"否"| arDesignCheck
+  arDesignCheck -->|"是"| arDesign["devflow-ar-design / review"]
+  arDesignCheck -->|"否"| tddCheck{"缺任务队列或实现证据?"}
+  tddCheck -->|"是"| tdd[devflow-tdd-implementation]
+  tddCheck -->|"否"| testCheck{"缺 test-check 或未通过?"}
+  testCheck -->|"是"| testChecker[devflow-test-checker]
+  testCheck -->|"否"| codeCheck{"缺 code-review 或未通过?"}
+  codeCheck -->|"是"| codeReview[devflow-code-review]
+  codeCheck -->|"否"| completionCheck{"缺 completion 或未通过?"}
+  completionCheck -->|"是"| completionGate[devflow-completion-gate]
+  completionCheck -->|"否"| finalize[devflow-finalize]
 ```
 
 ## 使用示例
