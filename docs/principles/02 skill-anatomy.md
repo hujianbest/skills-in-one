@@ -249,6 +249,8 @@ This skill turns an approved AR and its component design context into an AR impl
 
 ### `evals/`
 
+`evals/` 的目录结构、`evals.json` 字段契约、Category 取值和运行约定见 `docs/principles/06 evals-format.md`。本节只保留高风险 skill 至少覆盖的边界用例清单：
+
 高风险 devflow skill 应至少覆盖：
 
 - 错误节点触发，例如把 AR 设计请求误路由到实现。
