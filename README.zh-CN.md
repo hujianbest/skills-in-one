@@ -287,7 +287,7 @@ controller 把状态记录到 `task-board.md` / `implementation-log.md`，处理
 
 - `skills/` 是当前活跃 DevFlow skill family。高风险 skill（`devflow-router`、`devflow-tdd-implementation`、`devflow-test-checker`、`devflow-completion-gate`）带 `evals/` 目录，枚举它们必须拒绝的误用场景。
 - `docs/principles/` 是维护 DevFlow skills 的设计原则与演进依据（运行时不被 skill 消费）。
-- `docs/guides/` 是面向使用者的使用与配置指南。
+- `docs/guides/` 是面向使用者的使用与配置指南；`docs/guides/README.zh-CN.md` 是中文版深度使用指南（含案例骨架与截图占位），`docs/guides/opencode-setup.md` 是 OpenCode 接入说明，`docs/guides/devflow-usage-guide.md` 是日常使用场景与 FAQ。
 - 每个 skill 的 references 刻意保持本地化，以支持独立安装和使用。
 
 ---
