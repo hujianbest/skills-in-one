@@ -1,6 +1,6 @@
 # devflow Test Check Rubric
 
-> 配套 `devflow-test-checker/SKILL.md`。展开 7 维度评分细则与 rule IDs。
+> 配套 `devflow-test-review/SKILL.md`。展开 7 维度评分细则与 rule IDs。
 
 ## 7 维度评分
 

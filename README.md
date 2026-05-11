@@ -21,7 +21,7 @@ devflow-skills/
   devflow-ar-design/
   devflow-ar-design-review/
   devflow-tdd-implementation/
-  devflow-test-checker/
+  devflow-test-review/
   devflow-code-review/
   devflow-completion-gate/
   devflow-finalize/
@@ -44,7 +44,7 @@ using-devflow
   -> devflow-ar-design
   -> devflow-ar-design-review
   -> devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> (next-ready task ? devflow-tdd-implementation : devflow-finalize)
@@ -71,7 +71,7 @@ using-devflow
   -> (optional) devflow-ar-design
   -> (optional) devflow-ar-design-review
   -> devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
@@ -85,7 +85,7 @@ DevFlow has recently been simplified around a few strong choices:
 - Task planning is now an internal task queue setup / preflight step before TDD.
 - `tasks.md` and `task-board.md` still exist as artifacts, but not as separate workflow nodes.
 - `devflow-tdd-implementation` can dispatch a fresh implementer subagent with a curated context pack to reduce controller context usage.
-- Review nodes remain independent reviewer subagents: spec review, component design review, AR design review, test checker, and code review.
+- Review nodes remain independent reviewer subagents: spec review, component design review, AR design review, test review, and code review.
 - Design nodes now require a design options checkpoint before drafting the full design.
 - Each DevFlow skill owns its local conventions and references instead of depending on a shared pack-level docs folder.
 
@@ -102,7 +102,7 @@ DevFlow has recently been simplified around a few strong choices:
 | AR design | `devflow-ar-design` | Code-level design, defensive C/C++ design, embedded test design, design options checkpoint |
 | AR design review | `devflow-ar-design-review` | Independent AR design and test-design review |
 | TDD implementation | `devflow-tdd-implementation` | Task queue setup, single active task, RED/GREEN/REFACTOR, fresh evidence, implementer subagent context pack |
-| Test review | `devflow-test-checker` | Test effectiveness, coverage, mock/stub boundary, evidence freshness |
+| Test review | `devflow-test-review` | Test effectiveness, coverage, mock/stub boundary, evidence freshness |
 | Code review | `devflow-code-review` | Fagan-style inspection, embedded C/C++ risk review, SOA boundary review |
 | Completion | `devflow-completion-gate` | Definition of Done, evidence bundle, next-task vs finalize decision |
 | Closeout | `devflow-finalize` | Closeout pack, long-term asset promotion, handoff |
@@ -172,7 +172,7 @@ The implementer subagent receives that pack rather than the full chat history or
 - `NEEDS_CONTEXT`
 - `BLOCKED`
 
-The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-checker`. Implementer self-review never replaces test review or code review.
+The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-review`. Implementer self-review never replaces test review or code review.
 
 ## Design Options Checkpoint
 

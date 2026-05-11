@@ -35,7 +35,7 @@ using-devflow
   -> devflow-ar-design
   -> devflow-ar-design-review
   -> devflow-tdd-implementation        # 包含 task queue setup/preflight
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> (next-ready task ? devflow-tdd-implementation : devflow-finalize)
@@ -53,7 +53,7 @@ using-devflow
   -> devflow-ar-design
   -> devflow-ar-design-review
   -> devflow-tdd-implementation        # 包含 task queue setup/preflight
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> (next-ready task ? devflow-tdd-implementation : devflow-finalize)
@@ -69,13 +69,13 @@ using-devflow
   -> devflow-problem-fix
   -> (optional) devflow-ar-design -> devflow-ar-design-review
   -> devflow-tdd-implementation        # 按需包含 task queue setup/preflight
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
 ```
 
-Hotfix 可以压缩文档量，但不能跳过 test-checker、code-review 或 completion-gate。
+Hotfix 可以压缩文档量，但不能跳过 test-review、code-review 或 completion-gate。
 
 ## Lightweight 路由
 
@@ -87,7 +87,7 @@ using-devflow
   -> devflow-ar-design (minimal，仍包含 test design section)
   -> devflow-ar-design-review
   -> devflow-tdd-implementation        # 包含最小 task queue setup/preflight
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
@@ -108,7 +108,7 @@ Lightweight 只压缩文档量，不移除质量门禁。
 7. AR design 缺 embedded test design。
 8. Task queue preflight 无法产出完整 tasks 或唯一 `Current Active Task`。
 9. `task-board.md` 存在多个 in_progress tasks、next-ready tasks 不明确，或与 `progress.md` 冲突。
-10. TDD 已完成但测试尚未通过 `devflow-test-checker`。
+10. TDD 已完成但测试尚未通过 `devflow-test-review`。
 11. 代码变更破坏 SOA boundary，或新增未解释的跨组件依赖。
 12. critical static-analysis / build / coding-standard 问题未解释。
 13. review / gate verdict 无法映射到唯一 next action。
@@ -122,7 +122,7 @@ Review 节点必须派发为独立 reviewer subagents：
 | `devflow-specify` | `devflow-spec-review` |
 | `devflow-component-design` | `devflow-component-design-review` |
 | `devflow-ar-design` | `devflow-ar-design-review` |
-| `devflow-tdd-implementation` | `devflow-test-checker` |
-| `devflow-test-checker` pass | `devflow-code-review` |
+| `devflow-tdd-implementation` | `devflow-test-review` |
+| `devflow-test-review` pass | `devflow-code-review` |
 
 Task queue preflight 是 `devflow-tdd-implementation` 的内部步骤，不是派发式 review 节点。

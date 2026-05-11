@@ -1,6 +1,6 @@
 # Team UT Review Rubric
 
-> 配套 `devflow-test-checker/SKILL.md`。本文件完整继承旧 MDC UT 审查准则，用于补充 `test-check-rubric.md` 的 TC1-TC7 评分维度。C++ GoogleTest 的宏、fixture、参数化等细节可参考团队现有 gtest 指南。
+> 配套 `devflow-test-review/SKILL.md`。本文件完整继承旧 MDC UT 审查准则，用于补充 `test-check-rubric.md` 的 TC1-TC7 评分维度。C++ GoogleTest 的宏、fixture、参数化等细节可参考团队现有 gtest 指南。
 
 ## 1. 测试意图
 
@@ -173,7 +173,7 @@ ASSERT_EQ(foo, bar) << "Foo should equal bar after normalization";
 
 在 devflow 中映射为：
 
-| Team 结论 | devflow-test-checker verdict |
+| Team 结论 | devflow-test-review verdict |
 |---|---|
 | `通过` | `通过` |
 | `需改进` | `需修改` |

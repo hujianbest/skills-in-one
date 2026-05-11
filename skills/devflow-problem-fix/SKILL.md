@@ -29,7 +29,7 @@ description: 当 DTS、紧急缺陷或已上线问题在任何代码修改前需
 
 - 必须有复现路径（或显式无法复现说明）才能 handoff 给 `devflow-tdd-implementation`
 - 必须确认根因 + 最小安全修复边界
-- 不得把 hotfix 当作跳过 `devflow-test-checker` / `devflow-code-review` / `devflow-completion-gate` 的理由
+- 不得把 hotfix 当作跳过 `devflow-test-review` / `devflow-code-review` / `devflow-completion-gate` 的理由
 - 修复边界扩散（跨多模块 / 改公共接口 / 改用户可见行为 / 改数据契约）→ `interactive` 模式下必须先确认边界，`auto` 模式下回 router
 - 不替模块架构师决定接口 / 数据契约改动
 - 修复若实质上是「新增能力」或「需求变更」→ 不走 hotfix，回 `devflow-specify` 或 router

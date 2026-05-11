@@ -38,7 +38,7 @@ devflow 不维护独立 `test-design.md`；测试设计是 AR 实现设计的章
 
 ## RED / GREEN 证据要求
 
-测试设计章节应说明 TDD 期间需要保留的证据，以保证后续 `devflow-test-checker` 可独立审查：
+测试设计章节应说明 TDD 期间需要保留的证据，以保证后续 `devflow-test-review` 可独立审查：
 
 - **RED 证据**：用例首次失败时的命令、退出码、失败摘要、为什么预期失败
 - **GREEN 证据**：用例通过时的命令、通过摘要、关键结果、新鲜度锚点（commit / build ID）

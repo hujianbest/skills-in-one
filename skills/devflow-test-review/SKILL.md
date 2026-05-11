@@ -1,5 +1,5 @@
 ---
-name: devflow-test-checker
+name: devflow-test-review
 description: 当 devflow-tdd-implementation 已完成且新写测试需要在代码检视前独立审查覆盖度、有效性、可维护性时使用；也用于派发评审子代理执行 TDD 后测试有效性审查，或上一轮 test-check 要求修改后复审。不用于编写或修复测试、评审生产代码，或阶段和路由混乱。
 ---
 
@@ -27,7 +27,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 
 ## 硬性门禁
 
-- `devflow-test-checker` 通过前不得进入 `devflow-code-review`
+- `devflow-test-review` 通过前不得进入 `devflow-code-review`
 - reviewer **不**修改测试代码 / 生产代码 / AR 设计
 - reviewer **不**补写测试用例（缺测试用例 → 视为 finding 让 `devflow-tdd-implementation` 回修）
 - reviewer **不**替开发负责人 / 模块架构师拍板

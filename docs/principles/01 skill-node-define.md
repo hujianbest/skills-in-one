@@ -67,7 +67,7 @@ devflow 节点按职责分类，不按主链顺序分类。
 | AR Design               | `devflow-ar-design`               | 基于 AR 与组件设计编写 AR 实现设计和测试设计            | 改写组件架构或直接编码          |
 | AR Design Review        | `devflow-ar-design-review`        | 独立评审 AR 实现设计、测试设计与追溯                  | 代替开发人员回修             |
 | Implementation          | `devflow-tdd-implementation`      | 基于 AR 设计和测试设计进行 C / C++ TDD 实现        | 跳过测试、改变 AR 范围        |
-| Test Checker            | `devflow-test-checker`            | TDD 完成后独立审查已编写测试用例是否有效、可执行、覆盖关键风险   | 代替实现节点补写测试或修改生产代码    |
+| Test Review            | `devflow-test-review`            | TDD 完成后独立审查已编写测试用例是否有效、可执行、覆盖关键风险   | 代替实现节点补写测试或修改生产代码    |
 | Code Review             | `devflow-code-review`             | 检查 C / C++ 代码质量、SOA 边界、内存 / 并发 / 实时风险 | 代替编译、测试或实现           |
 | Completion Gate         | `devflow-completion-gate`         | 判断 AR / 问题修改是否满足完成条件                  | 制造缺失证据               |
 | Finalize                | `devflow-finalize`                | 汇总交付记录、同步状态、形成 handoff                | 混入新实现或新需求            |
@@ -86,7 +86,7 @@ devflow skill node 必须明确它处理的对象。
 | `devflow-component-design`   | 组件现状、SR/AR 影响、SOA 接口约束  | component implementation design model | 组件实现设计                                 | 把组件职责、接口、依赖、数据和运行机制写成设计 |
 | `devflow-ar-design`          | AR、组件实现设计、团队模板          | AR implementation design model        | 含测试设计章节的 AR 实现设计                      | 把单个 AR 转成代码层设计和可执行测试意图  |
 | `devflow-tdd-implementation` | AR 实现设计、测试设计、现有代码       | implementation slice                  | C / C++ code change、测试证据、handoff       | 把设计对象实现成被测试证据支撑的代码变化    |
-| `devflow-test-checker`       | TDD 后测试代码、测试执行证据、AR 实现设计、AR 规格、组件约束 | implemented test quality finding set  | test-check record、verdict、next action  | 把已落地测试用例审查成覆盖性、有效性和可维护性结论 |
+| `devflow-test-review`       | TDD 后测试代码、测试执行证据、AR 实现设计、AR 规格、组件约束 | implemented test quality finding set  | test-check record、verdict、next action  | 把已落地测试用例审查成覆盖性、有效性和可维护性结论 |
 | `devflow-code-review`        | diff、AR 设计、组件设计、测试证据    | code quality finding set              | code review record、verdict、next action | 把实现对象检查成发现项和迁移结论        |
 | `devflow-completion-gate`    | 设计、代码、检视、测试证据           | completion evidence bundle            | 完成结论、返工节点或 finalize 信号                 | 把多源证据判定为能否完成            |
 
@@ -95,7 +95,7 @@ Object Contract 要避免三类错误：
 
 - 把用户输入的自然语言需求直接当成 AR 实现设计。
 - 把组件实现设计和 AR 实现设计混写。前者描述组件，后者描述需求代码层实现。
-- 把 TDD 中写出的测试用例当成天然有效。TDD 完成后，测试用例仍必须经过 `devflow-test-checker` 审查其覆盖性、有效性和可维护性。
+- 把 TDD 中写出的测试用例当成天然有效。TDD 完成后，测试用例仍必须经过 `devflow-test-review` 审查其覆盖性、有效性和可维护性。
 
 ## Method Contract
 
@@ -159,7 +159,7 @@ devflow skill node 必须定义 hard gates、red flags 和 verification。
 - AR 不属于唯一组件，或组件归属不清。
 - 组件实现设计缺失，但当前 AR 修改依赖组件边界、接口或架构判断。
 - AR 实现设计缺失测试设计，不能进入 TDD 实现。
-- TDD 完成后的测试用例未经 `devflow-test-checker` 审查，不能进入后续代码质量闭环。
+- TDD 完成后的测试用例未经 `devflow-test-review` 审查，不能进入后续代码质量闭环。
 - 代码修改绕过 SOA 接口、破坏组件边界或引入隐式跨组件依赖。
 - C / C++ 代码存在未解释的内存、并发、实时性、资源生命周期或错误处理风险。
 - 存在未解释的 critical 静态分析 / 编译告警 / 编码规范违反项。

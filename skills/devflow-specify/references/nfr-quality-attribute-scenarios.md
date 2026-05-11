@@ -182,7 +182,7 @@ QAS:
 
 - `devflow-ar-design` 的测试设计章节会把 QAS 映射到具体 unit / integration / simulation 测试用例，并写入「嵌入式风险覆盖矩阵」
 - `devflow-tdd-implementation` 把 Response Measure 转为 RED 步的判定（例如 latency 直方图、size 工具输出、leak detector 报告）
-- `devflow-test-checker` 在 `TC4 Embedded Risk Coverage` 维度反向核对：每条 NFR 是否被 `embedded-risk` 用例覆盖
+- `devflow-test-review` 在 `TC4 Embedded Risk Coverage` 维度反向核对：每条 NFR 是否被 `embedded-risk` 用例覆盖
 - `devflow-code-review` 在 `CR4 Memory & Resource Lifecycle` / `CR5 Concurrency & Real-time` / `CR6 Error Handling & Defensive Design` 维度反向核对实现是否符合 QAS Response Measure
 
 ## 常见风险信号

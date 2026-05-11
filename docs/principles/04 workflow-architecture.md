@@ -28,7 +28,7 @@ DevFlow workflow 围绕以下对象推进：
 | Component Implementation Design | 组件级长期设计，描述组件职责、SOA 接口、依赖和运行机制 | `devflow-component-design` |
 | AR Implementation Design | 单个 AR 的代码层设计，包含测试设计章节 | `devflow-ar-design` |
 | Implementation Slice | 单个 AR / BUG 的 C / C++ 代码变化 | `devflow-tdd-implementation` |
-| Implemented Test Quality Finding Set | TDD 后测试用例有效性审查发现项和 verdict | `devflow-test-checker` |
+| Implemented Test Quality Finding Set | TDD 后测试用例有效性审查发现项和 verdict | `devflow-test-review` |
 | Code Quality Finding Set | 代码检视发现项和 verdict | `devflow-code-review` |
 | Completion Evidence Bundle | 完成判断所需证据集合 | `devflow-completion-gate` |
 
@@ -38,7 +38,7 @@ devflow 可以按风险选择不同密度，但不能降低质量底线。
 
 | Profile | 适用场景 | 主特点 |
 |---|---|---|
-| `standard` | 大多数既有组件 AR 增量开发 | specify -> spec review -> AR 设计 -> TDD -> test checker -> code review -> completion |
+| `standard` | 大多数既有组件 AR 增量开发 | specify -> spec review -> AR 设计 -> TDD -> test review -> code review -> completion |
 | `component-impact` | AR 影响组件边界、接口、依赖、状态机或新增组件 | 插入组件实现设计和组件设计评审 |
 | `hotfix` | 紧急问题修改 | 先复现和根因，再最小安全修复，不能跳过必要验证 |
 | `lightweight` | 极小、低风险、纯局部修改 | 可压缩文档量，但保留 traceability、test evidence、review 和 completion |
@@ -55,7 +55,7 @@ using-devflow
   -> devflow-ar-design
   -> devflow-ar-design-review
   -> devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
@@ -67,7 +67,7 @@ using-devflow
 - `devflow-spec-review` 独立审查规格是否清楚、可追溯、可设计。
 - `devflow-ar-design` 必须承接组件实现设计；如果组件设计缺失或过期，应回 router 判断是否进入 `devflow-component-design`。
 - `devflow-tdd-implementation` 只能消费已评审通过的 AR 实现设计和测试设计。
-- `devflow-test-checker` 在 TDD 完成后审查已落地测试用例有效性，再进入代码检视。
+- `devflow-test-review` 在 TDD 完成后审查已落地测试用例有效性，再进入代码检视。
 
 ## Component-Impact Route
 
@@ -90,7 +90,7 @@ devflow-router
   -> devflow-ar-design
   -> devflow-ar-design-review
   -> devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
@@ -107,7 +107,7 @@ using-devflow
   -> devflow-router
   -> devflow-problem-fix
   -> devflow-ar-design 或 devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
@@ -131,7 +131,7 @@ using-devflow
 
 不应因为每个 AR 都机械进入组件设计；大多数既有组件增量开发只读取组件设计作为输入。
 
-### `devflow-test-checker`
+### `devflow-test-review`
 
 默认在 `devflow-tdd-implementation` 后进入。它审查 TDD 后已落地测试用例是否真正有效，而不是重新设计测试或修改生产代码。
 
@@ -148,7 +148,7 @@ devflow 必须保持角色分离：
 
 - authoring 节点写设计，不评审自己。
 - implementation 节点写代码和测试证据，不自称代码质量通过。
-- test checker 审查 TDD 后测试用例，不补写测试、不改生产代码。
+- test review 审查 TDD 后测试用例，不补写测试、不改生产代码。
 - code review 检查代码，不替代测试有效性审查。
 - completion gate 消费证据，不制造缺失证据。
 
@@ -162,8 +162,8 @@ devflow 必须保持角色分离：
 | `devflow-component-design-review` | `devflow-ar-design` | `devflow-component-design` |
 | `devflow-ar-design` | `devflow-ar-design-review` | 继续修订 |
 | `devflow-ar-design-review` | `devflow-tdd-implementation` | `devflow-ar-design` |
-| `devflow-tdd-implementation` | `devflow-test-checker` | 继续实现 |
-| `devflow-test-checker` | `devflow-code-review` | `devflow-tdd-implementation` |
+| `devflow-tdd-implementation` | `devflow-test-review` | 继续实现 |
+| `devflow-test-review` | `devflow-code-review` | `devflow-tdd-implementation` |
 | `devflow-code-review` | `devflow-completion-gate` | `devflow-tdd-implementation` |
 | `devflow-completion-gate` | `devflow-finalize` | 缺什么回什么 |
 | `devflow-finalize` | workflow closed | router |
@@ -180,7 +180,7 @@ devflow 必须保持角色分离：
 - 缺组件实现设计，但修改影响组件边界。
 - AR 实现设计未包含测试设计。
 - 实现需要修改组件架构，但当前节点不是组件设计。
-- TDD 完成后测试用例未经 `devflow-test-checker` 审查。
+- TDD 完成后测试用例未经 `devflow-test-review` 审查。
 - code review 发现高风险 C / C++ 问题。
 - completion evidence bundle 不完整。
 
@@ -206,7 +206,7 @@ devflow 必须保持角色分离：
 - 组件实现设计已存在且未被本次修改破坏；若修改了组件级行为，已更新并通过 review。
 - AR 实现设计通过 review。
 - 测试设计已执行并保留证据。
-- TDD 后测试用例通过 `devflow-test-checker`。
+- TDD 后测试用例通过 `devflow-test-review`。
 - C / C++ 实现通过代码检视。
 - 无已知 critical 质量债、架构边界债或未解释的静态分析高风险项。
 - completion gate 给出通过结论。
@@ -224,7 +224,7 @@ devflow 必须保持角色分离：
 7. `devflow-ar-design`
 8. `devflow-ar-design-review`
 9. `devflow-tdd-implementation`
-10. `devflow-test-checker`
+10. `devflow-test-review`
 11. `devflow-code-review`
 12. `devflow-completion-gate`
 13. `devflow-finalize`

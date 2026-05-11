@@ -44,7 +44,7 @@
 - `blocked`: 实现者无法安全继续
 - `done`: 实现者报告 DONE
 - `done_with_concerns`: 实现者报告 DONE_WITH_CONCERNS
-- `review_ready`: controller 已处理 concerns，可派发 `devflow-test-checker`
+- `review_ready`: controller 已处理 concerns，可派发 `devflow-test-review`
 
 ## 队列快照
 
