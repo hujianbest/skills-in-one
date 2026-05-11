@@ -5,7 +5,7 @@
   "scenarios": [
     {
       "id": "router-EV-001",
-      "name": "TDD complete must never skip devflow-test-checker before devflow-code-review",
+      "name": "TDD complete must never skip devflow-test-review before devflow-code-review",
       "category": "gate-skipped",
       "severity": "critical",
       "setup": {
@@ -27,7 +27,7 @@
       "must_do": [
         "Read features/AR12345-eval/progress.md and reviews/ to confirm test-check.md is missing",
         "Override the leaf's free-text suggestion of devflow-code-review",
-        "Dispatch devflow-test-checker as the next canonical node",
+        "Dispatch devflow-test-review as the next canonical node",
         "Mark Pending Reviews And Gates with test-check still pending"
       ],
       "must_not_do": [
@@ -36,15 +36,15 @@
         "Treat the missing test-check as an optional asset"
       ],
       "expected_handoff": {
-        "next_action_or_recommended_skill": "devflow-test-checker",
+        "next_action_or_recommended_skill": "devflow-test-review",
         "reroute_via_router": false
       },
       "verification": [
-        "handoff.next_action_or_recommended_skill == 'devflow-test-checker'",
+        "handoff.next_action_or_recommended_skill == 'devflow-test-review'",
         "no write to features/AR12345-eval/reviews/test-check.md by the controller",
         "controller did not call devflow-code-review"
       ],
-      "notes": "Hard gate from SKILL.md ## 硬性门禁: 'TDD 完成后未经 devflow-test-checker 审查 → 不得路由到 devflow-code-review.'"
+      "notes": "Hard gate from SKILL.md ## 硬性门禁: 'TDD 完成后未经 devflow-test-review 审查 → 不得路由到 devflow-code-review.'"
     },
     {
       "id": "router-EV-002",
@@ -184,20 +184,20 @@
       },
       "must_do": [
         "Treat 'auto' as removing inter-node user confirmations only",
-        "Still dispatch devflow-test-checker, devflow-code-review, devflow-completion-gate in sequence as independent subagents",
+        "Still dispatch devflow-test-review, devflow-code-review, devflow-completion-gate in sequence as independent subagents",
         "Refuse to route to devflow-finalize before completion gate verdict = 通过"
       ],
       "must_not_do": [
         "Route directly to devflow-finalize",
-        "Skip devflow-test-checker, devflow-code-review, or devflow-completion-gate",
+        "Skip devflow-test-review, devflow-code-review, or devflow-completion-gate",
         "Treat auto mode as approval to inline reviews"
       ],
       "expected_handoff": {
-        "next_action_or_recommended_skill": "devflow-test-checker",
+        "next_action_or_recommended_skill": "devflow-test-review",
         "reroute_via_router": false
       },
       "verification": [
-        "handoff.next_action_or_recommended_skill == 'devflow-test-checker'",
+        "handoff.next_action_or_recommended_skill == 'devflow-test-review'",
         "Pending Reviews And Gates retains test-check, code-review, completion-gate"
       ],
       "notes": "auto Execution Mode is orthogonal to gate discipline."
@@ -226,7 +226,7 @@
       ],
       "must_not_do": [
         "Pick one of the two tasks for the user",
-        "Route to devflow-test-checker / devflow-code-review with an ambiguous active task",
+        "Route to devflow-test-review / devflow-code-review with an ambiguous active task",
         "Route to devflow-completion-gate"
       ],
       "expected_handoff": {
@@ -310,7 +310,7 @@
       ],
       "must_not_do": [
         "Route to devflow-finalize while there is a next-ready task",
-        "Skip devflow-test-checker / devflow-code-review on the new task"
+        "Skip devflow-test-review / devflow-code-review on the new task"
       ],
       "expected_handoff": {
         "next_action_or_recommended_skill": "devflow-tdd-implementation",

@@ -8,7 +8,7 @@
 - Current Stage: devflow-tdd-implementation
 - Current Active Task: T-001
 - Pending Reviews And Gates: test-check, code-review, completion-gate
-- Next Action Or Recommended Skill: devflow-test-checker
+- Next Action Or Recommended Skill: devflow-test-review
 - Blockers:
 - Last Updated: 2026-05-09T00:00:00Z
 

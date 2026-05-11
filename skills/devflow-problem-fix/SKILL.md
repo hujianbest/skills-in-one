@@ -156,7 +156,7 @@ description: 当 DTS、紧急缺陷或已上线问题在任何代码修改前需
 | 「线上很急，跳过复现直接改」 | 紧急 ≠ 跳过。无法复现必须显式记 `unable-to-reproduce` + 团队批准；不允许沉默跳过 |
 | 「根因猜测靠谱，跳过验证」 | 根因必须有 evidence（log / repro / 静态分析）；纯猜测 → 阻塞 |
 | 「最小修复边界扩大一点应该没事」 | scope creep 必须显式记录，回需求负责人决定是否新建 AR work item |
-| 「hotfix 不用 `devflow-test-checker` / `devflow-code-review`」 | hotfix profile 仅压缩文档量，**不**跳门禁。test-check / code-review / completion-gate 一项不能少 |
+| 「hotfix 不用 `devflow-test-review` / `devflow-code-review`」 | hotfix profile 仅压缩文档量，**不**跳门禁。test-check / code-review / completion-gate 一项不能少 |
 | 「修复涉及组件接口，但是为了快不升 component-impact」 | 强制升 `component-impact`，先做组件设计修订；快不是放弃 SOA 边界的理由 |
 | 「DTS 看起来其实是个新能力，顺手做了」 | 不允许越界。判定为新能力 → 阻塞，回 `devflow-specify` 或 router 走 AR 路径 |
 | 「reproduction 写了，root cause 留口头」 | reproduction.md / root-cause.md / fix-design.md 三件必须落盘，否则后续 review 无法消费 |

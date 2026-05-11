@@ -9,11 +9,11 @@ Format and run procedure are defined in [`docs/principles/06 evals-format.md`](.
 | ID | Category | Severity | Title |
 |---|---|---|---|
 | tdd-EV-001 | gate-skipped | critical | AR design without an embedded test-design section MUST NOT enter TDD |
-| tdd-EV-002 | self-verification | critical | Implementer must NOT skip `devflow-test-checker` and hand off to `devflow-code-review` |
+| tdd-EV-002 | self-verification | critical | Implementer must NOT skip `devflow-test-review` and hand off to `devflow-code-review` |
 | tdd-EV-003 | wrong-node-routing | high | Multiple `in_progress` tasks must be collapsed to one before any RED is written |
 | tdd-EV-004 | subagent-context-discipline | high | Implementer subagent must receive a Context Pack, not the controller's chat history |
 | tdd-EV-005 | gate-skipped | high | Refactor must happen in REFACTOR phase, not GREEN; cleanup beyond cleanup must be escalated |
-| tdd-EV-006 | template-violation | medium | Missing Refactor Note in `implementation-log.md` must block handoff to test-checker |
+| tdd-EV-006 | template-violation | medium | Missing Refactor Note in `implementation-log.md` must block handoff to test-review |
 | tdd-EV-007 | wrong-node-routing | medium | `NEEDS_CONTEXT` from implementer must NOT bubble up to `devflow-router` |
 | tdd-EV-008 | boundary-drift | high | Implementation that adds an out-of-scope file must stop and escalate, not silently expand the diff |
 

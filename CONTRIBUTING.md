@@ -53,7 +53,7 @@ The `description` is a **classifier**, not a flow summary. It only answers "shou
 - ✅ Good: `Use when independently reviewing a C/C++ code change produced by devflow-tdd-implementation against an approved AR design. Not for writing tests, modifying production code, or test effectiveness review.`
 - ❌ Bad: `Use when reviewing code — read the diff, score it, write findings, hand off.`
 
-Front-load triggering keywords (`spec review`, `AR implementation design`, `component design`, `test checker`, `C/C++ code review`) so OpenCode's automatic skill discovery can match them.
+Front-load triggering keywords (`spec review`, `AR implementation design`, `component design`, `test review`, `C/C++ code review`) so OpenCode's automatic skill discovery can match them.
 
 ## Anti-rationalization
 
@@ -72,11 +72,11 @@ MUST be proposed against `devflow-router/SKILL.md` and `devflow-router/reference
 
 ## Reviewer dispatch
 
-Reviewer behaviour is encoded entirely in the `devflow-*-review` / `devflow-test-checker` / `devflow-code-review` SKILL files. When `devflow-router` reaches a review node, it dispatches an independent subagent seeded with the corresponding skill body as its system prompt — the skill IS the reviewer prompt. Do not introduce a separate persona layer that paraphrases the skill.
+Reviewer behaviour is encoded entirely in the `devflow-*-review` / `devflow-test-review` / `devflow-code-review` SKILL files. When `devflow-router` reaches a review node, it dispatches an independent subagent seeded with the corresponding skill body as its system prompt — the skill IS the reviewer prompt. Do not introduce a separate persona layer that paraphrases the skill.
 
 ## Skill `evals/`
 
-High-risk skills (currently `devflow-router`, `devflow-tdd-implementation`, `devflow-test-checker`, `devflow-completion-gate`) carry an `evals/` directory that enumerates the misuse scenarios the skill MUST refuse, in the format defined by [`docs/principles/06 evals-format.md`](docs/principles/06%20evals-format.md):
+High-risk skills (currently `devflow-router`, `devflow-tdd-implementation`, `devflow-test-review`, `devflow-completion-gate`) carry an `evals/` directory that enumerates the misuse scenarios the skill MUST refuse, in the format defined by [`docs/principles/06 evals-format.md`](docs/principles/06%20evals-format.md):
 
 ```
 skills/devflow-<name>/evals/

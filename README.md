@@ -66,13 +66,13 @@ Pick by what you're trying to do — DevFlow auto-routes from the entry skill.
 | Write an AR implementation design (with embedded test design) | [`devflow-ar-design`](skills/devflow-ar-design/SKILL.md) | Code-level design + defensive C/C++ + test design |
 | Independently review an AR design + test design | [`devflow-ar-design-review`](skills/devflow-ar-design-review/SKILL.md) | Independent design + test-design review |
 | Implement with TDD (single active task, fresh evidence) | [`devflow-tdd-implementation`](skills/devflow-tdd-implementation/SKILL.md) | Task queue setup, RED/GREEN/REFACTOR, implementer subagent |
-| Check whether the tests are actually effective | [`devflow-test-checker`](skills/devflow-test-checker/SKILL.md) | Post-TDD test effectiveness review |
+| Check whether the tests are actually effective | [`devflow-test-review`](skills/devflow-test-review/SKILL.md) | Post-TDD test effectiveness review |
 | Review the C / C++ code | [`devflow-code-review`](skills/devflow-code-review/SKILL.md) | Fagan-style + embedded C/C++ risks + SOA boundary |
 | Decide if the work item can be completed | [`devflow-completion-gate`](skills/devflow-completion-gate/SKILL.md) | Definition of Done + evidence bundle |
 | Close out, sync long-term assets, hand off | [`devflow-finalize`](skills/devflow-finalize/SKILL.md) | Closeout pack + long-term asset promotion |
 | Reproduce, root-cause, scope a hotfix / DTS | [`devflow-problem-fix`](skills/devflow-problem-fix/SKILL.md) | Reproduction + root cause + minimal safe fix |
 
-Reviews are dispatched as **independent subagents** by `devflow-router`, each seeded with the matching `devflow-*-review` skill (or `devflow-test-checker` / `devflow-code-review`). The reviewer subagent reads only the artifact under review and returns a structured verdict — it never edits the artifact.
+Reviews are dispatched as **independent subagents** by `devflow-router`, each seeded with the matching `devflow-*-review` skill (or `devflow-test-review` / `devflow-code-review`). The reviewer subagent reads only the artifact under review and returns a structured verdict — it never edits the artifact.
 
 ---
 
@@ -89,7 +89,7 @@ skills/
   devflow-ar-design/
   devflow-ar-design-review/
   devflow-tdd-implementation/
-  devflow-test-checker/
+  devflow-test-review/
   devflow-code-review/
   devflow-completion-gate/
   devflow-finalize/
@@ -129,7 +129,7 @@ using-devflow
   -> devflow-ar-design
   -> devflow-ar-design-review
   -> devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> (next-ready task ? devflow-tdd-implementation : devflow-finalize)
@@ -156,7 +156,7 @@ using-devflow
   -> (optional) devflow-ar-design
   -> (optional) devflow-ar-design-review
   -> devflow-tdd-implementation
-  -> devflow-test-checker
+  -> devflow-test-review
   -> devflow-code-review
   -> devflow-completion-gate
   -> devflow-finalize
@@ -189,7 +189,7 @@ DevFlow is built around a few strong choices:
 | AR design | `devflow-ar-design` | Code-level design, defensive C/C++ design, embedded test design, design options checkpoint |
 | AR design review | `devflow-ar-design-review` | Independent AR design and test-design review |
 | TDD implementation | `devflow-tdd-implementation` | Task queue setup, single active task, RED/GREEN/REFACTOR, fresh evidence, implementer subagent context pack |
-| Test review | `devflow-test-checker` | Test effectiveness, coverage, mock/stub boundary, evidence freshness |
+| Test review | `devflow-test-review` | Test effectiveness, coverage, mock/stub boundary, evidence freshness |
 | Code review | `devflow-code-review` | Fagan-style inspection, embedded C/C++ risk review, SOA boundary review |
 | Completion | `devflow-completion-gate` | Definition of Done, evidence bundle, next-task vs finalize decision |
 | Closeout | `devflow-finalize` | Closeout pack, long-term asset promotion, handoff |
@@ -263,7 +263,7 @@ The implementer subagent receives that pack rather than the full chat history or
 - `NEEDS_CONTEXT`
 - `BLOCKED`
 
-The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-checker`. Implementer self-review never replaces test review or code review.
+The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-review`. Implementer self-review never replaces test review or code review.
 
 ---
 
@@ -285,7 +285,7 @@ Review rubrics check that this checkpoint exists and was not used to hide a real
 
 ## Repository Notes
 
-- `skills/` holds the active DevFlow skill family. High-risk skills (`devflow-router`, `devflow-tdd-implementation`, `devflow-test-checker`, `devflow-completion-gate`) carry an `evals/` directory enumerating the misuse scenarios they MUST refuse.
+- `skills/` holds the active DevFlow skill family. High-risk skills (`devflow-router`, `devflow-tdd-implementation`, `devflow-test-review`, `devflow-completion-gate`) carry an `evals/` directory enumerating the misuse scenarios they MUST refuse.
 - `docs/principles/` contains design rationale for maintaining the DevFlow skills (not consumed by skills at runtime).
 - `docs/guides/` contains user-facing usage and setup guides.
 - Skill references are intentionally local to each skill to preserve independent installability.

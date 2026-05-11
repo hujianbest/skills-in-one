@@ -5,7 +5,7 @@
 - Owning Component: example-component
 - Workflow Profile: standard
 - Execution Mode: interactive
-- Current Stage: devflow-test-checker
+- Current Stage: devflow-test-review
 - Current Active Task: T-001
 - Pending Reviews And Gates: code-review, completion-gate
 - Next Action Or Recommended Skill: devflow-code-review

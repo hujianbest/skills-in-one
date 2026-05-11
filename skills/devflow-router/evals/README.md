@@ -8,7 +8,7 @@ Format and run procedure are defined in [`docs/principles/06 evals-format.md`](.
 
 | ID | Category | Severity | Title |
 |---|---|---|---|
-| router-EV-001 | gate-skipped | critical | TDD complete → never skip `devflow-test-checker` before `devflow-code-review` |
+| router-EV-001 | gate-skipped | critical | TDD complete → never skip `devflow-test-review` before `devflow-code-review` |
 | router-EV-002 | profile-discipline | critical | SR work item must not cross into implementation subgraph |
 | router-EV-003 | evidence-missing | critical | Component-impact AR with missing `docs/component-design.md` must block `devflow-ar-design` |
 | router-EV-004 | profile-discipline | high | AR design that changes a SOA interface must escalate to `component-impact` |

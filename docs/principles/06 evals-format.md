@@ -22,8 +22,8 @@ DevFlow skill 是 LLM 在运行时执行的工程纪律。它的 hard gates、pr
 | Skill | 为什么是高风险 |
 |---|---|
 | `devflow-router` | 决定整个工作流的下一步；错路由 / 静默降 profile / 跨子街区切换都会让其它 skill 全部失效 |
-| `devflow-tdd-implementation` | 是 controller 主循环；缺测试设计就 TDD、多 active task、自审跳过 test-checker 都会污染 evidence |
-| `devflow-test-checker` | reviewer 越权（补测试 / 改生产代码）会让 review 体系失去意义 |
+| `devflow-tdd-implementation` | 是 controller 主循环；缺测试设计就 TDD、多 active task、自审跳过 test-review 都会污染 evidence |
+| `devflow-test-review` | reviewer 越权（补测试 / 改生产代码）会让 review 体系失去意义 |
 | `devflow-completion-gate` | DoD 一旦被绕过，整个 work item 就被假装完成 |
 
 未来增加 `devflow-ar-design` / `devflow-code-review` / `devflow-problem-fix` 的 evals 时，遵循同一格式。
@@ -97,8 +97,8 @@ skills/devflow-<name>/evals/
 | `wrong-node-routing` | 把错误的 canonical 节点当下一步 | router / using-devflow |
 | `profile-discipline` | 静默升级 / 降级 / 跨子街区切换 | router |
 | `evidence-missing` | 缺上游 review record / fresh evidence 仍尝试推进 | router / completion-gate |
-| `gate-skipped` | 跳过 test-checker / code-review / completion-gate | router / tdd-implementation / completion-gate |
-| `reviewer-overreach` | reviewer 改工件 / 多候选下一步 | test-checker / code-review / spec-review |
+| `gate-skipped` | 跳过 test-review / code-review / completion-gate | router / tdd-implementation / completion-gate |
+| `reviewer-overreach` | reviewer 改工件 / 多候选下一步 | test-review / code-review / spec-review |
 | `self-verification` | 实现节点自宣完成 / 自审 | tdd-implementation / completion-gate |
 | `subagent-context-discipline` | implementer subagent 收到完整聊天历史而非 Context Pack | tdd-implementation |
 | `auto-mode-misuse` | 把 `auto` 解读成跳过 review / approval | router / completion-gate |

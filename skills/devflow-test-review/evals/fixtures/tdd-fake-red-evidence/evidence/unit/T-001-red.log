@@ -7,4 +7,4 @@ gcc -o test_runner ...
 Total: 1 passed, 0 failed.
 
 NOTE: This file is named "*-red.log" but the test PASSED on the very first run.
-There was never a real RED phase. test-checker MUST detect this and verdict 需修改.
+There was never a real RED phase. test-review MUST detect this and verdict 需修改.

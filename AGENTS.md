@@ -35,7 +35,7 @@ devflow-component-design-review
 devflow-ar-design
 devflow-ar-design-review
 devflow-tdd-implementation
-devflow-test-checker
+devflow-test-review
 devflow-code-review
 devflow-completion-gate
 devflow-finalize
@@ -78,21 +78,21 @@ These rules apply at all times, across every DevFlow skill. Violating any of the
 
 ### 3. Role separation — no self-verification
 
-- Reviewers (`devflow-spec-review`, `devflow-component-design-review`, `devflow-ar-design-review`, `devflow-test-checker`, `devflow-code-review`) MUST be dispatched as **independent subagents** by `devflow-router`. They MUST NOT be inlined into the controller or into the authoring leaf.
+- Reviewers (`devflow-spec-review`, `devflow-component-design-review`, `devflow-ar-design-review`, `devflow-test-review`, `devflow-code-review`) MUST be dispatched as **independent subagents** by `devflow-router`. They MUST NOT be inlined into the controller or into the authoring leaf.
 - Authoring leaves (`devflow-specify`, `devflow-component-design`, `devflow-ar-design`, `devflow-tdd-implementation`, `devflow-problem-fix`) MUST NOT review their own output. They write artifacts and hand off.
-- The `devflow-test-checker` and `devflow-code-review` reviewer subagents MUST NOT modify production code or tests. They return findings and hand off.
+- The `devflow-test-review` and `devflow-code-review` reviewer subagents MUST NOT modify production code or tests. They return findings and hand off.
 
 ### 4. Profile discipline
 
 - Profile is decided by `devflow-router`, not by leaves.
 - Profile escalation is one-directional: `standard → component-impact` and `standard / component-impact → hotfix` are allowed; downgrades are forbidden.
 - Cross-subgraph switching is forbidden: a single work item never moves between `requirement-analysis` and any implementation profile. SR-derived candidate ARs require **new** AR work items.
-- `requirement-analysis` profile is forbidden from routing to `devflow-ar-design`, `devflow-ar-design-review`, `devflow-tdd-implementation`, `devflow-test-checker`, `devflow-code-review`, `devflow-completion-gate`, `devflow-problem-fix`.
+- `requirement-analysis` profile is forbidden from routing to `devflow-ar-design`, `devflow-ar-design-review`, `devflow-tdd-implementation`, `devflow-test-review`, `devflow-code-review`, `devflow-completion-gate`, `devflow-problem-fix`.
 
 ### 5. Gate discipline
 
 - AR design without an embedded test-design section → MUST NOT enter `devflow-tdd-implementation`. Return to `devflow-ar-design`.
-- TDD complete without a `devflow-test-checker` verdict → MUST NOT enter `devflow-code-review`.
+- TDD complete without a `devflow-test-review` verdict → MUST NOT enter `devflow-code-review`.
 - `devflow-code-review` verdict missing → MUST NOT enter `devflow-completion-gate`.
 - `devflow-completion-gate` not passed → MUST NOT enter `devflow-finalize` (implementation closeout).
 - Component-impact work with missing `docs/component-design.md` → blocked until `devflow-component-design` runs.
@@ -188,7 +188,7 @@ When `devflow-router` reaches a review node, it MUST:
    - `devflow-spec-review` → `skills/devflow-spec-review/SKILL.md`
    - `devflow-component-design-review` → `skills/devflow-component-design-review/SKILL.md`
    - `devflow-ar-design-review` → `skills/devflow-ar-design-review/SKILL.md`
-   - `devflow-test-checker` → `skills/devflow-test-checker/SKILL.md`
+   - `devflow-test-review` → `skills/devflow-test-review/SKILL.md`
    - `devflow-code-review` → `skills/devflow-code-review/SKILL.md`
 3. Consume the structured reviewer return (`verdict`, `findings`, `next_action_or_recommended_skill`, `reroute_via_router`).
 4. Never let the controller "score" the artifact alongside the reviewer — that is inlined review and is forbidden.

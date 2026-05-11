@@ -17,7 +17,7 @@
       "must_do": [
         "Read reviews/ and detect that test-check.md is missing",
         "Verdict 阻塞(workflow), reroute_via_router=true",
-        "Surface that devflow-test-checker must run before completion-gate can run again"
+        "Surface that devflow-test-review must run before completion-gate can run again"
       ],
       "must_not_do": [
         "Verdict 通过 because code-review.md = 通过",

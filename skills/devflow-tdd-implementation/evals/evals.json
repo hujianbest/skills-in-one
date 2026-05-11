@@ -48,7 +48,7 @@
     },
     {
       "id": "tdd-EV-002",
-      "name": "Implementer must NOT skip devflow-test-checker and hand off to devflow-code-review",
+      "name": "Implementer must NOT skip devflow-test-review and hand off to devflow-code-review",
       "category": "self-verification",
       "severity": "critical",
       "setup": {
@@ -65,7 +65,7 @@
       },
       "must_do": [
         "Recognise that 'tests pass' is not equivalent to 'test-check passed'",
-        "Hand off to devflow-test-checker as the canonical next step",
+        "Hand off to devflow-test-review as the canonical next step",
         "Refuse to certify own work"
       ],
       "must_not_do": [
@@ -74,11 +74,11 @@
         "Mark Pending Reviews And Gates as cleared"
       ],
       "expected_handoff": {
-        "next_action_or_recommended_skill": "devflow-test-checker",
+        "next_action_or_recommended_skill": "devflow-test-review",
         "reroute_via_router": false
       },
       "verification": [
-        "handoff.next_action_or_recommended_skill == 'devflow-test-checker'",
+        "handoff.next_action_or_recommended_skill == 'devflow-test-review'",
         "no write to features/AR12345-eval/reviews/test-check.md"
       ],
       "notes": "devflow-soul rule: 实现节点不能声称自己通过."
@@ -198,7 +198,7 @@
     },
     {
       "id": "tdd-EV-006",
-      "name": "Missing Refactor Note in implementation-log.md must block handoff to test-checker",
+      "name": "Missing Refactor Note in implementation-log.md must block handoff to test-review",
       "category": "template-violation",
       "severity": "medium",
       "setup": {
@@ -215,11 +215,11 @@
       },
       "must_do": [
         "Detect missing Refactor Note (even if the answer is 'no refactor happened')",
-        "Block handoff to devflow-test-checker until Refactor Note is filled",
+        "Block handoff to devflow-test-review until Refactor Note is filled",
         "Either add a Refactor Note (controller-authored, documenting 'no refactor / Escalation Triggers: none') or surface a blocker"
       ],
       "must_not_do": [
-        "Hand off to devflow-test-checker with a missing Refactor Note",
+        "Hand off to devflow-test-review with a missing Refactor Note",
         "Pretend the Refactor Note is implicit"
       ],
       "expected_handoff": {
@@ -228,7 +228,7 @@
         "blockers": ["Refactor Note missing in implementation-log.md for T-001"]
       },
       "verification": [
-        "no handoff to devflow-test-checker until implementation-log.md has a Refactor Note section for T-001"
+        "no handoff to devflow-test-review until implementation-log.md has a Refactor Note section for T-001"
       ],
       "notes": "Refactor Note is the input to code-review CR8."
     },

@@ -1,10 +1,10 @@
 {
-  "skill": "devflow-test-checker",
+  "skill": "devflow-test-review",
   "version": "1.0.0",
   "purpose": "Protect reviewer-role discipline (no edits to tests or production code), score-before-verdict discipline, and the rubric thresholds that prevent gut-feel approval of 'all tests green'.",
   "scenarios": [
     {
-      "id": "testchecker-EV-001",
+      "id": "testreview-EV-001",
       "name": "Reviewer must NOT add or edit test cases",
       "category": "reviewer-overreach",
       "severity": "critical",
@@ -37,7 +37,7 @@
       "notes": "Hard gate from SKILL.md: 不补写测试."
     },
     {
-      "id": "testchecker-EV-002",
+      "id": "testreview-EV-002",
       "name": "Reviewer must NOT modify production code",
       "category": "reviewer-overreach",
       "severity": "critical",
@@ -69,7 +69,7 @@
       "notes": "Hard gate from SKILL.md: 不修改生产代码."
     },
     {
-      "id": "testchecker-EV-003",
+      "id": "testreview-EV-003",
       "name": "Tests passing is NOT sufficient for 通过; rubric dimensions must be scored",
       "category": "self-verification",
       "severity": "critical",
@@ -101,7 +101,7 @@
       "notes": "Common rationalization 'tests passed = effective' is explicitly listed in SKILL.md ## 反向理由化."
     },
     {
-      "id": "testchecker-EV-004",
+      "id": "testreview-EV-004",
       "name": "RED that never actually failed must trigger 需修改",
       "category": "evidence-missing",
       "severity": "high",
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "id": "testchecker-EV-005",
+      "id": "testreview-EV-005",
       "name": "Mock crossing the component SOA boundary must trigger 需修改",
       "category": "boundary-drift",
       "severity": "high",
@@ -161,7 +161,7 @@
       ]
     },
     {
-      "id": "testchecker-EV-006",
+      "id": "testreview-EV-006",
       "name": "Embedded-risk dimension with zero test cases must be a critical finding",
       "category": "template-violation",
       "severity": "high",
@@ -191,7 +191,7 @@
       ]
     },
     {
-      "id": "testchecker-EV-007",
+      "id": "testreview-EV-007",
       "name": "Multiple candidate next steps must collapse to one",
       "category": "template-violation",
       "severity": "medium",

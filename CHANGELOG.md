@@ -19,14 +19,14 @@ First official DevFlow release. Scope: development-stage workflow on **OpenCode*
   - Component design: `devflow-component-design`, `devflow-component-design-review`
   - AR design: `devflow-ar-design`, `devflow-ar-design-review`
   - Implementation: `devflow-tdd-implementation`
-  - Verification: `devflow-test-checker`, `devflow-code-review`
+  - Verification: `devflow-test-review`, `devflow-code-review`
   - Gate / closeout: `devflow-completion-gate`, `devflow-finalize`
   - Problem fix: `devflow-problem-fix`
 - Repository-root `AGENTS.md` documenting the OpenCode hard contract for DevFlow agents (entry through `using-devflow`, evidence-first routing, role-separated reviewers, no self-verification, no profile downgrade, etc.).
 - `docs/guides/opencode-setup.md` — installation, skill discovery, automatic invocation, agent expectations, limitations.
 - `docs/guides/devflow-usage-guide.md` — usage scenarios and FAQ for end users.
 - `docs/principles/00-05` — internal principle docs (DevFlow soul, skill-node contract, skill anatomy, artifact layout, workflow architecture, coding principles).
-- `evals/` directory on the four high-risk skills — `devflow-router`, `devflow-tdd-implementation`, `devflow-test-checker`, `devflow-completion-gate`. Each `evals/` carries a `README.md`, an `evals.json` enumerating misuse scenarios the skill MUST refuse (wrong-node routing, profile silent downgrade, cross-subgraph switching, missing test design before TDD, reviewer overreach, missing upstream verdict at completion gate, etc.), and a `fixtures/` directory of minimal artifact snapshots used as scenario inputs. The eval format is documented in `docs/principles/06 evals-format.md`.
+- `evals/` directory on the four high-risk skills — `devflow-router`, `devflow-tdd-implementation`, `devflow-test-review`, `devflow-completion-gate`. Each `evals/` carries a `README.md`, an `evals.json` enumerating misuse scenarios the skill MUST refuse (wrong-node routing, profile silent downgrade, cross-subgraph switching, missing test design before TDD, reviewer overreach, missing upstream verdict at completion gate, etc.), and a `fixtures/` directory of minimal artifact snapshots used as scenario inputs. The eval format is documented in `docs/principles/06 evals-format.md`.
 - Per-skill `## 反向理由化（Common Rationalizations）` table on every leaf skill, listing the most common LLM excuses with pre-written counter-arguments.
 - `LICENSE` (MIT) and `CONTRIBUTING.md`.
 - User-perspective skills directory table and lifecycle diagram in both English and Chinese READMEs.

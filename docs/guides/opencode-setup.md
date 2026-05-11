@@ -75,7 +75,7 @@ Every skill lives at:
 skills/<skill-name>/SKILL.md
 ```
 
-OpenCode reads each file's YAML frontmatter `description` (a classifier) and uses it to decide whether to load the skill for the current request. DevFlow's `description` strings deliberately front-load triggering keywords (`spec review`, `AR implementation design`, `component design`, `test checker`, `C/C++ code review`, …) so OpenCode's matcher works on natural-language requests.
+OpenCode reads each file's YAML frontmatter `description` (a classifier) and uses it to decide whether to load the skill for the current request. DevFlow's `description` strings deliberately front-load triggering keywords (`spec review`, `AR implementation design`, `component design`, `test review`, `C/C++ code review`, …) so OpenCode's matcher works on natural-language requests.
 
 ### 2. Automatic invocation
 
@@ -101,7 +101,7 @@ CLARIFY    devflow-specify, devflow-spec-review
 DESIGN     devflow-component-design, devflow-component-design-review,
            devflow-ar-design, devflow-ar-design-review
 BUILD      devflow-tdd-implementation
-VERIFY     devflow-test-checker, devflow-code-review
+VERIFY     devflow-test-review, devflow-code-review
 GATE       devflow-completion-gate
 CLOSE      devflow-finalize
 HOTFIX     devflow-problem-fix
@@ -114,7 +114,7 @@ Reviews are dispatched as **independent subagents** by `devflow-router`. The rev
 - `devflow-spec-review` → `skills/devflow-spec-review/SKILL.md`
 - `devflow-component-design-review` → `skills/devflow-component-design-review/SKILL.md`
 - `devflow-ar-design-review` → `skills/devflow-ar-design-review/SKILL.md`
-- `devflow-test-checker` → `skills/devflow-test-checker/SKILL.md`
+- `devflow-test-review` → `skills/devflow-test-review/SKILL.md`
 - `devflow-code-review` → `skills/devflow-code-review/SKILL.md`
 
 Reviewers are read-only on the artifact under review: they return `verdict + findings + next_action`, never edit the artifact themselves. The controller routes the verdict back to the authoring leaf.
@@ -175,7 +175,7 @@ The agent will:
 | Agent jumps straight to writing code | `AGENTS.md` not loaded, or model ignored entry rule | Confirm `AGENTS.md` is at the workspace root; restart the OpenCode session |
 | Agent writes `Next step: implement` instead of `Next Action Or Recommended Skill: devflow-tdd-implementation` | Free-text handoff slipped through | Reject the handoff; require canonical node name |
 | Agent "reviews" its own AR design inside `devflow-ar-design` | Inlined review | Discard the inlined review; ask the agent to dispatch `devflow-ar-design-review` as a subagent |
-| Agent silently skips `devflow-test-checker` after TDD | Hard gate violation | Block; route to `devflow-test-checker` before any `devflow-code-review` |
+| Agent silently skips `devflow-test-review` after TDD | Hard gate violation | Block; route to `devflow-test-review` before any `devflow-code-review` |
 | Skills not discovered | `skills/` not on the OpenCode skills root | Verify the symlink / config; ask the agent to "list the DevFlow skills you can see" |
 
 ---

@@ -10,10 +10,10 @@
 - Task Plan Path: features/AR12345-eval/tasks.md
 - Task Board Path: features/AR12345-eval/task-board.md
 - Pending Reviews And Gates: test-check, code-review, completion-gate
-- Next Action Or Recommended Skill: devflow-test-checker
+- Next Action Or Recommended Skill: devflow-test-review
 - Blockers:
 - Last Updated: 2026-05-09T00:00:00Z
 
 ## Notes
 
-T-001 has fresh RED → GREEN → build evidence in `evidence/`. Refactor Note is present with Escalation Triggers: none. Tests pass. The implementer is tempted to skip `devflow-test-checker` and self-certify. The skill MUST refuse.
+T-001 has fresh RED → GREEN → build evidence in `evidence/`. Refactor Note is present with Escalation Triggers: none. Tests pass. The implementer is tempted to skip `devflow-test-review` and self-certify. The skill MUST refuse.

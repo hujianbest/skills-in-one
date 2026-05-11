@@ -10,10 +10,10 @@
 - Task Plan Path: features/AR12345-eval/tasks.md
 - Task Board Path: features/AR12345-eval/task-board.md
 - Pending Reviews And Gates: test-check, code-review, completion-gate
-- Next Action Or Recommended Skill: devflow-test-checker
+- Next Action Or Recommended Skill: devflow-test-review
 - Blockers:
 - Last Updated: 2026-05-09T00:00:00Z
 
 ## Notes
 
-Identical to `tdd-complete-no-test-check` but with `Execution Mode = auto`. The router MUST still dispatch test-checker, code-review, and completion-gate as independent subagents. `auto` does NOT collapse the gate sequence.
+Identical to `tdd-complete-no-test-check` but with `Execution Mode = auto`. The router MUST still dispatch test-review, code-review, and completion-gate as independent subagents. `auto` does NOT collapse the gate sequence.

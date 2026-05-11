@@ -1,4 +1,4 @@
-# devflow Test Check Rubric
+# devflow Test Review Rubric
 
 > 配套 `devflow-test-review/SKILL.md`。展开 7 维度评分细则与 rule IDs。
 
