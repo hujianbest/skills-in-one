@@ -136,6 +136,20 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 - 单 task 完成后直接 finalize，未检查 task-board
 - 把缺失的 docs/ar-designs/ 同步当作 `阻塞`（应在通过时显式标注「待 finalize 同步」）
 
+## 反向理由化（Common Rationalizations）
+
+完成门禁常见的偷懒话术与反驳。命中任意一条 → 停下。
+
+| 话术 | 反驳 |
+|---|---|
+| 「上游 review 看起来都过了，给 `通过`」 | 必须读取每份 review record 文件确认 verdict = `通过`；不凭印象 |
+| 「verify 命令半小时前跑过，应该还有效」 | 必须 fresh evidence。证据陈旧 → 重新跑或 `需修改` |
+| 「task-board 上还有 todo 但 active task 完成了，可以 finalize」 | 有 next-ready task 必须回 `devflow-tdd-implementation`；只有所有 task 完成才进 `devflow-finalize` |
+| 「critical 静态分析 / 编译告警先放着」 | 任一未解释 critical → verdict ≥ `需修改` |
+| 「用户催 release，跳过这一关」 | DoD 不容协商。`auto` 也不是跳过门禁的理由 |
+| 「component-impact 的 component-design-review 我口头确认了」 | 必须有 record 文件；缺则 `阻塞`(workflow)，回 router |
+| 「完成判定后顺手做收尾」 | 不要越界。本节点只做 gate；closeout 是 `devflow-finalize` 的职责 |
+
 ## 常见错误
 
 | 错误 | 修复 |

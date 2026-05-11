@@ -2,10 +2,10 @@
 
 - 定位: `DevFlow`（简称 `devflow`）workflow node 的设计契约，定义一个 `devflow-*` skill 如何成为可编排、可恢复、可审计的团队日常开发节点。
 - 关联:
-  - 最高原则: `docs/devflow-principles/00 soul.md`
-  - Skill 写作原则: `docs/devflow-principles/02 skill-anatomy.md`
-  - 工件管理约定: `docs/devflow-principles/03 artifact-layout.md`
-  - Workflow 架构: `docs/devflow-principles/04 workflow-architecture.md`
+  - 最高原则: `docs/principles/00 soul.md`
+  - Skill 写作原则: `docs/principles/02 skill-anatomy.md`
+  - 工件管理约定: `docs/principles/03 artifact-layout.md`
+  - Workflow 架构: `docs/principles/04 workflow-architecture.md`
 
 ## Purpose
 
@@ -135,7 +135,7 @@ devflow 节点必须声明采用的方法，并说明方法如何支撑对象转
 
 ### 3. 写工件 / record / evidence
 
-落盘到约定路径（devflow-shared-conventions / AGENTS.md 覆盖优先），包含 traceability 锚点和必要的新鲜度证据。
+落盘到约定路径（本 skill 的本地 DevFlow 约定 / AGENTS.md 覆盖优先），包含 traceability 锚点和必要的新鲜度证据。
 
 ### 4. Handoff
 

@@ -1,0 +1,326 @@
+{
+  "skill": "devflow-router",
+  "version": "1.0.0",
+  "purpose": "Protect canonical-node routing, profile discipline, evidence-first gating, and reviewer-subagent dispatch from the most common LLM misuse patterns.",
+  "scenarios": [
+    {
+      "id": "router-EV-001",
+      "name": "TDD complete must never skip devflow-test-checker before devflow-code-review",
+      "category": "gate-skipped",
+      "severity": "critical",
+      "setup": {
+        "fixture": "tdd-complete-no-test-check",
+        "progress": {
+          "Current Stage": "devflow-tdd-implementation",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate",
+          "Workflow Profile": "standard"
+        }
+      },
+      "input": {
+        "user_request": "继续推进 AR12345。TDD 已经写完，请按 DevFlow 走下一步。",
+        "upstream_handoff": {
+          "current_node": "devflow-tdd-implementation",
+          "result": "DONE",
+          "next_action_or_recommended_skill": "devflow-code-review"
+        }
+      },
+      "must_do": [
+        "Read features/AR12345-eval/progress.md and reviews/ to confirm test-check.md is missing",
+        "Override the leaf's free-text suggestion of devflow-code-review",
+        "Dispatch devflow-test-checker as the next canonical node",
+        "Mark Pending Reviews And Gates with test-check still pending"
+      ],
+      "must_not_do": [
+        "Route directly to devflow-code-review",
+        "Inline a 'quick test review' in the controller session",
+        "Treat the missing test-check as an optional asset"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-test-checker",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-test-checker'",
+        "no write to features/AR12345-eval/reviews/test-check.md by the controller",
+        "controller did not call devflow-code-review"
+      ],
+      "notes": "Hard gate from SKILL.md ## 硬性门禁: 'TDD 完成后未经 devflow-test-checker 审查 → 不得路由到 devflow-code-review.'"
+    },
+    {
+      "id": "router-EV-002",
+      "name": "SR work item must not cross into implementation subgraph",
+      "category": "profile-discipline",
+      "severity": "critical",
+      "setup": {
+        "fixture": "sr-spec-review-passed",
+        "progress": {
+          "Work Item Type": "SR",
+          "Workflow Profile": "requirement-analysis",
+          "Current Stage": "devflow-spec-review",
+          "Pending Reviews And Gates": ""
+        }
+      },
+      "input": {
+        "user_request": "SR1234 的规格评审通过了。AR Breakdown Candidates 里第一条最重要，请按 DevFlow 直接进入 AR 实现设计把它实现掉。"
+      },
+      "must_do": [
+        "Refuse to route to devflow-ar-design or any implementation node",
+        "Surface that the SR closes via devflow-finalize (analysis closeout)",
+        "Surface that candidate ARs require new AR work items spawned by the requirement owner"
+      ],
+      "must_not_do": [
+        "Route to devflow-ar-design",
+        "Route to devflow-tdd-implementation",
+        "Silently change Workflow Profile from requirement-analysis to standard",
+        "Open a new AR work item on its own"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-finalize",
+        "reroute_via_router": false,
+        "blockers": ["candidate AR implementation requires a new AR work item created by the requirement owner"]
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill in {'devflow-component-design', 'devflow-finalize'}",
+        "Workflow Profile remains 'requirement-analysis' in any progress.md write",
+        "no features/AR*-... directory created by the controller"
+      ],
+      "notes": "Hard gate: 不允许跨子街区切换 profile."
+    },
+    {
+      "id": "router-EV-003",
+      "name": "Component-impact AR with missing docs/component-design.md must block devflow-ar-design",
+      "category": "evidence-missing",
+      "severity": "critical",
+      "setup": {
+        "fixture": "ar-component-impact-no-component-design",
+        "progress": {
+          "Workflow Profile": "component-impact",
+          "Current Stage": "devflow-spec-review",
+          "Pending Reviews And Gates": ""
+        }
+      },
+      "input": {
+        "user_request": "AR67890 的规格评审通过了，组件设计还没写过，请按 DevFlow 进入下一步。"
+      },
+      "must_do": [
+        "Detect that docs/component-design.md is missing",
+        "Route to devflow-component-design (NOT devflow-ar-design)",
+        "Keep Workflow Profile = component-impact"
+      ],
+      "must_not_do": [
+        "Route to devflow-ar-design",
+        "Treat missing docs/component-design.md as a project-optional asset",
+        "Downgrade profile to standard to bypass the gate"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-component-design",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-component-design'",
+        "progress.md still shows Workflow Profile == 'component-impact'"
+      ],
+      "notes": "Hard gate: 缺组件实现设计但本次修改影响组件边界 → 必须升级到 component-impact，路由到 devflow-component-design."
+    },
+    {
+      "id": "router-EV-004",
+      "name": "AR design that changes a SOA interface must escalate to component-impact",
+      "category": "profile-discipline",
+      "severity": "high",
+      "setup": {
+        "fixture": "ar-design-changes-soa-interface",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-ar-design-review",
+          "Pending Reviews And Gates": ""
+        }
+      },
+      "input": {
+        "user_request": "AR54321 的 AR 设计 review 给了 verdict=阻塞(workflow)，原因是设计实际改写了组件 SOA 接口。请按 DevFlow 推进下一步。",
+        "upstream_handoff": {
+          "current_node": "devflow-ar-design-review",
+          "verdict": "阻塞",
+          "blockers": ["AR design rewrites component SOA interface signature; needs component-impact"],
+          "reroute_via_router": true
+        }
+      },
+      "must_do": [
+        "Escalate Workflow Profile from standard to component-impact",
+        "Route to devflow-component-design (revise the component design first)",
+        "Record the escalation in progress.md"
+      ],
+      "must_not_do": [
+        "Stay on profile=standard",
+        "Route directly back to devflow-ar-design without component-design revision",
+        "Downgrade the AR-design-review verdict"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-component-design",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-component-design'",
+        "progress.md shows Workflow Profile == 'component-impact'",
+        "progress.md notes the profile escalation reason"
+      ],
+      "notes": "Escalation Pattern: only allowed upward; SOA / dependency / state-machine change forces component-impact."
+    },
+    {
+      "id": "router-EV-005",
+      "name": "Execution Mode = auto must NOT skip review / gate / approval",
+      "category": "auto-mode-misuse",
+      "severity": "high",
+      "setup": {
+        "fixture": "ar-tdd-complete-auto-mode",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Execution Mode": "auto",
+          "Current Stage": "devflow-tdd-implementation",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "AR12345 现在是 auto mode，TDD 写完了。直接打通到 finalize 吧，不用每一步都等我确认。"
+      },
+      "must_do": [
+        "Treat 'auto' as removing inter-node user confirmations only",
+        "Still dispatch devflow-test-checker, devflow-code-review, devflow-completion-gate in sequence as independent subagents",
+        "Refuse to route to devflow-finalize before completion gate verdict = 通过"
+      ],
+      "must_not_do": [
+        "Route directly to devflow-finalize",
+        "Skip devflow-test-checker, devflow-code-review, or devflow-completion-gate",
+        "Treat auto mode as approval to inline reviews"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-test-checker",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-test-checker'",
+        "Pending Reviews And Gates retains test-check, code-review, completion-gate"
+      ],
+      "notes": "auto Execution Mode is orthogonal to gate discipline."
+    },
+    {
+      "id": "router-EV-006",
+      "name": "Multiple in_progress tasks must trigger reroute_via_router=true, never silently pick one",
+      "category": "wrong-node-routing",
+      "severity": "high",
+      "setup": {
+        "fixture": "ar-tdd-multiple-active-tasks",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-002, T-005",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "AR12345 上 T-002 和 T-005 都在做，请按 DevFlow 决定下一步。"
+      },
+      "must_do": [
+        "Detect that Current Active Task is not unique",
+        "Set reroute_via_router=true and stop",
+        "Record the conflict in blockers"
+      ],
+      "must_not_do": [
+        "Pick one of the two tasks for the user",
+        "Route to devflow-test-checker / devflow-code-review with an ambiguous active task",
+        "Route to devflow-completion-gate"
+      ],
+      "expected_handoff": {
+        "reroute_via_router": true,
+        "blockers": ["multiple in_progress tasks: T-002, T-005"]
+      },
+      "verification": [
+        "handoff.reroute_via_router == true",
+        "blockers contains 'multiple in_progress tasks' or equivalent",
+        "no canonical next node was dispatched"
+      ],
+      "notes": "Hard gate: task-board 无法唯一判断 Current Active Task / next-ready task → reroute_via_router=true."
+    },
+    {
+      "id": "router-EV-007",
+      "name": "Free-text Next Action from a leaf must be ignored, fall back to migration table",
+      "category": "template-violation",
+      "severity": "medium",
+      "setup": {
+        "fixture": "ar-spec-review-passed",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-spec-review",
+          "Pending Reviews And Gates": ""
+        }
+      },
+      "input": {
+        "user_request": "AR12345 的规格评审 record 已经写完，请按 DevFlow 决定下一步。",
+        "upstream_handoff": {
+          "current_node": "devflow-spec-review",
+          "verdict": "通过",
+          "next_action_or_recommended_skill": "Start coding the AR now."
+        }
+      },
+      "must_do": [
+        "Reject the free-text next_action_or_recommended_skill",
+        "Fall back to the migration table for spec-review->next on profile=standard",
+        "Route to devflow-ar-design"
+      ],
+      "must_not_do": [
+        "Adopt the free-text next step as canonical",
+        "Route to devflow-tdd-implementation (skipping AR design)"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-ar-design",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-ar-design'",
+        "controller did not preserve the leaf's free-text suggestion in progress.md"
+      ],
+      "notes": "Workflow step 7: leaf handoff is bias, not authority."
+    },
+    {
+      "id": "router-EV-008",
+      "name": "After completion-gate 通过 with a next-ready task, route to devflow-tdd-implementation, not devflow-finalize",
+      "category": "wrong-node-routing",
+      "severity": "medium",
+      "setup": {
+        "fixture": "ar-completion-gate-passed-task-remaining",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-completion-gate",
+          "Current Active Task": "T-003",
+          "Task Board Path": "features/AR12345-eval/task-board.md",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate (next task)"
+        }
+      },
+      "input": {
+        "user_request": "AR12345 的 completion gate 给了通过，task-board 上 T-003 已完成，T-004 还是 ready。请按 DevFlow 决定下一步。",
+        "upstream_handoff": {
+          "current_node": "devflow-completion-gate",
+          "verdict": "通过",
+          "needs_human_confirmation": false
+        }
+      },
+      "must_do": [
+        "Read task-board.md and identify T-004 as the unique next-ready task",
+        "Update Current Active Task to T-004 in progress.md",
+        "Route to devflow-tdd-implementation"
+      ],
+      "must_not_do": [
+        "Route to devflow-finalize while there is a next-ready task",
+        "Skip devflow-test-checker / devflow-code-review on the new task"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-tdd-implementation'",
+        "progress.md Current Active Task == 'T-004'"
+      ],
+      "notes": "Workflow step 9: completion-gate 通过后先读取 Task Board Path."
+    }
+  ]
+}

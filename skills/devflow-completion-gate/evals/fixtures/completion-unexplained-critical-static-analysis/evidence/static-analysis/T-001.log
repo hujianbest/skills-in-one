@@ -1,0 +1,9 @@
+$ run-static-analysis foo_handler.c
+foo_handler.c:42:5: critical: potential null pointer dereference (CWE-476)
+foo_handler.c:88:9: critical: integer overflow in counter increment (CWE-190)
+foo_handler.c:120:1: medium: cyclomatic complexity 14 (limit 10)
+
+Total: 2 critical, 1 medium
+
+NOTE: No suppression file exists. The two criticals are unexplained.
+The completion gate MUST flag both as findings and verdict 需修改.

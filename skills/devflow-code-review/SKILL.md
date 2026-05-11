@@ -115,6 +115,21 @@ description: 当 devflow-test-review 已通过且 C/C++ 代码变更需要在完
 - 把跨 ≥3 模块的结构性问题写成 minor finding
 - 返回多个候选下一步
 
+## 反向理由化（Common Rationalizations）
+
+C / C++ 代码检视常见的偷懒话术与反驳。命中任意一条 → 停下。
+
+| 话术 | 反驳 |
+|---|---|
+| 「测试都通过了，代码肯定 OK」 | 测试通过只代表测试通过；不代表代码正确、内存安全、并发安全或边界尊重。必须按 8 维度评分 |
+| 「这一行 / 这个变量名我顺手改一下，比写 finding 快」 | reviewer 禁止改代码 / 改测试 / 改设计。返回 finding |
+| 「实现偏离了 AR 设计但结果一样，给 `通过`」 | 偏离必须在 `implementation-log.md` 写明且可追溯；裸偏离 → `需修改` |
+| 「只是改了点 SOA 服务签名 / 错误码语义，不影响下游」 | 强制 `阻塞`(workflow)，`reroute_via_router=true`，回 router 走 component-impact 路径 |
+| 「static-analysis critical 是误报，忽略掉」 | 每条 critical 必须显式抑制 + 写理由；否则 `需修改` |
+| 「Refactor 很小，没写 Refactor Note」 | 缺 Refactor Note → CR8 直接 `需修改`；无 note 等于不可审 |
+| 「中断上下文 / 并发不在本 AR 范围」 | 只要代码触及相关数据路径就要评分 CR5；沉默不算 `通过` |
+| 「下一步给两个候选让父会话选」 | 必须返回**唯一** `next_action_or_recommended_skill` |
+
 ## 常见错误
 
 | 错误 | 修复 |

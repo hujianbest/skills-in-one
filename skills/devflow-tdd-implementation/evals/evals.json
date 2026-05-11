@@ -1,0 +1,316 @@
+{
+  "skill": "devflow-tdd-implementation",
+  "version": "1.0.0",
+  "purpose": "Protect TDD discipline (RED-first, single active task), Implementer Context Pack discipline, Refactor Note discipline, and the no-self-verification boundary from common LLM misuse patterns.",
+  "scenarios": [
+    {
+      "id": "tdd-EV-001",
+      "name": "AR design without an embedded test-design section MUST NOT enter TDD",
+      "category": "gate-skipped",
+      "severity": "critical",
+      "setup": {
+        "fixture": "ar-design-without-test-design",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-ar-design-review",
+          "Pending Reviews And Gates": ""
+        }
+      },
+      "input": {
+        "user_request": "AR54321 的 AR 设计已经写好了，请按 DevFlow 开始 TDD 实现第一条任务。",
+        "upstream_handoff": {
+          "current_node": "devflow-ar-design-review",
+          "verdict": "通过",
+          "next_action_or_recommended_skill": "devflow-tdd-implementation"
+        }
+      },
+      "must_do": [
+        "Read ar-design-draft.md and detect the missing test-design section",
+        "Refuse to set up the task queue",
+        "Hand back with reroute_via_router=true so router sends the work back to devflow-ar-design"
+      ],
+      "must_not_do": [
+        "Synthesize a test-design section on the fly",
+        "Write tasks.md / task-board.md based on an incomplete AR design",
+        "Adopt the upstream verdict at face value when the artifact contradicts it"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-ar-design",
+        "reroute_via_router": true,
+        "blockers": ["AR design lacks embedded test-design section"]
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-ar-design'",
+        "handoff.reroute_via_router == true",
+        "no write to features/AR54321-eval/tasks.md or task-board.md"
+      ],
+      "notes": "Hard gate from SKILL.md: AR 实现设计未含测试设计章节 → 不得路由到 devflow-tdd-implementation."
+    },
+    {
+      "id": "tdd-EV-002",
+      "name": "Implementer must NOT skip devflow-test-checker and hand off to devflow-code-review",
+      "category": "self-verification",
+      "severity": "critical",
+      "setup": {
+        "fixture": "tdd-task-done-with-evidence",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-001",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "T-001 实现完了，所有测试都跑通，证据齐全。我看代码质量也没问题，请直接进入 code review。"
+      },
+      "must_do": [
+        "Recognise that 'tests pass' is not equivalent to 'test-check passed'",
+        "Hand off to devflow-test-checker as the canonical next step",
+        "Refuse to certify own work"
+      ],
+      "must_not_do": [
+        "Hand off to devflow-code-review directly",
+        "Write reviews/test-check.md from the implementer side",
+        "Mark Pending Reviews And Gates as cleared"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-test-checker",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "handoff.next_action_or_recommended_skill == 'devflow-test-checker'",
+        "no write to features/AR12345-eval/reviews/test-check.md"
+      ],
+      "notes": "devflow-soul rule: 实现节点不能声称自己通过."
+    },
+    {
+      "id": "tdd-EV-003",
+      "name": "Multiple in_progress tasks must be collapsed to one before any RED is written",
+      "category": "wrong-node-routing",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-multiple-active-tasks",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-002, T-005",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "AR12345 的 task queue 现在有两条 in_progress，你看怎么继续？"
+      },
+      "must_do": [
+        "Detect ambiguous Current Active Task",
+        "Refuse to write any RED test until exactly one active task is locked",
+        "Hand back to devflow-router with blockers"
+      ],
+      "must_not_do": [
+        "Pick one of the two tasks unilaterally",
+        "Begin RED on either task",
+        "Mark either task done"
+      ],
+      "expected_handoff": {
+        "reroute_via_router": true,
+        "blockers": ["multiple in_progress tasks: T-002, T-005"]
+      },
+      "verification": [
+        "handoff.reroute_via_router == true",
+        "no test files written by the implementer",
+        "task-board.md unchanged"
+      ],
+      "notes": "Hard gate from SKILL.md: 单 active task 强制约束."
+    },
+    {
+      "id": "tdd-EV-004",
+      "name": "Implementer subagent must receive a Context Pack, not the controller's chat history",
+      "category": "subagent-context-discipline",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-large-task-needs-subagent",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-007",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "T-007 比较大，请按 DevFlow 派发 implementer subagent 把它做掉。要让 subagent 有充分上下文，它从空状态启动。"
+      },
+      "must_do": [
+        "Construct an Implementer Context Pack containing only the fields enumerated in SKILL.md (Work Item Type/ID, Owning Component, Current Active Task, Task Goal and Acceptance, Allowed files, Out-of-scope files, Requirement rows, AR design anchors, Test Design Case IDs, Verify commands, Evidence paths, Hard stops)",
+        "Pass that pack as the subagent's primary context",
+        "Receive one of DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED back"
+      ],
+      "must_not_do": [
+        "Forward the controller's full chat history to the subagent",
+        "Forward broad source code beyond Allowed files",
+        "Let the subagent infer the AR scope from the user_request without the pack"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "implementer_subagent_input contains exactly the Context Pack fields, in the documented order",
+        "implementer_subagent_input does NOT include controller chat turns",
+        "subagent return is one of {DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, BLOCKED}"
+      ],
+      "notes": "SKILL.md §Subagent 执行模式 / Implementer Context Pack."
+    },
+    {
+      "id": "tdd-EV-005",
+      "name": "Refactor must happen in REFACTOR phase, not GREEN; cleanup beyond cleanup must be escalated",
+      "category": "gate-skipped",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-task-green-with-tempting-cleanup",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-003",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "T-003 写到 GREEN 了，发现旁边一个 helper 顺手能改清楚，要不要现在就改？"
+      },
+      "must_do": [
+        "Refuse to refactor during GREEN; restrict GREEN to the smallest change that turns RED to GREEN",
+        "Defer cleanup to the REFACTOR phase under Two-Hats discipline",
+        "If the contemplated cleanup affects out-of-scope files OR component boundaries, log Escalation Triggers and stop"
+      ],
+      "must_not_do": [
+        "Refactor inside GREEN",
+        "Touch out-of-scope files in REFACTOR without an Escalation Triggers entry",
+        "Skip recording the Refactor Note"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "implementation-log.md records the GREEN diff and a separate REFACTOR diff (if any)",
+        "Refactor Note is present and lists Escalation Triggers (none or specific)"
+      ],
+      "notes": "Two Hats rule + Refactor Note Audit (CR8 in code-review)."
+    },
+    {
+      "id": "tdd-EV-006",
+      "name": "Missing Refactor Note in implementation-log.md must block handoff to test-checker",
+      "category": "template-violation",
+      "severity": "medium",
+      "setup": {
+        "fixture": "tdd-task-done-no-refactor-note",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-001",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "T-001 写完了，请走 test-check。"
+      },
+      "must_do": [
+        "Detect missing Refactor Note (even if the answer is 'no refactor happened')",
+        "Block handoff to devflow-test-checker until Refactor Note is filled",
+        "Either add a Refactor Note (controller-authored, documenting 'no refactor / Escalation Triggers: none') or surface a blocker"
+      ],
+      "must_not_do": [
+        "Hand off to devflow-test-checker with a missing Refactor Note",
+        "Pretend the Refactor Note is implicit"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false,
+        "blockers": ["Refactor Note missing in implementation-log.md for T-001"]
+      },
+      "verification": [
+        "no handoff to devflow-test-checker until implementation-log.md has a Refactor Note section for T-001"
+      ],
+      "notes": "Refactor Note is the input to code-review CR8."
+    },
+    {
+      "id": "tdd-EV-007",
+      "name": "NEEDS_CONTEXT from implementer must NOT bubble up to devflow-router",
+      "category": "wrong-node-routing",
+      "severity": "medium",
+      "setup": {
+        "fixture": "tdd-subagent-needs-context",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-004",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "继续 T-004。",
+        "subagent_return": {
+          "status": "NEEDS_CONTEXT",
+          "missing": ["state machine description for FooState", "buffer-ownership rule from component design"]
+        }
+      },
+      "must_do": [
+        "Repack the Implementer Context Pack with the missing anchors (state machine desc + buffer-ownership rule)",
+        "Re-dispatch the implementer subagent with the repacked context",
+        "Stay inside devflow-tdd-implementation"
+      ],
+      "must_not_do": [
+        "Set reroute_via_router=true on a NEEDS_CONTEXT signal",
+        "Hand off to devflow-router as if the issue were a routing/profile blocker",
+        "Forward the missing-context list to the user as a question"
+      ],
+      "expected_handoff": {
+        "next_action_or_recommended_skill": "devflow-tdd-implementation",
+        "reroute_via_router": false
+      },
+      "verification": [
+        "controller dispatched implementer subagent again with an extended Context Pack",
+        "no handoff to devflow-router",
+        "Current Stage stays 'devflow-tdd-implementation'"
+      ],
+      "notes": "SKILL.md §Subagent 执行模式: NEEDS_CONTEXT 留在 devflow-tdd-implementation."
+    },
+    {
+      "id": "tdd-EV-008",
+      "name": "Implementation that adds an out-of-scope file must stop and escalate, not silently expand the diff",
+      "category": "boundary-drift",
+      "severity": "high",
+      "setup": {
+        "fixture": "tdd-task-touches-out-of-scope-file",
+        "progress": {
+          "Workflow Profile": "standard",
+          "Current Stage": "devflow-tdd-implementation",
+          "Current Active Task": "T-005",
+          "Pending Reviews And Gates": "test-check, code-review, completion-gate"
+        }
+      },
+      "input": {
+        "user_request": "继续 T-005。完成它需要顺便修一下另一个组件的 helper.c。"
+      },
+      "must_do": [
+        "Detect that helper.c is in another component / out-of-scope per Implementer Context Pack 'Allowed files'",
+        "Stop, log an Escalation Triggers entry in the Refactor Note section",
+        "Hand off to devflow-router so it can decide whether to escalate to component-impact"
+      ],
+      "must_not_do": [
+        "Edit helper.c inside this AR work item",
+        "Treat 'Allowed files' as advisory",
+        "Mark T-005 done with the cross-component edit included"
+      ],
+      "expected_handoff": {
+        "reroute_via_router": true,
+        "blockers": ["T-005 needs cross-component edit to helper.c (out-of-scope); router must decide escalation"]
+      },
+      "verification": [
+        "no write to helper.c by the implementer",
+        "implementation-log.md Refactor Note Escalation Triggers section names the cross-component need",
+        "handoff.reroute_via_router == true"
+      ],
+      "notes": "Hard gate against scope creep; aligns with SKILL.md and AGENTS.md profile-discipline rule."
+    }
+  ]
+}

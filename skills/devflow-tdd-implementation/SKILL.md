@@ -192,6 +192,23 @@ Task queue preflight 检查：
 - 复用 stale evidence。
 - 自行批准测试或代码。
 
+## 反向理由化（Common Rationalizations）
+
+TDD 实现阶段最常见的偷懒话术与反驳。命中任意一条 → 停下，按反驳动作执行。
+
+| 话术 | 反驳 |
+|---|---|
+| 「先写实现，等会儿再补 RED 用例」 | 违反 TDD。每条用例必须有真实 RED 失败证据；失败-修-通过的顺序不可调换 |
+| 「类似用例已经存在，复用旧 GREEN 当作新 RED」 | 不允许。新行为必须有新 RED 证据，且明确属于 Current Active Task |
+| 「Refactor 阶段顺手把邻近 bug 改掉」 | 违反 Two Hats。把它登记到 Refactor Note 的 Escalation Triggers，让 router / code-review 处理 |
+| 「change 比较大，但我自己消化更快，不派 implementer subagent」 | 大改 + 大上下文必须派 implementer subagent + 精选 Context Pack；否则 controller 上下文爆炸且 review 难定位 |
+| 「subagent 缺信息，把整个 progress / 设计文档塞给它」 | 禁止。先收敛 Context Pack 再重派；不向 subagent 倾倒原始历史 |
+| 「`NEEDS_CONTEXT` 直接上抛 `devflow-router`」 | 错。`NEEDS_CONTEXT` 留在本节点，用更收敛的 Context Pack 重派；只有 routing / profile / scope blocker 才上抛 router |
+| 「Refactor Note 没什么好写的，跳过」 | 缺 Refactor Note → `devflow-code-review` CR8 直接 `需修改`；不存在「没什么好写」的合法情形 |
+| 「自审一下，跳过 `devflow-test-checker`」 | 禁止 self-review。TDD 完成后必须经独立 `devflow-test-checker` |
+| 「测试通过了，可以宣布 task 完成」 | 跑通 ≠ 有效。Current Active Task 完成必须含 fresh evidence + 后续 test-check |
+| 「同时推进 2 条 task 比较快」 | 必须**单 active task**。多 in_progress → 立刻收回到一条 |
+
 ## 验证清单
 
 - [ ] Work item identity 稳定

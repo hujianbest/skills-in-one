@@ -2,10 +2,10 @@
 
 - 定位: 定义 `DevFlow`（简称 `devflow`）中 `devflow-*` skill 的目标态写法；对 workflow skill 来说，它是 `01 skill-node-define.md` 在 `SKILL.md` 层的落地 anatomy。
 - 关联:
-  - 最高原则: `docs/devflow-principles/00 soul.md`
-  - Skill-node 设计契约: `docs/devflow-principles/01 skill-node-define.md`
-  - 工件管理约定: `docs/devflow-principles/03 artifact-layout.md`
-  - Workflow 架构: `docs/devflow-principles/04 workflow-architecture.md`
+  - 最高原则: `docs/principles/00 soul.md`
+  - Skill-node 设计契约: `docs/principles/01 skill-node-define.md`
+  - 工件管理约定: `docs/principles/03 artifact-layout.md`
+  - Workflow 架构: `docs/principles/04 workflow-architecture.md`
 
 ## 定位
 
@@ -188,7 +188,7 @@ This skill turns an approved AR and its component design context into an AR impl
 
 ### 3. 写工件 / record / evidence
 
-落盘到约定路径（devflow-shared-conventions / AGENTS.md 覆盖优先），保留 traceability 锚点与新鲜度证据。
+落盘到约定路径（本 skill 的本地 DevFlow 约定 / AGENTS.md 覆盖优先），保留 traceability 锚点与新鲜度证据。
 
 ### 4. Handoff
 
@@ -248,6 +248,8 @@ This skill turns an approved AR and its component design context into an AR impl
 - 最小 output / verification 规则。
 
 ### `evals/`
+
+`evals/` 的目录结构、`evals.json` 字段契约、Category 取值和运行约定见 `docs/principles/06 evals-format.md`。本节只保留高风险 skill 至少覆盖的边界用例清单：
 
 高风险 devflow skill 应至少覆盖：
 
