@@ -3,6 +3,7 @@
 使用说明：
 
 - 默认保存路径：`features/<工作项ID>-<slug>/closeout.md`。
+- 同时必须渲染 HTML 工作报告 `features/<工作项ID>-<slug>/closeout-report.html`（按 `references/closeout-report-template.html`），与本 markdown 一一对应；HTML 报告是给开发负责人 / 模块架构师 / 需求负责人的可视化交付物，本 markdown 是签字版。
 - 覆盖两类收尾：
   - 实现收尾：AR / DTS / CHANGE，基于 `devflow-completion-gate` 通过。
   - 分析收尾：SR，基于 `devflow-spec-review` 或 `devflow-component-design-review` 通过。
@@ -67,6 +68,12 @@
 - 最终 `Current Stage`:                   # closed / completed
 - 最终 `Next Action Or Recommended Skill（下一步动作或推荐 Skill）`: # null（已完成）
 - 未关闭风险记录到:                       # 例：组件级 risk log / backlog 路径
+
+## HTML 工作报告
+
+- 报告路径:                               # features/<工作项ID>-<slug>/closeout-report.html
+- 渲染时间:                               # 与本 markdown 同步生成
+- 报告与本 markdown 一致性:               # 一致 / 已修复（说明修复点）
 
 ## 交接
 

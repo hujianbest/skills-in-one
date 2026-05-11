@@ -1,0 +1,675 @@
+<!--
+  devflow 收尾 HTML 工作报告模板
+  ------------------------------------------------------------------
+  · 由 devflow-finalize 在生成 closeout.md 之后渲染。
+  · 默认输出路径：features/<工作项ID>-<slug>/closeout-report.html
+  · 单文件、无外部依赖、无 JS、无 CDN；所有样式 inline；可直接 file:// 打开 / 当邮件附件 / 打印为 PDF。
+  · 占位符约定：{{NAME}}（标量替换）、{{#SECTION}}…{{/SECTION}}（按 Closeout Type 或可选块裁剪）、列表行手动复制。
+  · 严禁修改 <style> 之外的视觉样式（避免每个工作项渲染风格漂移）；如需团队级品牌定制，在团队 AGENTS.md 中维护一份覆盖文件。
+
+  必填占位符（所有 Closeout Type 通用）：
+    {{WORK_ITEM_TYPE}}             SR / AR / DTS / CHANGE
+    {{WORK_ITEM_ID}}               例：AR12345 / SR1234 / DTS67890 / CHANGE123
+    {{WORK_ITEM_SLUG}}             work item slug（用于标题）
+    {{OWNING_COMPONENT_OR_SUBSYSTEM}}  AR/DTS/CHANGE 填 Owning Component；SR 填 Owning Subsystem
+    {{WORKFLOW_PROFILE}}           requirement-analysis / standard / component-impact / hotfix / lightweight
+    {{EXECUTION_MODE}}             interactive / auto
+    {{CLOSEOUT_TYPE}}              implementation / analysis / blocked
+    {{CLOSEOUT_VERDICT}}           closed / blocked
+    {{CLOSEOUT_VERDICT_CLASS}}     verdict-pass / verdict-warn / verdict-fail（驱动 badge 颜色）
+    {{REPORT_DATE}}                ISO-8601 日期（例 2026-05-11）
+    {{LAST_UPDATED}}               progress.md 的 Last Updated
+    {{UPSTREAM_VERDICT_SOURCE}}    例：features/<id>/completion.md（implementation）
+                                       或 features/<id>/reviews/spec-review.md（analysis）
+    {{HEADLINE}}                   1 句话总结（例：「AR12345 mode-switch 实现已通过完成门禁，长期资产已同步。」）
+
+  汇总卡片（implementation closeout 必填；analysis closeout 用 N/A 占位）：
+    {{SUMMARY_TASKS_DONE}}         已完成 task 数（done + cancelled）
+    {{SUMMARY_TASKS_TOTAL}}        task 总数
+    {{SUMMARY_TESTS_PASSED}}       本轮验证命令通过的测试数（来自 evidence/unit + evidence/integration）；缺则 "—"
+    {{SUMMARY_TESTS_TOTAL}}        本轮执行的测试总数；缺则 "—"
+    {{SUMMARY_COVERAGE}}           覆盖率（如 evidence/coverage/ 提供数值则填 "85%"；否则填 "按行为覆盖" 或 "未提供"）
+    {{SUMMARY_COVERAGE_DETAIL}}    1 行说明（如 "line 85% / branch 78%" 或 "happy/boundary/exception/embedded-risk 全覆盖"）
+    {{SUMMARY_REVIEWS_PASSED}}     已通过的 review/gate 数
+    {{SUMMARY_REVIEWS_TOTAL}}      profile 要求的 review/gate 总数
+
+  Tasks 完成清单（implementation closeout 区段；从 task-board.md 摘取）：
+    复制 <tr class="task-row"> 行，每行填：
+      {{TASK_ID}} {{TASK_TITLE}} {{TASK_STATUS}} {{TASK_STATUS_CLASS}}
+      {{TASK_TEST_CASE_IDS}} {{TASK_EVIDENCE_PATHS}} {{TASK_NOTES}}
+
+  Reviews & Gates 时间线（所有类型）：
+    复制 <li class="timeline-item"> 行，每行填：
+      {{REVIEW_NODE}}（canonical 节点名）
+      {{REVIEW_VERDICT}}（中文文本：通过 / 需修改 / 阻塞 / N/A）
+      {{REVIEW_TL_CLASS}}（仅作用于 <li> 行的指示点：tl-pass / tl-warn / tl-fail / tl-na）
+      {{REVIEW_VERDICT_CLASS}}（仅作用于 .pill 徽标：verdict-pass / verdict-warn / verdict-fail / verdict-na）
+      {{REVIEW_DATE}} {{REVIEW_RECORD_PATH}} {{REVIEW_KEY_FINDING}}
+    缺失的 review 仍要列出，verdict 写 "N/A"，REVIEW_TL_CLASS = tl-na，REVIEW_VERDICT_CLASS = verdict-na。
+
+  测试 / 构建 / 静态分析证据（implementation closeout）：
+    复制 <tr class="evidence-row"> 行，每行填：
+      {{EVIDENCE_KIND}}（unit / integration / static-analysis / build / coverage / other）
+      {{EVIDENCE_COMMAND}} {{EVIDENCE_EXIT_CODE}} {{EVIDENCE_SUMMARY}}
+      {{EVIDENCE_PATH}} {{EVIDENCE_FRESHNESS_ANCHOR}}（commit hash / build id）
+
+  行为覆盖矩阵（implementation closeout）：
+    从 ar-design-draft.md 测试设计章节 + 实际 evidence 交叉，每个 Test Design Case ID 一行：
+      {{CASE_ID}} {{COVERS_REQ_ROW}} {{TEST_LEVEL}}
+      {{COVERAGE_TYPE}}（happy/boundary/exception/embedded-risk）
+      {{CASE_STATUS}} {{CASE_STATUS_CLASS}}（passed/failed/skipped/missing）
+      {{CASE_EVIDENCE_PATH}}
+
+  嵌入式风险审计（implementation closeout，从 completion.md 复用）：
+    复制 <tr class="risk-row"> 行，每行填：
+      {{RISK_DIMENSION}} {{RISK_STATUS}} {{RISK_STATUS_CLASS}}
+      （clean → risk-clean / documented-debt → risk-warn / critical-open → risk-fail / N/A → risk-na）
+      {{RISK_EVIDENCE}}
+
+  长期资产同步表（所有类型；analysis closeout 多行写 N/A）：
+    复制 <tr class="asset-row"> 行，每行填：
+      {{ASSET_NAME}} {{ASSET_PATH}} {{ASSET_SYNCED}}（yes/no/N/A）
+      {{ASSET_SYNCED_CLASS}} {{ASSET_NOTE}}
+
+  AR Breakdown Candidates 表（仅 analysis closeout；implementation 段整块隐藏）：
+    复制 <tr class="candidate-row"> 行，每行填：
+      {{CAND_ID}} {{CAND_SCOPE}} {{CAND_OWNING_COMPONENT}}
+      {{CAND_COVERS_ROWS}} {{CAND_PRIORITY}} {{CAND_COMPLEXITY}} {{CAND_HANDOFF_OWNER}} {{CAND_NOTE}}
+
+  Handoff（所有类型）：
+    {{HANDOFF_NEXT_ACTION}}        canonical node；closeout 后通常为 "null（已完成）"
+    {{HANDOFF_BRANCH_OR_PR}}       implementation：分支 / MR / PR；analysis：候选 AR 交付清单摘要
+    {{HANDOFF_NOTE}}               1-3 行交接说明
+    {{HANDOFF_OPEN_RISKS}}         未关闭风险；无则 "无"
+
+  渲染规则：
+    1. {{...}} 占位符必须全部替换。未提供数据的字段填 "N/A" 或 "未提供"，不要留空。
+    2. {{#SECTION_IMPLEMENTATION}}…{{/SECTION_IMPLEMENTATION}} 块仅在 Closeout Type = implementation 时保留，其他类型整段删除。
+       {{#SECTION_ANALYSIS}}…{{/SECTION_ANALYSIS}} 块仅在 Closeout Type = analysis 时保留。
+       {{#SECTION_BLOCKED}}…{{/SECTION_BLOCKED}} 块仅在 Closeout Type = blocked 时保留。
+    3. 表格 / 时间线的占位行（标记 "示例行 - 渲染时按实际数据复制并重复"）必须按实际数据复制并重复；若数据为空则保留占位行并改为 "无"。
+    4. 渲染产物保存到 features/<id>/closeout-report.html；不要写入 docs/。
+-->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content="devflow-finalize closeout-report" />
+<title>{{WORK_ITEM_ID}} {{WORK_ITEM_SLUG}} · DevFlow 收尾报告</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --ink-mute: #94a3b8;
+    --border: #e2e8f0;
+    --border-soft: #eef2f7;
+    --pass: #16a34a;
+    --pass-bg: #dcfce7;
+    --warn: #d97706;
+    --warn-bg: #fef3c7;
+    --fail: #dc2626;
+    --fail-bg: #fee2e2;
+    --info: #2563eb;
+    --info-bg: #dbeafe;
+    --na: #64748b;
+    --na-bg: #e2e8f0;
+    --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue",
+                 Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  /* ---------- Header ---------- */
+  .hero {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a8a 100%);
+    color: #f8fafc;
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: auto -80px -120px auto;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(96,165,250,0.35), transparent 70%);
+    pointer-events: none;
+  }
+  .hero .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  .hero h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 .id { color: #93c5fd; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 22px; margin-right: 10px; }
+  .hero .headline { color: #cbd5e1; font-size: 15px; margin-top: 8px; max-width: 720px; }
+  .hero .meta {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero .meta dt { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+  .hero .meta dd { margin: 0; font-size: 14px; color: #e2e8f0; font-weight: 500; }
+  .hero .verdict {
+    position: absolute; top: 28px; right: 32px;
+    z-index: 2;
+  }
+  .verdict-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .verdict-badge::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+  }
+  .verdict-pass { background: var(--pass-bg); color: var(--pass); }
+  .verdict-warn { background: var(--warn-bg); color: var(--warn); }
+  .verdict-fail { background: var(--fail-bg); color: var(--fail); }
+  .verdict-na   { background: var(--na-bg);   color: var(--na);   }
+  .verdict-info { background: var(--info-bg); color: var(--info); }
+
+  /* ---------- Summary cards ---------- */
+  .summary {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .stat .label { font-size: 12px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.1em; }
+  .stat .value { font-size: 28px; font-weight: 700; margin-top: 6px; color: var(--ink); }
+  .stat .value .denom { font-size: 16px; color: var(--ink-mute); font-weight: 500; }
+  .stat .detail { margin-top: 6px; font-size: 12px; color: var(--ink-soft); }
+  .stat.accent-pass .value { color: var(--pass); }
+  .stat.accent-warn .value { color: var(--warn); }
+  .stat.accent-fail .value { color: var(--fail); }
+  .stat.accent-info .value { color: var(--info); }
+
+  /* ---------- Sections ---------- */
+  section.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  section.card > header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  }
+  section.card > header h2 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  section.card > header .hint { font-size: 12px; color: var(--ink-mute); }
+  section.card > .body { padding: 18px 24px 22px; }
+
+  /* ---------- Tables ---------- */
+  table.df {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.df th, table.df td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: top;
+  }
+  table.df th {
+    font-size: 11px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    background: #f8fafc;
+  }
+  table.df tr:last-child td { border-bottom: 0; }
+  table.df td.mono, table.df td .mono, code, .path {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .path { word-break: break-all; }
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .status-done    { background: var(--pass-bg); color: var(--pass); }
+  .status-passed  { background: var(--pass-bg); color: var(--pass); }
+  .status-cancelled { background: var(--na-bg); color: var(--na); }
+  .status-skipped { background: var(--na-bg); color: var(--na); }
+  .status-failed  { background: var(--fail-bg); color: var(--fail); }
+  .status-blocked { background: var(--fail-bg); color: var(--fail); }
+  .status-warn    { background: var(--warn-bg); color: var(--warn); }
+  .status-missing { background: var(--warn-bg); color: var(--warn); }
+  .risk-clean { background: var(--pass-bg); color: var(--pass); }
+  .risk-warn  { background: var(--warn-bg); color: var(--warn); }
+  .risk-fail  { background: var(--fail-bg); color: var(--fail); }
+  .risk-na    { background: var(--na-bg);   color: var(--na);   }
+  .asset-yes  { background: var(--pass-bg); color: var(--pass); }
+  .asset-no   { background: var(--warn-bg); color: var(--warn); }
+  .asset-na   { background: var(--na-bg);   color: var(--na);   }
+  .level-pill {
+    display: inline-block; padding: 1px 8px; border-radius: 6px;
+    font-size: 11px; font-weight: 500; background: #eef2f7; color: var(--ink-soft);
+  }
+
+  /* ---------- Timeline ---------- */
+  ul.timeline { list-style: none; padding: 0; margin: 0; }
+  ul.timeline li {
+    position: relative;
+    padding: 12px 0 12px 28px;
+    border-bottom: 1px dashed var(--border-soft);
+  }
+  ul.timeline li:last-child { border-bottom: 0; }
+  ul.timeline li::before {
+    content: "";
+    position: absolute; left: 8px; top: 18px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--info); box-shadow: 0 0 0 4px var(--info-bg);
+  }
+  ul.timeline li.tl-pass::before { background: var(--pass); box-shadow: 0 0 0 4px var(--pass-bg); }
+  ul.timeline li.tl-warn::before { background: var(--warn); box-shadow: 0 0 0 4px var(--warn-bg); }
+  ul.timeline li.tl-fail::before { background: var(--fail); box-shadow: 0 0 0 4px var(--fail-bg); }
+  ul.timeline li.tl-na::before   { background: var(--na);   box-shadow: 0 0 0 4px var(--na-bg);   }
+  ul.timeline .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  ul.timeline .node-name { font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  ul.timeline .finding { margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
+  ul.timeline .when { font-size: 12px; color: var(--ink-mute); }
+
+  /* ---------- Headline / footer ---------- */
+  .footer {
+    margin-top: 32px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 12px;
+  }
+  .footer code { background: #eef2f7; padding: 2px 6px; border-radius: 4px; }
+
+  /* ---------- Print ---------- */
+  @media print {
+    body { background: #fff; }
+    .hero { background: #1e293b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    section.card, .stat, .hero { box-shadow: none; }
+    .page { padding: 0; max-width: none; }
+  }
+
+  /* ---------- Narrow ---------- */
+  @media (max-width: 640px) {
+    .hero { padding: 24px 20px; }
+    .hero .verdict { position: static; margin-bottom: 12px; }
+    section.card > header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div class="verdict">
+      <span class="verdict-badge {{CLOSEOUT_VERDICT_CLASS}}">{{CLOSEOUT_VERDICT}}</span>
+    </div>
+    <div class="eyebrow">DevFlow · {{CLOSEOUT_TYPE}} closeout</div>
+    <h1><span class="id">{{WORK_ITEM_ID}}</span>{{WORK_ITEM_SLUG}}</h1>
+    <div class="headline">{{HEADLINE}}</div>
+    <dl class="meta">
+      <div><dt>工作项类型</dt><dd>{{WORK_ITEM_TYPE}}</dd></div>
+      <div><dt>所属组件 / 子系统</dt><dd>{{OWNING_COMPONENT_OR_SUBSYSTEM}}</dd></div>
+      <div><dt>Workflow Profile</dt><dd>{{WORKFLOW_PROFILE}}</dd></div>
+      <div><dt>Execution Mode</dt><dd>{{EXECUTION_MODE}}</dd></div>
+      <div><dt>报告日期</dt><dd>{{REPORT_DATE}}</dd></div>
+      <div><dt>Last Updated</dt><dd>{{LAST_UPDATED}}</dd></div>
+      <div><dt>上游结论来源</dt><dd class="path">{{UPSTREAM_VERDICT_SOURCE}}</dd></div>
+    </dl>
+  </header>
+
+  <!-- ============================================================
+       汇总卡片（implementation closeout 全填；analysis closeout 把
+       不适用的卡片 value 填 "N/A"，detail 填 "analysis 不适用"）
+  ============================================================ -->
+  <div class="summary">
+    <div class="stat accent-info">
+      <div class="label">已完成任务</div>
+      <div class="value">{{SUMMARY_TASKS_DONE}}<span class="denom"> / {{SUMMARY_TASKS_TOTAL}}</span></div>
+      <div class="detail">来自 task-board.md（done + cancelled）</div>
+    </div>
+    <div class="stat accent-pass">
+      <div class="label">测试结果</div>
+      <div class="value">{{SUMMARY_TESTS_PASSED}}<span class="denom"> / {{SUMMARY_TESTS_TOTAL}}</span></div>
+      <div class="detail">本轮 fresh evidence（unit + integration）</div>
+    </div>
+    <div class="stat accent-info">
+      <div class="label">测试覆盖</div>
+      <div class="value">{{SUMMARY_COVERAGE}}</div>
+      <div class="detail">{{SUMMARY_COVERAGE_DETAIL}}</div>
+    </div>
+    <div class="stat accent-pass">
+      <div class="label">评审 / 门禁</div>
+      <div class="value">{{SUMMARY_REVIEWS_PASSED}}<span class="denom"> / {{SUMMARY_REVIEWS_TOTAL}}</span></div>
+      <div class="detail">profile 要求的 review/gate 已通过</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Reviews & Gates 时间线（implementation + analysis 都需要）
+  ============================================================ -->
+  <section class="card">
+    <header>
+      <h2>评审与门禁时间线</h2>
+      <div class="hint">canonical devflow-* 节点 · verdict / 记录 / 关键发现</div>
+    </header>
+    <div class="body">
+      <ul class="timeline">
+        <!-- 示例行 - 渲染时按实际 review/gate 复制并重复 -->
+        <li class="timeline-item {{REVIEW_TL_CLASS}}">
+          <div class="row">
+            <span class="node-name">{{REVIEW_NODE}}</span>
+            <span><span class="pill {{REVIEW_VERDICT_CLASS}}">{{REVIEW_VERDICT}}</span> <span class="when">{{REVIEW_DATE}}</span></span>
+          </div>
+          <div class="finding">{{REVIEW_KEY_FINDING}}</div>
+          <div class="path">{{REVIEW_RECORD_PATH}}</div>
+        </li>
+        <!-- /示例行 -->
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       {{#SECTION_IMPLEMENTATION}}
+       仅 Closeout Type = implementation 时保留
+  ============================================================ -->
+  <section class="card">
+    <header>
+      <h2>已完成任务</h2>
+      <div class="hint">来自 task-board.md · 仅展示 done / cancelled</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <thead>
+          <tr>
+            <th style="width: 80px;">任务 ID</th>
+            <th>标题</th>
+            <th style="width: 100px;">状态</th>
+            <th>测试用例 ID</th>
+            <th>证据</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例行 - 渲染时按实际 done/cancelled 任务复制并重复 -->
+          <tr class="task-row">
+            <td class="mono">{{TASK_ID}}</td>
+            <td>{{TASK_TITLE}}</td>
+            <td><span class="pill status-{{TASK_STATUS_CLASS}}">{{TASK_STATUS}}</span></td>
+            <td class="mono">{{TASK_TEST_CASE_IDS}}</td>
+            <td class="path">{{TASK_EVIDENCE_PATHS}}</td>
+            <td>{{TASK_NOTES}}</td>
+          </tr>
+          <!-- /示例行 -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <header>
+      <h2>测试与构建证据</h2>
+      <div class="hint">本轮 fresh evidence · 来自 evidence/{unit,integration,static-analysis,build,coverage}/</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <thead>
+          <tr>
+            <th style="width: 110px;">类型</th>
+            <th>命令</th>
+            <th style="width: 70px;">退出码</th>
+            <th>摘要</th>
+            <th>证据 / 新鲜度锚点</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例行 - 渲染时按实际 evidence 文件复制并重复 -->
+          <tr class="evidence-row">
+            <td><span class="level-pill">{{EVIDENCE_KIND}}</span></td>
+            <td class="mono">{{EVIDENCE_COMMAND}}</td>
+            <td class="mono">{{EVIDENCE_EXIT_CODE}}</td>
+            <td>{{EVIDENCE_SUMMARY}}</td>
+            <td class="path">{{EVIDENCE_PATH}}<br /><span class="mono">{{EVIDENCE_FRESHNESS_ANCHOR}}</span></td>
+          </tr>
+          <!-- /示例行 -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <header>
+      <h2>行为覆盖矩阵</h2>
+      <div class="hint">从 ar-design-draft.md 测试设计章节 × evidence 实际命中</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <thead>
+          <tr>
+            <th style="width: 90px;">Case ID</th>
+            <th>覆盖 Requirement Row</th>
+            <th style="width: 110px;">Test Level</th>
+            <th style="width: 130px;">覆盖类型</th>
+            <th style="width: 90px;">状态</th>
+            <th>证据</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例行 - 渲染时按实际 Test Design Case ID 复制并重复 -->
+          <tr class="case-row">
+            <td class="mono">{{CASE_ID}}</td>
+            <td>{{COVERS_REQ_ROW}}</td>
+            <td><span class="level-pill">{{TEST_LEVEL}}</span></td>
+            <td><span class="level-pill">{{COVERAGE_TYPE}}</span></td>
+            <td><span class="pill status-{{CASE_STATUS_CLASS}}">{{CASE_STATUS}}</span></td>
+            <td class="path">{{CASE_EVIDENCE_PATH}}</td>
+          </tr>
+          <!-- /示例行 -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <header>
+      <h2>嵌入式风险审计</h2>
+      <div class="hint">从 completion.md 的 Embedded Risk Audit 同步</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <thead>
+          <tr>
+            <th style="width: 220px;">维度</th>
+            <th style="width: 130px;">状态</th>
+            <th>证据 / 说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例行 - 渲染时按 7 个嵌入式风险维度复制并重复 -->
+          <tr class="risk-row">
+            <td>{{RISK_DIMENSION}}</td>
+            <td><span class="pill {{RISK_STATUS_CLASS}}">{{RISK_STATUS}}</span></td>
+            <td>{{RISK_EVIDENCE}}</td>
+          </tr>
+          <!-- /示例行 -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <!-- {{/SECTION_IMPLEMENTATION}} -->
+
+  <!-- ============================================================
+       {{#SECTION_ANALYSIS}}
+       仅 Closeout Type = analysis 时保留
+  ============================================================ -->
+  <section class="card">
+    <header>
+      <h2>AR 拆分候选（交付给需求负责人）</h2>
+      <div class="hint">候选 AR 由需求负责人决定何时新建 work item · DevFlow 不自动新建</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <thead>
+          <tr>
+            <th style="width: 100px;">Candidate ID</th>
+            <th>范围</th>
+            <th style="width: 140px;">所属组件</th>
+            <th>覆盖 SR 行</th>
+            <th style="width: 80px;">优先级</th>
+            <th style="width: 70px;">复杂度</th>
+            <th>交接 Owner</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例行 - 渲染时按实际候选复制并重复 -->
+          <tr class="candidate-row">
+            <td class="mono">{{CAND_ID}}</td>
+            <td>{{CAND_SCOPE}}</td>
+            <td>{{CAND_OWNING_COMPONENT}}</td>
+            <td class="mono">{{CAND_COVERS_ROWS}}</td>
+            <td>{{CAND_PRIORITY}}</td>
+            <td>{{CAND_COMPLEXITY}}</td>
+            <td>{{CAND_HANDOFF_OWNER}}</td>
+            <td>{{CAND_NOTE}}</td>
+          </tr>
+          <!-- /示例行 -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <!-- {{/SECTION_ANALYSIS}} -->
+
+  <!-- ============================================================
+       长期资产同步（implementation + analysis 都展示）
+  ============================================================ -->
+  <section class="card">
+    <header>
+      <h2>长期资产同步</h2>
+      <div class="hint">本轮是否同步到 docs/ · sync-on-presence</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <thead>
+          <tr>
+            <th>长期资产</th>
+            <th>路径</th>
+            <th style="width: 110px;">本次同步</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例行 - 渲染时按 closeout pack 的 Long-Term Assets Sync 复制并重复 -->
+          <tr class="asset-row">
+            <td>{{ASSET_NAME}}</td>
+            <td class="path">{{ASSET_PATH}}</td>
+            <td><span class="pill {{ASSET_SYNCED_CLASS}}">{{ASSET_SYNCED}}</span></td>
+            <td>{{ASSET_NOTE}}</td>
+          </tr>
+          <!-- /示例行 -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Handoff
+  ============================================================ -->
+  <section class="card">
+    <header>
+      <h2>交接</h2>
+      <div class="hint">closeout 后 next_action_or_recommended_skill 应为 null</div>
+    </header>
+    <div class="body">
+      <table class="df">
+        <tbody>
+          <tr>
+            <th style="width: 200px;">下一步动作</th>
+            <td class="mono">{{HANDOFF_NEXT_ACTION}}</td>
+          </tr>
+          <tr>
+            <th>分支 / MR / PR / 候选清单</th>
+            <td class="path">{{HANDOFF_BRANCH_OR_PR}}</td>
+          </tr>
+          <tr>
+            <th>团队同步说明</th>
+            <td>{{HANDOFF_NOTE}}</td>
+          </tr>
+          <tr>
+            <th>未关闭风险</th>
+            <td>{{HANDOFF_OPEN_RISKS}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       {{#SECTION_BLOCKED}}
+       仅 Closeout Type = blocked 时保留：用红色提示框替代正常报告体
+  ============================================================ -->
+  <section class="card">
+    <header>
+      <h2>收尾被阻塞</h2>
+      <div class="hint">需要回上游补齐证据后再次进入 devflow-finalize</div>
+    </header>
+    <div class="body">
+      <p><span class="pill verdict-fail">{{CLOSEOUT_VERDICT}}</span></p>
+      <p>{{HEADLINE}}</p>
+      <p class="path">详见 closeout.md：{{UPSTREAM_VERDICT_SOURCE}}</p>
+    </div>
+  </section>
+  <!-- {{/SECTION_BLOCKED}} -->
+
+  <div class="footer">
+    报告由 <code>devflow-finalize</code> 渲染 · 模板 <code>skills/devflow-finalize/references/closeout-report-template.html</code><br />
+    更详细的字段与签字版请见 <code>features/{{WORK_ITEM_ID}}-{{WORK_ITEM_SLUG}}/closeout.md</code>
+  </div>
+
+</div>
+</body>
+</html>
