@@ -238,7 +238,9 @@ specify -> spec review -> AR design -> AR design review -> TDD -> test review ->
 - `features/AR12345-<slug>/evidence/`
 - `features/AR12345-<slug>/completion.md`
 - `features/AR12345-<slug>/closeout.md`
-- `docs/ar-designs/AR12345-<slug>.md`
+- `features/AR12345-<slug>/closeout-report.html`（HTML 工作报告，与 closeout.md 同生）
+- `docs/ar-specs/AR12345-<slug>.md`（finalize 从 `requirement.md` 升级）
+- `docs/ar-designs/AR12345-<slug>.md`（finalize 从 `ar-design-draft.md` 升级）
 
 截图占位：
 
@@ -270,7 +272,10 @@ specify -> spec review -> component design -> component design review -> AR desi
 - `features/<id>/component-design-draft.md`
 - `features/<id>/reviews/component-design-review.md`
 - `features/<id>/ar-design-draft.md`
+- `features/<id>/closeout-report.html`（HTML 工作报告，与 closeout.md 同生）
 - 更新后的 `docs/component-design.md`
+- `docs/ar-specs/AR<id>-<slug>.md`（finalize 从 `requirement.md` 升级）
+- `docs/ar-designs/AR<id>-<slug>.md`（finalize 从 `ar-design-draft.md` 升级）
 
 截图占位：
 
@@ -379,7 +384,9 @@ features/<id>/
 ```text
 docs/
   component-design.md
-  ar-designs/
+  ar-specs/                  # AR 规格（finalize 从 features/<id>/requirement.md 升级）
+    AR<id>-<slug>.md
+  ar-designs/                # AR 实现设计（finalize 从 features/<id>/ar-design-draft.md 升级）
     AR<id>-<slug>.md
   interfaces.md              # optional, read-on-presence
   dependencies.md            # optional, read-on-presence
