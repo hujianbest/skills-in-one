@@ -1,6 +1,6 @@
 ---
 name: devflow-finalize
-description: 当工作项需要正式收口时使用；包括 AR / DTS / CHANGE 在 devflow-completion-gate 通过后的实现收口，以及 SR 在 devflow-spec-review 通过或组件设计评审通过后的分析收口。负责把适用的 AR 设计、组件设计和可选长期资产同步到 docs/，并把 SR 的 AR Breakdown Candidates 交还需求负责人。也用于用户明确要求收口或收掉某个 SR / AR。不用于新实现、完成判断，或阶段和路由混乱。
+description: 当工作项需要正式收口时使用；包括 AR / DTS / CHANGE 在 devflow-completion-gate 通过后的实现收口，以及 SR 在 devflow-spec-review 通过或组件设计评审通过后的分析收口。负责把适用的 AR 规格、AR 设计、组件设计和可选长期资产同步到 docs/，并把 SR 的 AR Breakdown Candidates 交还需求负责人。也用于用户明确要求收口或收掉某个 SR / AR。不用于新实现、完成判断，或阶段和路由混乱。
 ---
 
 # devflow 收尾（覆盖 implementation closeout 与 analysis closeout）
@@ -11,7 +11,7 @@ devflow 默认每个 work item 一次 finalize；实现子街区只有在 task-b
 
 1. **Implementation closeout**（AR / DTS / CHANGE，profile = 实现 profile）
    - 触发：`devflow-completion-gate` verdict = `通过`
-   - 同步：`docs/ar-designs/AR<id>-<slug>.md`（必填）+ `docs/component-design.md`（component-impact 时必填）+ 项目已启用的可选子资产 + release 锚点（按团队约定）
+   - 同步：`docs/ar-specs/AR<id>-<slug>.md`（AR 工作项必填，从 `features/<id>/requirement.md` 升级）+ `docs/ar-designs/AR<id>-<slug>.md`（AR 工作项必填，从 `features/<id>/ar-design-draft.md` 升级）+ `docs/component-design.md`（component-impact 时必填）+ 项目已启用的可选子资产 + release 锚点（按团队约定）
    - evidence：要求 implementation handoff、test-check、code-review、completion 全套证据
 
 2. **Analysis closeout**（SR，profile = `requirement-analysis`）
@@ -50,7 +50,8 @@ devflow 默认每个 work item 一次 finalize；实现子街区只有在 task-b
 Implementation closeout 专属：
 
 - 无 `devflow-completion-gate` `通过` verdict 不得进入
-- AR work item 必须 promote `docs/ar-designs/AR<id>-<slug>.md`
+- AR work item 必须 promote `docs/ar-specs/AR<id>-<slug>.md`（从 `features/<id>/requirement.md` 升级）
+- AR work item 必须 promote `docs/ar-designs/AR<id>-<slug>.md`（从 `features/<id>/ar-design-draft.md` 升级）
 - `tasks.md` / `task-board.md` 存在时，所有 task 必须为 `done` / `cancelled`；存在 ready / pending / in_progress task 时不得 closeout
 
 Analysis closeout 专属：
@@ -65,13 +66,14 @@ Analysis closeout 专属：
 
 - Primary Object: closeout pack（含 evidence matrix、长期资产同步清单、状态字段、Closeout Type）
 - Frontend Input Object（按 Closeout Type）：
-  - **Implementation closeout**：`features/<id>/completion.md`（应 `通过`）、`features/<id>/tasks.md`、`features/<id>/task-board.md`、`features/<id>/ar-design-draft.md`、`features/<id>/component-design-draft.md`（component-impact 时）、所有 review 记录、`docs/component-design.md` / `docs/ar-designs/` 现状、项目已启用的可选子资产、`features/<id>/progress.md`
+  - **Implementation closeout**：`features/<id>/completion.md`（应 `通过`）、`features/<id>/tasks.md`、`features/<id>/task-board.md`、`features/<id>/requirement.md`、`features/<id>/ar-design-draft.md`、`features/<id>/component-design-draft.md`（component-impact 时）、所有 review 记录、`docs/component-design.md` / `docs/ar-specs/` / `docs/ar-designs/` 现状、项目已启用的可选子资产、`features/<id>/progress.md`
   - **Analysis closeout**：`features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（应 `通过`）、`features/<id>/component-design-draft.md` + `features/<id>/reviews/component-design-review.md`（仅当 SR 修订组件设计）、`docs/component-design.md` 现状、项目已启用的可选子资产、`features/<id>/progress.md`、`features/<id>/README.md`
 - Backend Output Object：
   - `features/<id>/closeout.md`（含 Closeout Type 字段）
   - `features/<id>/closeout-report.html`（HTML 工作报告，**所有 Closeout Type 必填**；按 `references/closeout-report-template.html` 渲染；与 closeout.md 一一对应；不写入 docs/）
   - 同步到 `docs/component-design.md`（implementation closeout component-impact 或 analysis closeout 修订组件设计时）
-  - 同步到 `docs/ar-designs/AR<id>-<slug>.md`（**仅** implementation closeout 的 AR 工作项必填；DTS 不修改 AR 设计时与 SR 一律不写本路径）
+  - 同步到 `docs/ar-specs/AR<id>-<slug>.md`（**仅** implementation closeout 的 AR 工作项必填；从 `features/<id>/requirement.md` 升级；DTS 不修改 AR 规格时与 SR / CHANGE 一律不写本路径）
+  - 同步到 `docs/ar-designs/AR<id>-<slug>.md`（**仅** implementation closeout 的 AR 工作项必填；从 `features/<id>/ar-design-draft.md` 升级；DTS 不修改 AR 设计时与 SR 一律不写本路径）
   - 同步到 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（仅当项目已启用对应可选子资产，且本次触发变化；未启用的，把变化合并进 `docs/component-design.md`）
   - `features/<id>/progress.md` 收口为 `Current Stage = closed`
   - `features/<id>/README.md` 状态收口
@@ -103,7 +105,7 @@ Analysis closeout 专属：
 
 按 Read-On-Presence 读取对应输入：
 
-- **Implementation**：`features/<id>/completion.md`（应 `通过`）、tasks.md、task-board.md、所有 review 记录、ar-design-draft.md、component-design-draft.md（若有）、`docs/component-design.md` / `docs/ar-designs/` 现状、项目已启用的可选子资产、`features/<id>/progress.md`、`features/<id>/README.md`、`AGENTS.md`
+- **Implementation**：`features/<id>/completion.md`（应 `通过`）、tasks.md、task-board.md、所有 review 记录、`features/<id>/requirement.md`、ar-design-draft.md、component-design-draft.md（若有）、`docs/component-design.md` / `docs/ar-specs/` / `docs/ar-designs/` 现状、项目已启用的可选子资产、`features/<id>/progress.md`、`features/<id>/README.md`、`AGENTS.md`
 - **Analysis**：`features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`、`features/<id>/component-design-draft.md` + `features/<id>/reviews/component-design-review.md`（仅当 SR 修订组件设计）、`docs/component-design.md` 现状、项目已启用的可选子资产、`features/<id>/progress.md`、`features/<id>/README.md`、`AGENTS.md`
 
 ### 1.5 Precheck
@@ -116,6 +118,8 @@ Implementation 专属：
 
 - completion 缺记录 → blocked-content，回 `devflow-completion-gate`
 - task-board 存在 ready / pending / in_progress task → blocked-content，回 `devflow-router` 或 `devflow-tdd-implementation` 锁定 next-ready task
+- AR 工作项缺 `features/<id>/requirement.md` 或 spec-review 未通过 → blocked-content，先回上游补齐再 promote 到 `docs/ar-specs/`
+- AR 工作项缺 `docs/ar-specs/` 同步路径 → blocked-content，先在本节点完成 promote
 - AR 工作项缺 `docs/ar-designs/` 同步路径 → blocked-content，先在本节点完成 promote
 
 Analysis 专属：
@@ -133,10 +137,12 @@ Analysis 专属：
 
 **Implementation closeout**：
 
-- **AR 工作项必须同步**：把 `features/<id>/ar-design-draft.md` promote 到 `docs/ar-designs/AR<id>-<slug>.md`（保留 AR ID / SR / IR / Owner / 测试设计章节锚点；去掉 Open Questions / 过程笔记）
+- **AR 工作项必须同步 AR 规格**：把 `features/<id>/requirement.md` promote 到 `docs/ar-specs/AR<id>-<slug>.md`（保留 AR ID / SR / IR / Owner / Requirement Rows / Acceptance / Embedded NFR + QAS / Component Impact Assessment / Interface Contract Candidates 等正式章节；**去掉**草稿专属内容：阻塞 / 非阻塞分类的 Open Questions（应已闭合）、Brainstorming Notes Normalization 散点、`TODO` / `待澄清`、review findings 应答、过程笔记；变更记录追加 `(YYYY-MM-DD, 升级人, trigger=AR<id>, summary)`）
+- **AR 工作项必须同步 AR 设计**：把 `features/<id>/ar-design-draft.md` promote 到 `docs/ar-designs/AR<id>-<slug>.md`（保留 AR ID / SR / IR / Owner / 测试设计章节锚点；去掉 Open Questions / 过程笔记）
 - **component-impact 必须同步**：把 `features/<id>/component-design-draft.md` 合并到 `docs/component-design.md`（必要时新增章节 / 修订条目，并补变更记录）
 - **接口 / 依赖 / 运行时行为如有变更**：sync-on-presence；未启用的合并进 `docs/component-design.md`，不自动新建可选子资产
-- **DTS 不修改 AR 设计**：closeout pack `Long-Term Assets Sync` 对应行写 `N/A`；若 DTS 修改了组件级行为仍需同步 `docs/component-design.md`
+- **DTS 不修改 AR 规格 / AR 设计**：closeout pack `Long-Term Assets Sync` 对应行写 `N/A`；若 DTS 修改了组件级行为仍需同步 `docs/component-design.md`；若 DTS 修订了 AR 行为契约（罕见），同时同步 `docs/ar-specs/`
+- **CHANGE**：默认轻量变更不写 `docs/ar-specs/` / `docs/ar-designs/`；若 CHANGE 实质修订了既有 AR 的规格或设计，按团队约定决定是否同步
 
 **Analysis closeout**：
 
@@ -193,7 +199,8 @@ Analysis 专属：
 - `features/<id>/closeout.md`，按 `references/devflow-closeout-template.md`
 - `features/<id>/closeout-report.html`，按 `references/closeout-report-template.html`（所有 Closeout Type 必填，含 `blocked`；与 closeout.md 内容一致）
 - 长期资产同步：
-  - AR 工作项：`docs/ar-designs/AR<id>-<slug>.md` 必填
+  - AR 工作项：`docs/ar-specs/AR<id>-<slug>.md` 必填（从 `features/<id>/requirement.md` 升级）
+  - AR 工作项：`docs/ar-designs/AR<id>-<slug>.md` 必填（从 `features/<id>/ar-design-draft.md` 升级）
   - component-impact：`docs/component-design.md`（+ 仅当项目已启用并触发变化时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）
   - 未触发资产变化：closeout pack 中显式写 `N/A`
 - `features/<id>/progress.md` 收口为 `Current Stage = closed`、`Next Action Or Recommended Skill = null`
@@ -204,8 +211,9 @@ Analysis 专属：
 
 - completion gate 没通过就开始 finalize
 - 长期资产未同步就声称 closeout 完成
-- AR 工作项跳过 `docs/ar-designs/` 同步
+- AR 工作项跳过 `docs/ar-specs/` 或 `docs/ar-designs/` 同步
 - 把过程目录里的草稿直接当作长期资产（应做 promote 改写：去掉草稿专属内容、补全长期文档结构）
+- 把 `requirement.md` 原样复制到 `docs/ar-specs/`，留下 Open Questions / TODO / Brainstorming Notes 等过程专属内容
 - 修改其他组件
 - 没记录 closeout verdict
 - 把闭口后的 work item 移到 `features/archived/`（破坏反向引用）
@@ -217,7 +225,9 @@ Analysis 专属：
 
 | 话术 | 反驳 |
 |---|---|
+| 「requirement.md 改个名直接放到 `docs/ar-specs/`」 | 必须按 promotion 规则做语义化改写：去掉 Open Questions / Brainstorming Notes / TODO / review 应答、补全长期文档章节标题、保留追溯锚点（AR ID / SR / IR / Owner / Component Impact / Interface Contract Candidates） |
 | 「ar-design-draft.md 改个名直接放到 `docs/ar-designs/`」 | 必须按 promotion 规则做语义化改写：去掉草稿过程笔记、补长期资产章节标题、保留追溯锚点 |
+| 「先升级 AR 设计，AR 规格下次再补」 | 同一次 finalize 必须同时 promote `docs/ar-specs/` 与 `docs/ar-designs/`；只升级一个 → 阻塞 |
 | 「完成了，把 `features/<id>/` 移到 `features/archived/`」 | 禁止。会破坏追溯链接。closed work item 留在 `features/<id>/` 原位 |
 | 「上游 verdict 还差一两个，先 closeout 后补」 | implementation closeout 必须 `devflow-completion-gate` = `通过`；analysis closeout 必须 spec / component-design review 完整 |
 | 「component-impact 但 `docs/component-design.md` 我下次再同步」 | 必须**本轮**同步。component-impact 不同步 → 阻塞 |
@@ -233,7 +243,9 @@ Analysis 专属：
 
 | 错误 | 修复 |
 |---|---|
+| 把 requirement.md 原样复制到 docs/ar-specs/ | 做必要的语义化改写（去掉 Open Questions / Brainstorming Notes / TODO / review 应答；补长期资产章节标题） |
 | 把 ar-design-draft.md 原样复制到 docs/ar-designs/ | 做必要的语义化改写（去掉草稿过程笔记、补长期资产章节标题） |
+| AR 工作项只 promote AR 设计，未 promote AR 规格 | 阻塞，回到步骤 2 同时升级两个长期资产 |
 | component-impact 但漏同步 docs/component-design.md | 阻塞，回到步骤 3 |
 | closeout pack 没列 N/A 项 | 显式列出，避免被误判 blocked |
 
@@ -254,6 +266,7 @@ Analysis 专属：
 Implementation closeout 额外：
 
 - [ ] completion verdict = `通过` 已确认
+- [ ] AR 工作项已 promote 到 `docs/ar-specs/AR<id>-<slug>.md`（DTS 不修改 AR 规格 / SR / CHANGE 显式 N/A）
 - [ ] AR 工作项已 promote 到 `docs/ar-designs/AR<id>-<slug>.md`（DTS 不修改 AR 设计时显式 N/A）
 - [ ] component-impact 时 `docs/component-design.md` 已更新
 
@@ -276,6 +289,8 @@ Analysis closeout（SR）额外：
 <component-repo>/
   docs/
     component-design.md           # 长期组件实现设计
+    ar-specs/                     # 长期 AR 规格
+      AR<id>-<slug>.md
     ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
     interfaces.md                 # 可选；仅团队启用时读取 / 同步
@@ -292,7 +307,7 @@ Analysis closeout（SR）额外：
 
 Read-on-presence 规则：
 
-- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-specs/AR<id>-<slug>.md`（从 `requirement.md` 升级）和 `docs/ar-designs/AR<id>-<slug>.md`（从 `ar-design-draft.md` 升级）。
 - 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
 - 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
@@ -337,6 +352,7 @@ Read-on-presence 规则：
 ### Promotion 规则
 
 - 组件设计通过 review 后更新 `docs/component-design.md`
+- AR 规格通过 spec-review 后，由 finalize 把 `requirement.md` 升级到 `docs/ar-specs/AR<id>-<slug>.md`
 - AR 设计通过 review 后写入 `docs/ar-designs/AR<id>-<slug>.md`
 - 已启用的可选资产按 sync-on-presence 同步；否则把相关内容合并进 `docs/component-design.md`
 - SR analysis closeout 记录 AR Breakdown Candidates，但不创建 AR work items
