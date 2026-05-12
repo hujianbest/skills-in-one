@@ -69,6 +69,7 @@ Analysis closeout 专属：
   - **Analysis closeout**：`features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（应 `通过`）、`features/<id>/component-design-draft.md` + `features/<id>/reviews/component-design-review.md`（仅当 SR 修订组件设计）、`docs/component-design.md` 现状、项目已启用的可选子资产、`features/<id>/progress.md`、`features/<id>/README.md`
 - Backend Output Object：
   - `features/<id>/closeout.md`（含 Closeout Type 字段）
+  - `features/<id>/closeout-report.html`（HTML 工作报告，**所有 Closeout Type 必填**；按 `references/closeout-report-template.html` 渲染；与 closeout.md 一一对应；不写入 docs/）
   - 同步到 `docs/component-design.md`（implementation closeout component-impact 或 analysis closeout 修订组件设计时）
   - 同步到 `docs/ar-designs/AR<id>-<slug>.md`（**仅** implementation closeout 的 AR 工作项必填；DTS 不修改 AR 设计时与 SR 一律不写本路径）
   - 同步到 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（仅当项目已启用对应可选子资产，且本次触发变化；未启用的，把变化合并进 `docs/component-design.md`）
@@ -159,6 +160,30 @@ Analysis 专属：
 
 按 `references/devflow-closeout-template.md` 写入 `features/<id>/closeout.md`，包含 Closeout Summary、Evidence Matrix、Long-Term Assets Sync、State Sync、Handoff。pack 缺关键字段 → 回步骤 2-4 补齐。
 
+### 5.5 渲染 HTML 工作报告
+
+无论 Closeout Type，**必须**用 `references/closeout-report-template.html` 渲染一份 HTML 工作报告并写入 `features/<id>/closeout-report.html`，作为面向开发负责人 / 模块架构师 / 需求负责人的可视化交付物。规则：
+
+- **数据源唯一**：所有字段直接来自步骤 1-5 已落盘的工件（`progress.md`、`task-board.md`、`reviews/`、`evidence/`、`completion.md`、`closeout.md`、`ar-design-draft.md` 测试设计章节、SR 的 `AR Breakdown Candidates`）。**不**新跑命令、**不**编造数据、**不**重新评分上游 verdict。报告与 `closeout.md` 必须一致；冲突以 `closeout.md` 为准并立即修正报告。
+- **去掉模板说明头**：模板顶部的 `<!-- devflow 收尾 HTML 工作报告模板 ... -->` 注释块是给维护者的占位符使用说明，含示意性 `{{NAME}}` 字样；渲染时**必须**整段删除，避免污染最终产物或与运行时占位符冲突。
+- **占位符全替换**：模板里的 `{{...}}` 占位符必须全部替换；缺数据的字段写 `N/A` 或 `未提供`，**不**得留空。**渲染后不得残留任何 `{{...}}`**。
+- **按 Closeout Type 裁剪**：保留与 Closeout Type 匹配的 `{{#SECTION_*}}…{{/SECTION_*}}` 块（连同包裹它们的 `<!-- ... -->` 注释一起），删除其他类型块（implementation 删 analysis / blocked；analysis 删 implementation / blocked；blocked 删 implementation / analysis）。**渲染后不得残留任何 `{{#SECTION_...}}` / `{{/SECTION_...}}` 标记**。
+- **示例行展开**：每个表格 / 时间线里被 `<!-- 示例行 -->…<!-- /示例行 -->` 包裹的模板行（`task-row` / `evidence-row` / `case-row` / `risk-row` / `asset-row` / `candidate-row` / `timeline-item`）按实际数据复制并重复；空数据则保留单行并把字段改为 "无"。展开后包裹用的注释行也要删掉。
+- **报告内容必含**：
+  - 工作项元数据（type / id / 组件 / profile / execution mode / 报告日期）+ closeout verdict badge + 1 句话 headline
+  - 汇总卡片（已完成任务数、测试通过 / 总数、覆盖率摘要、review 通过 / 总数）
+  - 评审与门禁时间线（所有 canonical review / gate 节点 + verdict + 记录路径 + 关键发现）
+  - **implementation closeout 额外**：已完成任务表（来自 task-board.md，含 done / cancelled）；测试与构建证据表（unit / integration / static-analysis / build / coverage 命令、退出码、摘要、新鲜度锚点）；行为覆盖矩阵（每个 Test Design Case ID × Coverage Type × 状态）；嵌入式风险审计表（7 个维度 status）
+  - **analysis closeout 额外**：AR Breakdown Candidates 表（与 closeout.md 同源）
+  - 长期资产同步表（与 closeout.md `Long-Term Assets Sync` 一致；项目未启用的可选资产显式 `N/A（项目未启用）`）
+  - Handoff（next_action_or_recommended_skill / 分支或候选清单 / 团队同步说明 / 未关闭风险）
+- **覆盖率字段填法**：
+  - 若 `evidence/coverage/` 提供数值（line / branch / function 任一）→ 主卡片显示百分比，`SUMMARY_COVERAGE_DETAIL` 写「line X% / branch Y%」并附证据路径
+  - 若仅有行为覆盖（happy / boundary / exception / embedded-risk）→ 主卡片写「按行为覆盖」，detail 写「happy/boundary/exception/embedded-risk 全覆盖」或列出缺失类别
+  - 都没有 → 主卡片写「未提供」，detail 写「项目未要求覆盖率证据」，行为覆盖矩阵仍按 AR 设计 Test Design Case ID 渲染
+- **样式不可改**：模板的 `<style>` 与结构是团队级视觉规范，不要在单个工作项渲染里改色 / 改字体 / 改栅格；如需团队定制，在团队 `AGENTS.md` 中声明覆盖文件路径，由 router 读取。
+- **报告生成失败 → 回步骤 5**：HTML 不可解析 / 占位符未替换完 / 章节裁剪错误 → 视为 closeout pack 不完整，回到步骤 5 修订 closeout.md 后重渲。
+
 ### 6. Handoff
 
 按 Handoff Pack Pattern 给团队 closeout summary（含分支 / MR / PR 信息、长期资产同步清单、未闭合风险）。**不**替开发负责人 / 模块架构师决定是否合并 / 发布。
@@ -166,6 +191,7 @@ Analysis 专属：
 ## 输出契约
 
 - `features/<id>/closeout.md`，按 `references/devflow-closeout-template.md`
+- `features/<id>/closeout-report.html`，按 `references/closeout-report-template.html`（所有 Closeout Type 必填，含 `blocked`；与 closeout.md 内容一致）
 - 长期资产同步：
   - AR 工作项：`docs/ar-designs/AR<id>-<slug>.md` 必填
   - component-impact：`docs/component-design.md`（+ 仅当项目已启用并触发变化时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）
@@ -198,6 +224,10 @@ Analysis 专属：
 | 「closeout pack 里 N/A 项太琐碎，省略」 | 必须显式列 N/A，否则下次路由会被误判 blocked |
 | 「analysis closeout 顺便给候选 AR 起头实现」 | 越界。SR 子街区到 closeout 即止；候选 AR 由需求负责人新建 work item |
 | 「handoff 字段写自由文本下一步」 | 必须使用 canonical 字段名 + canonical 节点；不允许自由文本 |
+| 「closeout.md 已经写了，HTML 报告下次再补」 | 禁止。closeout-report.html 与 closeout.md 在本节点同生同灭；缺则 closeout 不完整 |
+| 「报告里没有的字段我自己补点合理数据让它更好看」 | 禁止。报告字段必须来自步骤 1-5 已落盘工件；缺数据写 `N/A`，不得编造 |
+| 「项目没收集覆盖率，HTML 那一项就先写 90%」 | 禁止。覆盖率没数据 → 主卡片写「未提供」，detail 说明项目未要求 |
+| 「随手把模板的颜色 / 字体改一下显得有个性」 | 禁止。模板是团队级视觉规范；定制走团队 AGENTS.md 覆盖文件 |
 
 ## 常见错误
 
@@ -214,6 +244,7 @@ Analysis 专属：
 - [ ] precheck 结果与 Closeout Type 显式记录
 - [ ] 长期资产同步已执行（按 Closeout Type 与 sync-on-presence）
 - [ ] `features/<id>/closeout.md` 已落盘，含 `Closeout Type` 字段
+- [ ] `features/<id>/closeout-report.html` 已落盘；占位符全部替换；按 Closeout Type 正确裁剪 `{{#SECTION_*}}` 块；与 closeout.md 内容一致
 - [ ] `features/<id>/progress.md` 收口为 `Current Stage = closed`、`Next Action Or Recommended Skill = null`
 - [ ] `features/<id>/README.md` 状态收口
 - [ ] handoff 摘要含 closeout_type / closeout_verdict / long_term_assets_synced / `next_action_or_recommended_skill` = null
@@ -316,3 +347,4 @@ Read-on-presence 规则：
 |---|---|
 | `references/promotion-checklist.md` | 长期资产 promote 路径 + 写法约定 |
 | `references/devflow-closeout-template.md` | closeout pack 模板 |
+| `references/closeout-report-template.html` | HTML 工作报告模板（自包含、内联 CSS、按占位符渲染） |
