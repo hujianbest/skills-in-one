@@ -21,11 +21,11 @@
 
 | 工件 | 路径 | 状态 |
 |---|---|---|
-| 需求 / 规格 | `requirement.md` | present / approved |
+| 需求 / 规格 | `requirement.md` + `docs/ar-specs/AR<id>-<slug>.md`（finalize 升级后存在） | present / approved；docs/ar-specs/ 写「待 finalize 升级」/ updated |
 | 规格评审 | `reviews/spec-review.md` | 通过 / 需修改 / 阻塞 |
 | 组件设计 | `docs/component-design.md` | unchanged / updated / N/A |
 | 组件设计评审 | `reviews/component-design-review.md` | 通过 / N/A |
-| AR 设计 | `ar-design-draft.md` + `docs/ar-designs/AR<id>-<slug>.md` | approved |
+| AR 设计 | `ar-design-draft.md` + `docs/ar-designs/AR<id>-<slug>.md`（finalize 升级后存在） | approved；docs/ar-designs/ 写「待 finalize 升级」/ updated |
 | AR 设计评审 | `reviews/ar-design-review.md` | 通过 |
 | 任务队列前置检查 | `tasks.md` / `task-board.md` | passed |
 | 实现日志 | `implementation-log.md` | present |
