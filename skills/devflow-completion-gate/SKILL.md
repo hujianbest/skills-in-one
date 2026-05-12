@@ -34,14 +34,13 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 - profile 必需的上游证据矩阵不全，不得 `通过`
 - 嵌入式 critical 风险（内存 / 并发 / 实时性 / 错误处理）无解释 → 不得 `通过`
 - critical 静态分析 / 编译告警 / 编码规范违反无解释 → 不得 `通过`
-- AR 规格未被同步到 `docs/ar-specs/AR<id>-<slug>.md`（由 `devflow-finalize` 在 implementation closeout 从 `features/<id>/requirement.md` 升级即可，但 `通过` 时必须显式标注「待 finalize 同步」）
 - AR 实现设计未被同步到 `docs/ar-designs/AR<id>-<slug>.md`（由 `devflow-finalize` 完成同步即可，但 `通过` 时必须显式标注「待 finalize 同步」）
 - 不得把"task 完成"等同于"workflow 可结束"——本 skill 通过后必须先检查 task-board，只有无剩余 ready / pending task 时才进入 `devflow-finalize`
 
 ## 对象契约
 
 - Primary Object: completion evidence bundle + verdict
-- Frontend Input Object: `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`、`features/<id>/reviews/component-design-review.md`（component-impact 时必有）、`features/<id>/reviews/ar-design-review.md`、`features/<id>/reviews/test-check.md`、`features/<id>/reviews/code-review.md`、`features/<id>/implementation-log.md`（含实现交接块 + Refactor Note）、`features/<id>/evidence/{unit,integration,static-analysis,build}/`、`features/<id>/traceability.md`、`features/<id>/progress.md`、`docs/component-design.md`、`docs/ar-specs/AR<id>-<slug>.md`（若已存在；通常由 finalize 升级）、`docs/ar-designs/AR<id>-<slug>.md`（若已存在；通常由 finalize 升级）、`AGENTS.md`
+- Frontend Input Object: `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`、`features/<id>/reviews/component-design-review.md`（component-impact 时必有）、`features/<id>/reviews/ar-design-review.md`、`features/<id>/reviews/test-check.md`、`features/<id>/reviews/code-review.md`、`features/<id>/implementation-log.md`（含实现交接块 + Refactor Note）、`features/<id>/evidence/{unit,integration,static-analysis,build}/`、`features/<id>/traceability.md`、`features/<id>/progress.md`、`docs/component-design.md`、`AGENTS.md`
 - Backend Output Object: `features/<id>/completion.md` + 结构化 reviewer 返回摘要 + `progress.md` 同步
 - Object Transformation: 把多源证据判定为能否完成；产出 evidence bundle
 - Object Boundaries: 不写代码 / 不补测试 / 不修改设计 / 不替团队角色拍板
@@ -135,7 +134,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 - 不读实现交接块 + Refactor Note 就宣告完成
 - 嵌入式 critical 风险无显式 audit
 - 单 task 完成后直接 finalize，未检查 task-board
-- 把缺失的 docs/ar-specs/ 或 docs/ar-designs/ 同步当作 `阻塞`（应在通过时显式标注「待 finalize 同步」）
+- 把缺失的 docs/ar-designs/ 同步当作 `阻塞`（应在通过时显式标注「待 finalize 同步」）
 
 ## 反向理由化（Common Rationalizations）
 
@@ -182,8 +181,6 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 <component-repo>/
   docs/
     component-design.md           # 长期组件实现设计
-    ar-specs/                     # 长期 AR 规格
-      AR<id>-<slug>.md
     ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
     interfaces.md                 # 可选；仅团队启用时读取 / 同步
@@ -200,7 +197,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 
 Read-on-presence 规则：
 
-- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-specs/AR<id>-<slug>.md`（从 `requirement.md` 升级）和 `docs/ar-designs/AR<id>-<slug>.md`（从 `ar-design-draft.md` 升级）。本节点（completion-gate）发现缺失时**不**阻塞，标注「待 finalize 同步」即可。
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
 - 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
 - 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 

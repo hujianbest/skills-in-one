@@ -4,8 +4,8 @@
 
 ## 通用 DoD（任何 profile 都必须满足）
 
-1. requirement.md 存在；spec-review verdict = `通过`（finalize 将把它升级到 `docs/ar-specs/AR<id>-<slug>.md`，本节点不阻塞 docs 写入）
-2. AR 实现设计存在并通过 ar-design-review；测试设计章节完整（finalize 将把它升级到 `docs/ar-designs/AR<id>-<slug>.md`，本节点不阻塞 docs 写入）
+1. requirement.md 存在；spec-review verdict = `通过`
+2. AR 实现设计存在并通过 ar-design-review；测试设计章节完整
 3. C / C++ 代码改动可定位（diff 可读）
 4. 实现交接块 + Refactor Note 完整（Hat Discipline / In-task Cleanups / Architectural Conformance / Documented Debt / Escalation Triggers / Static Analysis Evidence）
 5. test-check verdict = `通过`
@@ -40,7 +40,7 @@
 
 - component-design-review verdict = `通过`
 - 模块架构师 sign-off 已记录
-- `docs/component-design.md` / `docs/ar-specs/AR<id>-<slug>.md` / `docs/ar-designs/AR<id>-<slug>.md` 的同步已规划，由 `devflow-finalize` 完成同步；可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 仅在项目已启用且本次触发变化时纳入同步规划，未启用的把变化合并进 `docs/component-design.md` 对应章节
+- `docs/component-design.md` 的同步已规划，由 `devflow-finalize` 完成同步；可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 仅在项目已启用且本次触发变化时纳入同步规划，未启用的把变化合并进 `docs/component-design.md` 对应章节
 - 跨组件影响（若有）：受影响组件的 work item 状态已显式说明（已开 / 未开 / 同步关闭）
 
 ### `hotfix`
