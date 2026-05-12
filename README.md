@@ -225,7 +225,8 @@ Long-term assets live in the component repository's `docs/` directory:
 ```text
 docs/
   component-design.md
-  ar-designs/
+  ar-specs/                  # AR requirement specs (promoted from features/<id>/requirement.md)
+  ar-designs/                # AR implementation designs (promoted from features/<id>/ar-design-draft.md)
   interfaces.md              # optional, read-on-presence
   dependencies.md            # optional, read-on-presence
   runtime-behavior.md        # optional, read-on-presence

@@ -225,7 +225,8 @@ features/<id>/
 ```text
 docs/
   component-design.md
-  ar-designs/
+  ar-specs/                  # AR 规格（由 finalize 从 features/<id>/requirement.md 升级）
+  ar-designs/                # AR 实现设计（由 finalize 从 features/<id>/ar-design-draft.md 升级）
   interfaces.md              # optional, read-on-presence
   dependencies.md            # optional, read-on-presence
   runtime-behavior.md        # optional, read-on-presence
