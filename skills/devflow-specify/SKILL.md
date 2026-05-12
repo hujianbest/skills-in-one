@@ -195,6 +195,7 @@ handoff 摘要（按 Local DevFlow Conventions 字段）：`work_item_id`、`own
 - 越过模块架构师，自行决定组件归属
 - 把"以后再做"只留在 prose 而无 Open Questions / 非范围
 - 缺 Acceptance 却声称需求清晰
+- 把过程笔记 / Brainstorming Notes 留到 spec-review 之后（AR 工作项的 `requirement.md` 会在 `devflow-finalize` 由 implementation closeout 升级到 `docs/ar-specs/AR<id>-<slug>.md`，spec-review 通过即视为结构冻结；草稿专属内容会被升级时剥离）
 - 把实现细节（接口签名、表结构、数据结构）写进 Statement
 - AR 影响 SOA 接口却不在 Component Impact Assessment 中标注
 - AR / DTS / CHANGE 影响接口却缺 Interface Contract Candidates
@@ -265,6 +266,8 @@ AR / DTS / CHANGE work item 额外项：
 <component-repo>/
   docs/
     component-design.md           # 长期组件实现设计
+    ar-specs/                     # 长期 AR 规格
+      AR<id>-<slug>.md
     ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
     interfaces.md                 # 可选；仅团队启用时读取 / 同步
@@ -281,7 +284,7 @@ AR / DTS / CHANGE work item 额外项：
 
 Read-on-presence 规则：
 
-- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-specs/AR<id>-<slug>.md`（从 `requirement.md` 升级）和 `docs/ar-designs/AR<id>-<slug>.md`（从 `ar-design-draft.md` 升级）。
 - 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
 - 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
