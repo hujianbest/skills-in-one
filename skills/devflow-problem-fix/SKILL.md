@@ -196,8 +196,6 @@ description: 当 DTS、紧急缺陷或已上线问题在任何代码修改前需
 <component-repo>/
   docs/
     component-design.md           # 长期组件实现设计
-    ar-specs/                     # 长期 AR 规格
-      AR<id>-<slug>.md
     ar-designs/                   # 长期 AR 实现设计
       AR<id>-<slug>.md
     interfaces.md                 # 可选；仅团队启用时读取 / 同步
@@ -214,7 +212,7 @@ description: 当 DTS、紧急缺陷或已上线问题在任何代码修改前需
 
 Read-on-presence 规则：
 
-- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-specs/AR<id>-<slug>.md`（从 `requirement.md` 升级）和 `docs/ar-designs/AR<id>-<slug>.md`（从 `ar-design-draft.md` 升级）。
+- 必需长期资产缺失时阻塞：component-impact 工作需要 `docs/component-design.md`；implementation closeout 前需要 `docs/ar-designs/AR<id>-<slug>.md`。
 - 可选资产（`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）仅在项目启用时读取 / 同步。缺失的可选资产记录为 `N/A (project optional asset not enabled)`，不视为阻塞。
 - 过程目录保留在 `features/` 下；不要把已关闭 work item 移到 `features/archived/`，否则会破坏追溯链接。
 
