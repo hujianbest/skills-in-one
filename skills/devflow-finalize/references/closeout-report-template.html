@@ -70,6 +70,13 @@
     复制 <tr class="asset-row"> 行，每行填：
       {{ASSET_NAME}} {{ASSET_PATH}} {{ASSET_SYNCED}}（yes/no/N/A）
       {{ASSET_SYNCED_CLASS}} {{ASSET_NOTE}}
+    Canonical 资产行顺序（缺失也要列出，asset-synced 写 N/A）：
+      1. 组件实现设计  — docs/component-design.md
+      2. AR 规格        — docs/ar-specs/AR<id>-<slug>.md（AR 工作项必填）
+      3. AR 实现设计    — docs/ar-designs/AR<id>-<slug>.md（AR 工作项必填）
+      4. Interfaces（可选）   — docs/interfaces.md
+      5. Dependencies（可选） — docs/dependencies.md
+      6. Runtime Behavior（可选） — docs/runtime-behavior.md
 
   AR Breakdown Candidates 表（仅 analysis closeout；implementation 段整块隐藏）：
     复制 <tr class="candidate-row"> 行，每行填：

@@ -96,7 +96,7 @@ These rules apply at all times, across every DevFlow skill. Violating any of the
 - `devflow-code-review` verdict missing → MUST NOT enter `devflow-completion-gate`.
 - `devflow-completion-gate` not passed → MUST NOT enter `devflow-finalize` (implementation closeout).
 - Component-impact work with missing `docs/component-design.md` → blocked until `devflow-component-design` runs.
-- Implementation closeout requires `docs/ar-designs/AR<id>-<slug>.md` to exist or be promoted by `devflow-finalize`.
+- Implementation closeout requires `docs/ar-specs/AR<id>-<slug>.md` (promoted from `features/<id>/requirement.md`) and `docs/ar-designs/AR<id>-<slug>.md` (promoted from `features/<id>/ar-design-draft.md`) to exist or be promoted by `devflow-finalize`.
 - `auto` Execution Mode does **not** waive any review, gate, approval, or evidence requirement. It only changes whether the controller pauses for human confirmation between nodes.
 
 ### 6. Subagent context discipline
@@ -158,6 +158,8 @@ Component repository layout (project `AGENTS.md` may override):
 <component-repo>/
   docs/
     component-design.md           # long-term component design
+    ar-specs/                     # long-term AR requirement specs
+      AR<id>-<slug>.md
     ar-designs/                   # long-term AR designs
       AR<id>-<slug>.md
     interfaces.md                 # optional, read-on-presence
@@ -173,7 +175,8 @@ Component repository layout (project `AGENTS.md` may override):
 **Read-on-presence**:
 
 - Component-impact work blocks if `docs/component-design.md` is missing.
-- Implementation closeout blocks if `docs/ar-designs/AR<id>-<slug>.md` is missing or out of date.
+- Implementation closeout blocks if `docs/ar-specs/AR<id>-<slug>.md` is missing or out of date (promoted from `features/<id>/requirement.md`).
+- Implementation closeout blocks if `docs/ar-designs/AR<id>-<slug>.md` is missing or out of date (promoted from `features/<id>/ar-design-draft.md`).
 - Optional assets (`docs/interfaces.md`, `docs/dependencies.md`, `docs/runtime-behavior.md`) are loaded only if the project enables them; absence is recorded as `N/A (project optional asset not enabled)` and is not a blocker.
 - Closed work items stay under `features/<id>/`. Do **not** move them to `features/archived/` — it breaks traceability links.
 

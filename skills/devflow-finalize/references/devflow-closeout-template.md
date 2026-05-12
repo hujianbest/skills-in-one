@@ -43,7 +43,8 @@
 | 长期资产 | 路径 | 本次是否同步 | 备注 |
 |---|---|---|---|
 | 组件实现设计 | `docs/component-design.md` | yes / no / N/A |  |
-| AR 实现设计 | `docs/ar-designs/AR<id>-<slug>.md` | yes / N/A | implementation closeout 的 AR 工作项必填；SR / DTS 不修改 AR 设计时写 N/A |
+| AR 规格 | `docs/ar-specs/AR<id>-<slug>.md` | yes / N/A | implementation closeout 的 AR 工作项必填（从 `features/<id>/requirement.md` 升级）；SR / DTS 不修订 AR 规格 / CHANGE 不修订 AR 规格时写 N/A |
+| AR 实现设计 | `docs/ar-designs/AR<id>-<slug>.md` | yes / N/A | implementation closeout 的 AR 工作项必填（从 `features/<id>/ar-design-draft.md` 升级）；SR / DTS 不修改 AR 设计时写 N/A |
 | Interfaces（可选） | `docs/interfaces.md` | yes / no / N/A（项目未启用） |  |
 | Dependencies（可选） | `docs/dependencies.md` | yes / no / N/A（项目未启用） |  |
 | Runtime Behavior（可选） | `docs/runtime-behavior.md` | yes / no / N/A（项目未启用） |  |

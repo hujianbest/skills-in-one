@@ -26,12 +26,14 @@ devflow 服务团队日常嵌入式软件开发，不做产品发现。项目是
 
 ## Recommended Roots
 
-以下结构位于**每个组件 git 仓库**内。**只有 `docs/component-design.md` 与 `docs/ar-designs/` 是 devflow 默认要求长期维护的资产**；`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 是**可选 / 按需启用**的子资产，团队没建立时缺失即缺失，不构成 devflow 节点的阻塞条件。
+以下结构位于**每个组件 git 仓库**内。**`docs/component-design.md`、`docs/ar-specs/` 与 `docs/ar-designs/` 是 devflow 默认要求长期维护的资产**；`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 是**可选 / 按需启用**的子资产，团队没建立时缺失即缺失，不构成 devflow 节点的阻塞条件。
 
 ```text
 <component-repo>/
   docs/
     component-design.md           # 必需（component-impact 触发时）
+    ar-specs/                     # AR 工作项必需
+      AR<id>-<slug>.md
     ar-designs/                   # AR 工作项必需
       AR<id>-<slug>.md
     interfaces.md                 # 可选；项目启用了才有
@@ -45,7 +47,7 @@ devflow 服务团队日常嵌入式软件开发，不做产品发现。项目是
 
 | Root | 性质 | 内容 |
 |---|---|---|
-| `docs/` | 组件仓库长期资产 | 组件实现设计、AR 实现设计；可选的接口 / 依赖 / 运行时行为文档 |
+| `docs/` | 组件仓库长期资产 | 组件实现设计、AR 规格、AR 实现设计；可选的接口 / 依赖 / 运行时行为文档 |
 | `features/<id>/` | 单次开发过程资产 | 单个 AR / DTS 的澄清、review、测试证据、检视、completion、closeout |
 
 如果某组件仓库已有固定目录或团队 `AGENTS.md` 声明了等价路径，devflow skill 应**优先读取团队约定**；本文作为默认逻辑布局。跨组件 AR 应在每个受影响组件仓库内分别维护对应 `features/<id>/`，并在各自 `docs/` 中更新本组件相关的正式设计文档。
@@ -54,7 +56,7 @@ devflow 服务团队日常嵌入式软件开发，不做产品发现。项目是
 
 devflow skill 在读取上述 `docs/` 资产时遵循 **Read-On-Presence**：
 
-- 必需资产（`docs/component-design.md`：在 component-impact / 修订组件级行为的 AR 与 DTS 中必需；`docs/ar-designs/AR<id>-<slug>.md`：在 AR 工作项 finalize 时必需）缺失 → 阻塞，回上游创建。
+- 必需资产（`docs/component-design.md`：在 component-impact / 修订组件级行为的 AR 与 DTS 中必需；`docs/ar-specs/AR<id>-<slug>.md`：在 AR 工作项 finalize 时必需，由 finalize 从 `features/<id>/requirement.md` 升级而来；`docs/ar-designs/AR<id>-<slug>.md`：在 AR 工作项 finalize 时必需）缺失 → 阻塞，回上游创建。
 - 可选资产（`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`、以及未来团队添加的其它子资产）缺失 → **不阻塞**；devflow 节点应跳过对应读取并按"项目当前未启用此资产"作为判断依据继续。
 - closeout 时按 sync-on-presence：项目已启用的资产若本次触发变化必须同步；未启用的资产写 `N/A（项目未启用）`，不构成 blocked。
 - 是否要在 closeout 时**新建**某个可选资产（例如本次 AR 第一次引入了运行时行为约定，team 决定开始维护 `docs/runtime-behavior.md`），由模块架构师 / 开发负责人决定，devflow 不自动创建未启用资产。
@@ -65,6 +67,8 @@ devflow skill 在读取上述 `docs/` 资产时遵循 **Read-On-Presence**：
 <component-repo>/
   docs/
     component-design.md           # 默认资产
+    ar-specs/                     # 默认资产
+      AR1234-short-title.md
     ar-designs/                   # 默认资产
       AR1234-short-title.md
     interfaces.md                 # 可选 / 按需启用
@@ -121,6 +125,24 @@ devflow skill 在读取上述 `docs/` 资产时遵循 **Read-On-Presence**：
 - 故障与恢复路径。
 
 未启用时，相关内容应在 `component-design.md` 的并发 / 实时性 / 资源生命周期章节中维护。
+
+### `docs/ar-specs/AR<id>-<slug>.md`
+
+AR 需求规格的正式落点。它描述一个 AR「做什么 / 不做什么 / 怎样算完成」，不描述实现策略。由 `devflow-finalize` 在 implementation closeout 时从 `features/<id>/requirement.md` 升级写入，并随代码一起 git 提交，作为下游组件设计 / AR 设计 / 测试 / code review / DTS 反向追溯的稳定锚点。
+
+至少包含：
+
+- AR ID、SR / IR 追溯、所属组件、Owner。
+- Background And Goal。
+- Scope / Non-Scope。
+- Requirement Rows（含 ID、EARS Statement、BDD Acceptance、MoSCoW Priority、Source、Component Impact）。
+- Embedded NFR 与 QAS 五要素阈值（如适用）。
+- Component Impact Assessment。
+- Interface Contract Candidates（仅当存在 `IFR` row 或 `Component Impact = interface`，记录语义级契约：provider / consumer / operation / inputs / outputs / error semantics / compatibility）。
+- Acceptance Criteria 汇总。
+- 变更记录（每次升级追加日期、修订者、触发 AR / DTS、摘要）。
+
+升级时需要**去掉**草稿专属内容：阻塞 / 非阻塞分类的 Open Questions（应已闭合或回需求负责人）、Brainstorming Notes Normalization 散点、`TODO` / `待澄清`、review findings 应答。
 
 ### `docs/ar-designs/AR<id>-<slug>.md`
 
@@ -322,6 +344,7 @@ features/<id>/progress.md
 ## Naming Rules
 
 - Work item 目录使用 `features/AR<id>-<short-slug>` 或 `features/DTS<id>-<short-slug>`。
+- 正式 AR 规格使用 `docs/ar-specs/AR<id>-<short-slug>.md`。
 - 正式 AR 实现设计使用 `docs/ar-designs/AR<id>-<short-slug>.md`。
 - review 文件使用 `<kind>-review.md` 或 `<kind>-review-YYYY-MM-DD.md`。
 - evidence 文件使用 `<kind>-<scope>-YYYY-MM-DD.md`。
@@ -332,10 +355,11 @@ features/<id>/progress.md
 `features/<id>/` 中的过程内容按以下规则同步到 `docs/`：
 
 - 组件实现设计新增或修订时，同步 `docs/component-design.md`。
-- AR 实现设计通过相应 review 后，同步 `docs/ar-designs/AR<id>-<slug>.md`。
+- AR 规格通过 `devflow-spec-review` 后，由 `devflow-finalize` 在 implementation closeout 把 `features/<id>/requirement.md` 升级到 `docs/ar-specs/AR<id>-<slug>.md`。
+- AR 实现设计通过相应 review 后，由 `devflow-finalize` 在 implementation closeout 把 `features/<id>/ar-design-draft.md` 升级到 `docs/ar-designs/AR<id>-<slug>.md`。
 - 接口、依赖或运行时行为有正式变化时，按 sync-on-presence 同步：项目已启用 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 的，分别更新对应文件；尚未启用的，把变化合并进 `docs/component-design.md` 相应章节，**不**为单次变化强行新建可选子资产（是否启用由模块架构师 / 开发负责人决定）。
 
-没有触发组件长期资产变化时，`features/<id>/closeout.md` 只需记录 `N/A`，不要无意义更新长期文档。但 AR 实现设计作为本次 AR 的正式设计文档，仍应在完成前进入 `docs/ar-designs/`。
+没有触发组件长期资产变化时，`features/<id>/closeout.md` 只需记录 `N/A`，不要无意义更新长期文档。但 AR 规格与 AR 实现设计作为本次 AR 的正式文档，仍应在完成前分别进入 `docs/ar-specs/` 与 `docs/ar-designs/`。
 
 ## Red Flags
 
@@ -343,6 +367,7 @@ features/<id>/progress.md
 - SR / AR 追溯关系不清却进入实现。
 - AR 实现设计试图修改组件架构。
 - 组件实现设计已过期但下游继续引用。
-- 正式组件实现设计或 AR 实现设计只留在 `features/`，没有同步到 `docs/`。
+- 正式组件实现设计、AR 规格或 AR 实现设计只留在 `features/`，没有同步到 `docs/`。
+- AR 规格直接 copy `requirement.md` 到 `docs/ar-specs/`，留有 Open Questions / TODO / Brainstorming Notes 等过程专属内容。
 - TDD 完成后缺少 `test-check.md`。
 - completion gate 只引用聊天摘要。

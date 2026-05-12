@@ -10,18 +10,18 @@
 
 | Work Item Type | 必须同步 | 视情况同步（仅当对应资产已启用且本次触发变化） | 不同步 |
 |---|---|---|---|
-| `AR`（standard / lightweight） | `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | `docs/component-design.md`（standard / lightweight 不修改组件设计） |
-| `AR`（component-impact） | `docs/component-design.md` + `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | — |
-| `DTS`（不修改组件设计、不需要正式 AR 设计） | 至少在 `docs/component-design.md` 的变更记录章节追加修复记录（团队约定优先） | `docs/ar-designs/AR<id>-<slug>.md`（若 DTS 走了完整 AR 流程） | — |
-| `DTS`（修改组件级行为） | `docs/component-design.md`（含可选子资产对应章节） | 仅在已启用时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | — |
-| `CHANGE` | 视情况；至少更新 `docs/component-design.md` 变更记录章节 | 其余按团队约定 | — |
+| `AR`（standard / lightweight） | `docs/ar-specs/AR<id>-<slug>.md` + `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | `docs/component-design.md`（standard / lightweight 不修改组件设计） |
+| `AR`（component-impact） | `docs/component-design.md` + `docs/ar-specs/AR<id>-<slug>.md` + `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | — |
+| `DTS`（不修改组件设计、不需要正式 AR 规格 / AR 设计） | 至少在 `docs/component-design.md` 的变更记录章节追加修复记录（团队约定优先） | `docs/ar-specs/AR<id>-<slug>.md` 与 `docs/ar-designs/AR<id>-<slug>.md`（若 DTS 走了完整 AR 流程，含 spec-review + ar-design-review） | — |
+| `DTS`（修改组件级行为） | `docs/component-design.md`（含可选子资产对应章节） | 仅在已启用时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`；若同时修订了 AR 规格 / 设计，同步 `docs/ar-specs/` / `docs/ar-designs/` | — |
+| `CHANGE` | 视情况；至少更新 `docs/component-design.md` 变更记录章节 | `docs/ar-specs/AR<id>-<slug>.md` / `docs/ar-designs/AR<id>-<slug>.md`（若 CHANGE 实质修订既有 AR 的规格 / 设计，按团队约定决定是否同步）；其余按团队约定 | — |
 
 ### Analysis closeout（需求分析子街区）
 
 | Work Item Type | 必须同步 | 视情况同步（仅当对应资产已启用且本次触发变化） | 不同步 |
 |---|---|---|---|
-| `SR`（不修订组件设计） | 把 SR 的 `AR Breakdown Candidates` 定稿写入 `features/<id>/closeout.md`；对 `docs/` 不写入 | — | `docs/component-design.md` / `docs/ar-designs/` |
-| `SR`（修订组件设计） | `docs/component-design.md` + 把 SR 的 `AR Breakdown Candidates` 定稿写入 `features/<id>/closeout.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | `docs/ar-designs/`（SR 不是 AR 设计） |
+| `SR`（不修订组件设计） | 把 SR 的 `AR Breakdown Candidates` 定稿写入 `features/<id>/closeout.md`；对 `docs/` 不写入 | — | `docs/component-design.md` / `docs/ar-specs/` / `docs/ar-designs/` |
+| `SR`（修订组件设计） | `docs/component-design.md` + 把 SR 的 `AR Breakdown Candidates` 定稿写入 `features/<id>/closeout.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | `docs/ar-specs/` / `docs/ar-designs/`（SR 是子系统级规格，不是 AR 规格 / AR 设计；候选 AR 由需求负责人新建 work item 后由对应 AR 的 finalize 升级） |
 
 > 「视情况同步」列中的可选子资产，未启用时统一在 `docs/component-design.md` 中维护对应章节；**不**因为 closeout 触发就自动创建可选子资产文件。是否要在本轮 closeout 中**首次启用**某个可选子资产（例如本次 SR / AR 引入了团队此前未单独维护的运行时行为约定），由模块架构师 / 开发负责人决定，devflow 不自动创建。
 
@@ -36,6 +36,29 @@
 3. **保留追溯锚点**：AR ID / SR / IR / Owner / 测试设计章节 case ID / 关联 review 记录路径
 4. **更新变更记录表**：在长期文档的「变更记录」章节追加本次修订（日期、修订者、触发 AR / DTS、摘要）
 5. **统一模板版本**：长期文档头部应记录使用的团队模板版本
+
+## docs/ar-specs/AR<id>-<slug>.md 必含
+
+最小字段（团队 `AGENTS.md` 模板覆盖优先）：
+
+- Identity：AR ID、SR / IR 追溯、所属组件、Owner、Profile、Promoted From（指向 `features/<id>/requirement.md` 的 commit / version）
+- Background And Goal
+- Scope / Non-Scope
+- Requirement Rows（含 ID、EARS Statement、BDD Acceptance、MoSCoW Priority、Source / Trace Anchor、Component Impact）
+- Embedded NFR 与 QAS 五要素阈值（如适用）
+- Component Impact Assessment
+- Interface Contract Candidates（仅当存在 `IFR` row 或 `Component Impact = interface`，记录 provider / consumer / operation / inputs / outputs / error semantics / compatibility）
+- Acceptance Criteria 汇总
+- Assumptions And Dependencies
+- 变更记录表（每次升级追加 `(YYYY-MM-DD, 升级人, trigger=AR<id>, summary)`）
+
+升级时必须**去掉**草稿专属内容：
+
+- Open Questions 节（应已闭合或回需求负责人；保留闭合结果，不留待决项）
+- Brainstorming Notes Normalization 散点
+- `TODO` / `待澄清` / `FIXME`
+- Spec-review findings 应答（作为追溯锚点保留 `reviews/spec-review.md` 路径即可，不复制 review 对话）
+- 过程笔记 / 会议纪要片段
 
 ## docs/ar-designs/AR<id>-<slug>.md 必含
 
@@ -85,6 +108,7 @@
 |---|---|---|---|
 | Closeout Type | — | `implementation` / `analysis` | 必填 |
 | Component Implementation Design | `docs/component-design.md` | yes / no / N/A | |
+| AR Specification | `docs/ar-specs/AR<id>-<slug>.md` | yes / N/A | AR 工作项 implementation closeout 必填（从 `features/<id>/requirement.md` 升级）；SR / DTS-not-touching-spec / CHANGE-not-touching-spec 写 N/A |
 | AR Implementation Design | `docs/ar-designs/AR<id>-<slug>.md` | yes / N/A | AR 工作项 implementation closeout 必填；SR / DTS-not-touching-AR 写 N/A |
 | Interfaces（可选） | `docs/interfaces.md` | yes / no / N/A（项目未启用） | |
 | Dependencies（可选） | `docs/dependencies.md` | yes / no / N/A（项目未启用） | |
@@ -96,18 +120,26 @@
 - 已启用资产 + 本次触发变化 → `yes` + 实际同步路径
 - 已启用资产 + 本次未触发变化 → `no`
 - 项目尚未启用此可选资产 → `N/A（项目未启用）`，**不**算 blocked
+- AR 工作项 implementation closeout 时 `docs/ar-specs/AR<id>-<slug>.md` 缺失 → 必须 promote；写 `N/A` 仅适用于 DTS 不修订 AR 规格、SR 或 CHANGE 不修订 AR 规格的情形
 - AR 工作项 implementation closeout 时 `docs/ar-designs/AR<id>-<slug>.md` 缺失 → 必须 promote；写 `N/A` 仅适用于 DTS 不修改 AR 设计或 SR
 - SR analysis closeout 时 AR Breakdown Candidates 缺失且未声明「无可拆分 AR」 → blocked
 
 ## 反例
 
 ```text
+❌ 把 requirement.md 原样 copy 到 docs/ar-specs/，保留 "Open Questions"、"Brainstorming Notes"、"TODO" 等过程内容
+❌ AR 工作项 finalize 只 promote docs/ar-designs/，跳过 docs/ar-specs/
 ❌ 把 ar-design-draft.md 原样 copy 到 docs/ar-designs/，保留 "TODO: 待澄清"、"Open Questions" 等过程内容
 ❌ component-impact 修订只在 closeout pack 写「已修订」但未真的更新 docs/component-design.md
 ❌ DTS 修改了组件状态机却不同步 docs/component-design.md
 ```
 
 ```text
+✅ 把 requirement.md promote 到 docs/ar-specs/AR12345-mode-switch.md 时：
+   - 去掉 Open Questions / Brainstorming Notes / TODO / Spec-review Findings 应答 / 过程笔记
+   - 保留 Identity / Background / Scope / Requirement Rows / Acceptance / Embedded NFR + QAS / Component Impact / Interface Contract Candidates / Assumptions
+   - 在文档头部记录 AR ID / SR / IR / Owner / Promoted From (commit hash)
+   - 在变更记录表追加 (YYYY-MM-DD, 升级人, trigger=AR12345, summary)
 ✅ 把 ar-design-draft.md promote 时：
    - 去掉 Open Questions / Review Response / 过程笔记
    - 补全模板章节（包括团队模板原本留空、开发负责人手动补齐的章节）
