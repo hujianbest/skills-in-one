@@ -102,29 +102,33 @@ META_LABEL = Font(bold=True, size=11)
 
 
 # 发现明细 / 审计盲区 共用的列定义
+#
+# 列序原则: 让评审者从左到右先回答 "什么 → 多严重/多可信 → 在哪 → 证据 → 修复 → 复核",
+# 因此 「问题说明」 紧随 编号/严重程度/可信度, 是首个内容列。
 FINDING_COLUMNS = [
-    ("编号",                  5),
-    ("严重程度",              8),
-    ("可信度",                7),
-    ("类别",                  12),
-    ("模板ID",                30),
-    ("文件",                  36),   # 单独的文件列, 便于 git blame / CODEOWNERS 查责
-    ("行号",                   8),
-    ("所在函数",              22),
-    ("问题摘要",              46),
+    ("编号",                   5),
+    ("严重程度",               8),
+    ("可信度",                 7),
+    ("问题说明 (具体问题是什么)", 56),  # 首个内容列, 一句话说明这条 finding 究竟在说什么
+    ("类别",                   12),
+    ("模板ID",                 30),
+    ("文件",                   36),   # 干净路径, 便于 git blame / CODEOWNERS 查责任人
+    ("行号",                    8),
+    ("所在函数",               22),
     ("证据 (file:line + 代码)", 60),
-    ("已排除的误报模式",      28),
-    ("修复建议",              46),
+    ("已排除的误报模式",       28),
+    ("修复建议",               46),
     ("代码上下文 (>>为问题行)", 60),
     ("子代理复核结论",         16),
     ("子代理复核依据",         60),
-    ("人工确认",              22),
-    ("备注",                  22),
+    ("人工确认",               22),
+    ("备注",                   22),
 ]
-# 列号常量 (1-based), 给特定列着色或加下拉时用
+# 列号常量 (1-based)
 COL_SEV       = 2
-COL_FILE      = 6
-COL_LINE      = 7
+COL_SUMMARY   = 4
+COL_FILE      = 7
+COL_LINE      = 8
 COL_VERDICT   = 14
 COL_VERDICT_R = 15
 COL_CONFIRM   = 16
@@ -448,14 +452,14 @@ def _write_overview(
                                           color="FF1F3864")
     row += 1
     for line in [
-        "1. 「发现明细」页含全部高/中可信发现, 请逐条阅读「证据」与「代码上下文」, 在最后两列填写人工确认与备注。",
-        "   人工确认列内置下拉: ✓ 同意 (确认是 bug) / ✗ 误报 (附理由) / ? 待定 (需更多上下文)。",
-        "2. 「子代理复核结论」是另一只 AI 子代理独立复核的判断 (绿=同意 / 红=反对 / 黄=不确定 / 灰=未复核); 与原结论分歧时请重点核对「子代理复核依据」列。",
-        "3. 「文件」与「行号」是分开的两列, 便于直接 git blame 或在 CODEOWNERS 中查找责任人。",
-        "4. 「审计盲区」页含低可信与不确定项 — 这些不是确认的 bug, 但本次审计未能完全排除, 请按需追加审查。",
-        "5. 「覆盖率明细」页给出每个模板与每个文件的候选/确认/抑制/不确定计数, 用于评估本次审计的充分度。",
-        "6. 严重程度仅表示「若属实, 后果有多严重」; 可信度表示「我们有多确定它属实」。两者独立, 都需关注。",
-        "7. 「已排除的误报模式」列出审计时主动验证并排除的 FP 过滤器 (fp.* 命名), 便于复核者验证排除是否成立。",
+        "1. 打开「发现明细」页后, 请按 编号 → 严重程度 → 可信度 → 「问题说明 (具体问题是什么)」 的顺序读每一行, 一句话先弄清「这条 finding 在说什么」。",
+        "2. 然后阅读「证据」「代码上下文」核对; 用「文件」「行号」两列直接 git blame 或在 CODEOWNERS 中查责任人。",
+        "3. 「子代理复核结论」是另一只 AI 子代理独立复核的判断 (绿=同意 / 红=反对 / 黄=不确定 / 灰=未复核); 与原结论分歧时请重点核对「子代理复核依据」列。",
+        "4. 在最后两列填写「人工确认」(下拉: ✓ 同意 / ✗ 误报 / ? 待定) 与「备注」。",
+        "5. 「审计盲区」页含低可信与不确定项 — 这些不是确认的 bug, 但本次审计未能完全排除, 请按需追加审查。",
+        "6. 「覆盖率明细」页给出每个模板与每个文件的候选/确认/抑制/不确定计数, 用于评估本次审计的充分度。",
+        "7. 严重程度仅表示「若属实, 后果有多严重」; 可信度表示「我们有多确定它属实」。两者独立, 都需关注。",
+        "8. 「已排除的误报模式」列出审计时主动验证并排除的 FP 过滤器 (fp.* 命名), 便于复核者验证排除是否成立。",
     ]:
         cell = ws.cell(row, 1, line)
         cell.alignment = WRAP_TOP
@@ -516,24 +520,26 @@ def _write_findings_sheet(
             (b.get("second_pass_review") or {}).get("verdict", "") or ""
         ).lower()
 
+        summary_text = b.get("summary") or b.get("name") or "(未提供问题说明)"
+
         cells = [
-            ("",   str(i)),
-            ("",   SEVERITY_ZH.get(sev, sev or "")),
-            ("",   CONFIDENCE_ZH.get(conf, conf or "")),
-            ("",   CATEGORY_ZH.get(cat, cat or "")),
-            ("",   b.get("template_id", "")),
-            ("",   file_text),
-            ("",   line_val),
-            ("",   func_text),
-            ("",   b.get("summary", b.get("name", ""))),
-            ("ev", _join_evidence(b)),
-            ("",   _join_list(b.get("false_positive_filters_ruled_out"))),
-            ("",   _join_list(b.get("fix_suggestions"))),
-            ("ev", _join_context(b)),
-            ("",   verdict_label),
-            ("ev", verdict_rationale),
-            ("",   ""),                     # 人工确认 (留空给 reviewer)
-            ("",   ""),                     # 备注
+            ("",        str(i)),                                    # 1  编号
+            ("",        SEVERITY_ZH.get(sev, sev or "")),           # 2  严重程度
+            ("",        CONFIDENCE_ZH.get(conf, conf or "")),       # 3  可信度
+            ("summary", summary_text),                              # 4  问题说明
+            ("",        CATEGORY_ZH.get(cat, cat or "")),           # 5  类别
+            ("",        b.get("template_id", "")),                  # 6  模板ID
+            ("",        file_text),                                 # 7  文件
+            ("",        line_val),                                  # 8  行号
+            ("",        func_text),                                 # 9  所在函数
+            ("ev",      _join_evidence(b)),                         # 10 证据
+            ("",        _join_list(b.get("false_positive_filters_ruled_out"))),  # 11
+            ("",        _join_list(b.get("fix_suggestions"))),      # 12 修复建议
+            ("ev",      _join_context(b)),                          # 13 代码上下文
+            ("",        verdict_label),                             # 14 子代理复核结论
+            ("ev",      verdict_rationale),                         # 15 子代理复核依据
+            ("",        ""),                                        # 16 人工确认
+            ("",        ""),                                        # 17 备注
         ]
         center_cols = {1, COL_SEV, 3, COL_LINE, COL_VERDICT}
         for col_idx, (kind, value) in enumerate(cells, start=1):
@@ -542,6 +548,9 @@ def _write_findings_sheet(
             c.alignment = CENTER if col_idx in center_cols else WRAP_TOP
             if kind == "ev":
                 c.font = MONO
+            elif kind == "summary":
+                # 问题说明 用稍大、加粗一点的字体, 让人一眼看到本条 finding 在说什么
+                c.font = Font(size=11, bold=True, color="FF1F3864")
 
         # 严重程度 单独着色 (浓色块)
         sev_cell = ws.cell(row_idx, COL_SEV)
@@ -573,12 +582,15 @@ def _write_findings_sheet(
         )
         v_cell.font = Font(bold=True)
 
-        # 行高: 依据证据/上下文/复核依据行数估算
+        # 行高: 依据证据/上下文/复核依据/问题说明行数估算
+        # 问题说明假设按 col 4 宽度 (~56 字符) 自动换行
+        summary_wrapped = max(1, (len(summary_text) // 50) + summary_text.count("\n") + 1)
         ev_lines = max(
             _line_count(_join_evidence(b)),
             _line_count(_join_context(b)),
             _line_count(_join_list(b.get("fix_suggestions"))),
             _line_count(verdict_rationale),
+            summary_wrapped,
         )
         ws.row_dimensions[row_idx].height = max(60, min(420, 16 * (ev_lines + 1)))
 

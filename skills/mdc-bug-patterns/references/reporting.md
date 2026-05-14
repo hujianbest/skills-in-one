@@ -57,7 +57,7 @@ Each finding is one JSON object. The Excel helper consumes a list of these.
 Required fields (all must be present, non-empty):
 - `id`, `template_id`, `name`, `category`, `severity`, `confidence`
 - `location.{file,line}`
-- `summary`
+- `summary` — **one substantive Chinese sentence (≥ 30 chars, ≤ ~200 chars) describing the specific problem in this code**, not the template name. The renderer puts this in the prominent `问题说明 (具体问题是什么)` column. Bad: `"new without delete"`. Good: `"leak_path 中 new Buf(64) 在 x==0 的提前返回路径上未被释放; 既未交给智能指针, 也未在该 exit 显式 delete。"`.
 - `required_evidence` — keys must match the template's `required_evidence` schema; each value is a `<file:line> <code excerpt>` string
 - `false_positive_filters_ruled_out` — must list the FP filters from the template plus the cross-cutting ones in `references/false-positive-filters.md` that you actively ruled out
 - `fix_suggestions` (≥ 1)
@@ -176,27 +176,32 @@ scripts/excel_helper.py \
 
 One finding per row, frozen header (row 1) and frozen first two columns (编号 + 严重程度), `auto_filter` on every column.
 
-| Column | Source | Notes |
-|---|---|---|
-| 编号 | row index | for citing in code review comments |
-| 严重程度 | `severity` | translated; bold, severity-coloured cell |
-| 可信度 | `confidence` | translated |
-| 类别 | `category` | translated to 内存安全 / 并发 / 资源管理 / 空指针 / 逻辑·数值 |
-| 模板ID | `template_id` | stable id (English; matches `references/templates.md`) |
-| **文件** | `location.file` | path only — for `git blame` / CODEOWNERS / 责任人 lookup |
-| **行号** | `location.line` | numeric — separate column so the Excel can sort/filter by it |
-| 所在函数 | `location.function` | optional |
-| 问题摘要 | `summary` (or `name`) | one-line Chinese summary |
-| 证据 (file:line + 代码) | `required_evidence` | bullet list, **monospace**, one item per evidence key |
-| 已排除的误报模式 | `false_positive_filters_ruled_out` | the `fp.*` ids that the LLM actively ruled out |
-| 修复建议 | `fix_suggestions` | bullet list |
-| 代码上下文 (>>为问题行) | `context` | monospace, line-numbered, problem line marked `>>` |
-| **子代理复核结论** | `second_pass_review.verdict` | translated to 同意 / 反对 (误报) / 不确定 / 未复核; color-coded (green / red / yellow / grey) |
-| **子代理复核依据** | `second_pass_review.rationale` + `evidence_check` + `supporting_evidence` | rationale on top, evidence-check checkmarks, then bullet list of supporting evidence |
-| **人工确认** | (empty) | dropdown: ✓ 同意 (确认是bug) / ✗ 误报 (附理由) / ? 待定 (需更多上下文) |
-| **备注** | (empty) | free text for the reviewer |
+Column order is chosen so the reviewer reads left-to-right in the order they actually want answers:
+**「这是什么」 → 「多严重 / 多可信」 → 「在哪」 → 「证据」 → 「修复」 → 「复核结论 / 人工确认」**.
 
-Row backgrounds are tinted by severity (light pink / light orange / light yellow / light green). The 子代理复核结论 cell uses an independent colour layer (green / red / yellow / grey) so a `disagree` verdict on a `severe` finding immediately stands out.
+| # | Column | Source | Notes |
+|---|---|---|---|
+| 1 | 编号 | row index | for citing in code review comments |
+| 2 | 严重程度 | `severity` | translated; bold, severity-coloured cell |
+| 3 | 可信度 | `confidence` | translated |
+| 4 | **问题说明 (具体问题是什么)** | `summary` (fallback `name`) | **首个内容列** — bold, navy text, larger size; one-sentence Chinese description of the specific problem so the reviewer immediately knows what this finding is about |
+| 5 | 类别 | `category` | translated to 内存安全 / 并发 / 资源管理 / 空指针 / 逻辑·数值 |
+| 6 | 模板ID | `template_id` | stable id (English; matches `references/templates.md`) |
+| 7 | **文件** | `location.file` | path only — for `git blame` / CODEOWNERS / 责任人 lookup |
+| 8 | **行号** | `location.line` | numeric — separate column so the Excel can sort/filter by it |
+| 9 | 所在函数 | `location.function` | optional |
+| 10 | 证据 (file:line + 代码) | `required_evidence` | bullet list, **monospace**, one item per evidence key |
+| 11 | 已排除的误报模式 | `false_positive_filters_ruled_out` | the `fp.*` ids that the LLM actively ruled out |
+| 12 | 修复建议 | `fix_suggestions` | bullet list |
+| 13 | 代码上下文 (>>为问题行) | `context` | monospace, line-numbered, problem line marked `>>` |
+| 14 | **子代理复核结论** | `second_pass_review.verdict` | translated to 同意 / 反对 (误报) / 不确定 / 未复核; color-coded (green / red / yellow / grey) |
+| 15 | **子代理复核依据** | `second_pass_review.rationale` + `evidence_check` + `supporting_evidence` | rationale on top, evidence-check checkmarks, then bullet list of supporting evidence |
+| 16 | **人工确认** | (empty) | dropdown: ✓ 同意 (确认是bug) / ✗ 误报 (附理由) / ? 待定 (需更多上下文) |
+| 17 | **备注** | (empty) | free text for the reviewer |
+
+Row backgrounds are tinted by severity (light pink / light orange / light yellow / light green). The 子代理复核结论 cell uses an independent colour layer (green / red / yellow / grey) so a `disagree` verdict on a `severe` finding immediately stands out. The 问题说明 cell is rendered in bold navy so the "what" of every finding is visible without horizontal scrolling.
+
+> **Schema requirement:** the `summary` field is mandatory in the JSON. If absent, the renderer writes `(未提供问题说明)` so the gap is visible. LLM agents producing findings MUST populate `summary` with a substantive one-sentence Chinese description of the specific problem (not just the template name).
 
 #### 3. `审计盲区` — Audit Gaps (low confidence + inconclusive)
 
