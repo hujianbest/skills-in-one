@@ -51,6 +51,20 @@ CATEGORY_ZH = {
     "concurrency": "并发",
     "logic": "逻辑/数值",
 }
+VERDICT_ZH = {
+    "agree":     "同意",
+    "disagree":  "反对 (误报)",
+    "uncertain": "不确定",
+    "missing":   "未复核",
+    "":          "未复核",
+}
+VERDICT_FILL = {
+    "agree":     "FFB6E2B6",  # 浅绿
+    "disagree":  "FFF2A6A6",  # 浅红
+    "uncertain": "FFF7E18C",  # 浅黄
+    "missing":   "FFD9D9D9",  # 灰
+    "":          "FFD9D9D9",
+}
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 CONFIDENCE_ORDER = {"high": 0, "medium": 1, "low": 2}
 
@@ -89,21 +103,32 @@ META_LABEL = Font(bold=True, size=11)
 
 # 发现明细 / 审计盲区 共用的列定义
 FINDING_COLUMNS = [
-    ("编号",         5),
-    ("严重程度",     8),
-    ("可信度",       7),
-    ("类别",         12),
-    ("模板ID",       30),
-    ("文件:行",      32),
-    ("所在函数",     22),
-    ("问题摘要",     46),
+    ("编号",                  5),
+    ("严重程度",              8),
+    ("可信度",                7),
+    ("类别",                  12),
+    ("模板ID",                30),
+    ("文件",                  36),   # 单独的文件列, 便于 git blame / CODEOWNERS 查责
+    ("行号",                   8),
+    ("所在函数",              22),
+    ("问题摘要",              46),
     ("证据 (file:line + 代码)", 60),
-    ("已排除的误报模式", 28),
-    ("修复建议",     46),
+    ("已排除的误报模式",      28),
+    ("修复建议",              46),
     ("代码上下文 (>>为问题行)", 60),
-    ("人工确认",     10),
-    ("备注",         22),
+    ("子代理复核结论",         16),
+    ("子代理复核依据",         60),
+    ("人工确认",              22),
+    ("备注",                  22),
 ]
+# 列号常量 (1-based), 给特定列着色或加下拉时用
+COL_SEV       = 2
+COL_FILE      = 6
+COL_LINE      = 7
+COL_VERDICT   = 14
+COL_VERDICT_R = 15
+COL_CONFIRM   = 16
+COL_NOTE      = 17
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -191,14 +216,63 @@ def _sort_key(b: dict[str, Any]) -> tuple:
     )
 
 
-def _location(b: dict[str, Any]) -> tuple[str, str]:
+def _location(b: dict[str, Any]) -> tuple[str, Any, str]:
+    """Return (file, line, function). `line` may be int or '' for sortable cells."""
     loc = b.get("location") or {}
     if isinstance(loc, dict):
+        line = loc.get("line", "")
+        try:
+            line = int(line)
+        except (ValueError, TypeError):
+            line = line or ""
         return (
-            f"{loc.get('file', '')}:{loc.get('line', '')}",
+            str(loc.get("file", "") or ""),
+            line,
             str(loc.get("function", "") or ""),
         )
-    return (str(loc), "")
+    return (str(loc), "", "")
+
+
+def _verdict_summary(b: dict[str, Any]) -> tuple[str, str]:
+    """Return (verdict_label_zh, rationale_text)."""
+    rev = b.get("second_pass_review") or {}
+    verdict = str(rev.get("verdict", "") or "").lower()
+    label = VERDICT_ZH.get(verdict, "未复核")
+    parts: list[str] = []
+    if rev.get("rationale"):
+        parts.append(str(rev["rationale"]))
+    ec = rev.get("evidence_check") or {}
+    if ec:
+        check_lines: list[str] = []
+        check_lines.append("evidence_check:")
+        for k in (
+            "all_cited_lines_exist",
+            "all_cited_lines_match_excerpts",
+            "fp_filters_actually_ruled_out",
+        ):
+            v = ec.get(k)
+            if v is True:
+                mark = "✓"
+            elif v is False:
+                mark = "✗"
+            else:
+                mark = "?"
+            check_lines.append(f"  {mark} {k}")
+        extra = ec.get("additional_fp_filters_found") or []
+        if extra:
+            check_lines.append(
+                "  + additional_fp_filters_found: " + ", ".join(extra)
+            )
+        parts.append("\n".join(check_lines))
+    sup = rev.get("supporting_evidence") or []
+    if sup:
+        parts.append("supporting_evidence:\n" +
+                     "\n".join(f"  • {x}" for x in sup))
+    if rev.get("reviewer") or rev.get("reviewed_at"):
+        parts.append(f"by {rev.get('reviewer', '?')} @ {rev.get('reviewed_at', '?')}")
+    if not parts:
+        parts.append("(暂无子代理复核结论)")
+    return label, "\n\n".join(parts)
 
 
 def _join_evidence(b: dict[str, Any]) -> str:
@@ -286,10 +360,15 @@ def _write_overview(
     row += 1
 
     by_sev = defaultdict(lambda: defaultdict(int))
+    by_verdict = defaultdict(int)
     for b in findings:
         by_sev[str(b.get("severity", "")).lower()][str(b.get("confidence", "")).lower()] += 1
+        v = str((b.get("second_pass_review") or {}).get("verdict", "") or "").lower()
+        by_verdict[v or "missing"] += 1
     for b in gaps:
         by_sev[str(b.get("severity", "")).lower()]["gap"] += 1
+        v = str((b.get("second_pass_review") or {}).get("verdict", "") or "").lower()
+        by_verdict[v or "missing"] += 1
 
     totals = defaultdict(int)
     for sev in ("critical", "high", "medium", "low"):
@@ -330,16 +409,53 @@ def _write_overview(
             start_color="FFE7E6E6", end_color="FFE7E6E6", fill_type="solid")
     row += 2
 
+    # 子代理复核统计
+    ws.cell(row, 1, "子代理复核统计").font = Font(bold=True, size=13,
+                                                color="FF1F3864")
+    row += 1
+    verdict_headers = [("同意", "agree"), ("反对 (误报)", "disagree"),
+                       ("不确定", "uncertain"), ("未复核", "missing")]
+    for col, (label, _) in enumerate(verdict_headers, 1):
+        c = ws.cell(row, col, label)
+        c.fill = HEADER_FILL
+        c.font = HEADER_FONT
+        c.alignment = HEADER_ALIGN
+        c.border = CELL_BORDER
+    ws.cell(row, 5, "合计").fill = HEADER_FILL
+    ws.cell(row, 5).font = HEADER_FONT
+    ws.cell(row, 5).alignment = HEADER_ALIGN
+    ws.cell(row, 5).border = CELL_BORDER
+    row += 1
+    v_total = 0
+    for col, (label, key) in enumerate(verdict_headers, 1):
+        n = by_verdict.get(key, 0)
+        v_total += n
+        cell = ws.cell(row, col, n)
+        cell.alignment = CENTER
+        cell.border = CELL_BORDER
+        fill_color = VERDICT_FILL.get(key, VERDICT_FILL[""])
+        cell.fill = PatternFill(start_color=fill_color,
+                                end_color=fill_color, fill_type="solid")
+    total_cell = ws.cell(row, 5, v_total)
+    total_cell.alignment = CENTER
+    total_cell.border = CELL_BORDER
+    total_cell.fill = PatternFill(
+        start_color="FFE7E6E6", end_color="FFE7E6E6", fill_type="solid")
+    total_cell.font = Font(bold=True)
+    row += 2
+
     ws.cell(row, 1, "阅读指引").font = Font(bold=True, size=13,
                                           color="FF1F3864")
     row += 1
     for line in [
         "1. 「发现明细」页含全部高/中可信发现, 请逐条阅读「证据」与「代码上下文」, 在最后两列填写人工确认与备注。",
         "   人工确认列内置下拉: ✓ 同意 (确认是 bug) / ✗ 误报 (附理由) / ? 待定 (需更多上下文)。",
-        "2. 「审计盲区」页含低可信与不确定项 — 这些不是确认的 bug, 但本次审计未能完全排除, 请按需追加审查。",
-        "3. 「覆盖率明细」页给出每个模板与每个文件的候选/确认/抑制/不确定计数, 用于评估本次审计的充分度。",
-        "4. 严重程度仅表示「若属实, 后果有多严重」; 可信度表示「我们有多确定它属实」。两者独立, 都需关注。",
-        "5. 「已排除的误报模式」列出审计时主动验证并排除的 FP 过滤器 (fp.* 命名), 便于复核者验证排除是否成立。",
+        "2. 「子代理复核结论」是另一只 AI 子代理独立复核的判断 (绿=同意 / 红=反对 / 黄=不确定 / 灰=未复核); 与原结论分歧时请重点核对「子代理复核依据」列。",
+        "3. 「文件」与「行号」是分开的两列, 便于直接 git blame 或在 CODEOWNERS 中查找责任人。",
+        "4. 「审计盲区」页含低可信与不确定项 — 这些不是确认的 bug, 但本次审计未能完全排除, 请按需追加审查。",
+        "5. 「覆盖率明细」页给出每个模板与每个文件的候选/确认/抑制/不确定计数, 用于评估本次审计的充分度。",
+        "6. 严重程度仅表示「若属实, 后果有多严重」; 可信度表示「我们有多确定它属实」。两者独立, 都需关注。",
+        "7. 「已排除的误报模式」列出审计时主动验证并排除的 FP 过滤器 (fp.* 命名), 便于复核者验证排除是否成立。",
     ]:
         cell = ws.cell(row, 1, line)
         cell.alignment = WRAP_TOP
@@ -375,8 +491,7 @@ def _write_findings_sheet(
         return
 
     # 人工确认列 数据校验下拉
-    confirm_col_idx = len(FINDING_COLUMNS) - 1  # 14 列, 倒数第二列
-    confirm_letter = get_column_letter(confirm_col_idx)
+    confirm_letter = get_column_letter(COL_CONFIRM)
     dv = DataValidation(
         type="list",
         formula1='"✓ 同意 (确认是bug),✗ 误报 (附理由),? 待定 (需更多上下文)"',
@@ -395,7 +510,11 @@ def _write_findings_sheet(
         sev = str(b.get("severity", "")).lower()
         conf = str(b.get("confidence", "")).lower()
         cat = str(b.get("category", "")).lower()
-        loc_text, func_text = _location(b)
+        file_text, line_val, func_text = _location(b)
+        verdict_label, verdict_rationale = _verdict_summary(b)
+        verdict_key = str(
+            (b.get("second_pass_review") or {}).get("verdict", "") or ""
+        ).lower()
 
         cells = [
             ("",   str(i)),
@@ -403,25 +522,29 @@ def _write_findings_sheet(
             ("",   CONFIDENCE_ZH.get(conf, conf or "")),
             ("",   CATEGORY_ZH.get(cat, cat or "")),
             ("",   b.get("template_id", "")),
-            ("",   loc_text),
+            ("",   file_text),
+            ("",   line_val),
             ("",   func_text),
             ("",   b.get("summary", b.get("name", ""))),
             ("ev", _join_evidence(b)),
             ("",   _join_list(b.get("false_positive_filters_ruled_out"))),
             ("",   _join_list(b.get("fix_suggestions"))),
             ("ev", _join_context(b)),
+            ("",   verdict_label),
+            ("ev", verdict_rationale),
             ("",   ""),                     # 人工确认 (留空给 reviewer)
             ("",   ""),                     # 备注
         ]
+        center_cols = {1, COL_SEV, 3, COL_LINE, COL_VERDICT}
         for col_idx, (kind, value) in enumerate(cells, start=1):
             c = ws.cell(row_idx, col_idx, value)
             c.border = CELL_BORDER
-            c.alignment = WRAP_TOP if col_idx not in (1, 2, 3) else CENTER
+            c.alignment = CENTER if col_idx in center_cols else WRAP_TOP
             if kind == "ev":
                 c.font = MONO
 
         # 严重程度 单独着色 (浓色块)
-        sev_cell = ws.cell(row_idx, 2)
+        sev_cell = ws.cell(row_idx, COL_SEV)
         sev_cell.fill = PatternFill(
             start_color=SEVERITY_FILL.get(sev, "FFCCCCCC"),
             end_color=SEVERITY_FILL.get(sev, "FFCCCCCC"),
@@ -436,24 +559,34 @@ def _write_findings_sheet(
             light_fill = PatternFill(start_color=light, end_color=light,
                                      fill_type="solid")
             for col_idx in range(1, len(FINDING_COLUMNS) + 1):
-                if col_idx == 2:
-                    continue  # 严重程度已经是浓色
-                # 不要覆盖人工确认/备注的留白
-                if col_idx in (confirm_col_idx, len(FINDING_COLUMNS)):
-                    continue
+                if col_idx in (COL_SEV, COL_VERDICT,
+                               COL_CONFIRM, COL_NOTE):
+                    continue  # 这些列单独着色或保留留白
                 ws.cell(row_idx, col_idx).fill = light_fill
 
-        # 行高: 依据证据/上下文行数估算
-        ev_lines = max(_line_count(_join_evidence(b)),
-                       _line_count(_join_context(b)),
-                       _line_count(_join_list(b.get("fix_suggestions"))))
-        ws.row_dimensions[row_idx].height = max(60, min(360, 16 * (ev_lines + 1)))
+        # 子代理复核结论 单独着色 (绿/红/黄/灰)
+        verdict_color = VERDICT_FILL.get(verdict_key, VERDICT_FILL[""])
+        v_cell = ws.cell(row_idx, COL_VERDICT)
+        v_cell.fill = PatternFill(
+            start_color=verdict_color, end_color=verdict_color,
+            fill_type="solid",
+        )
+        v_cell.font = Font(bold=True)
+
+        # 行高: 依据证据/上下文/复核依据行数估算
+        ev_lines = max(
+            _line_count(_join_evidence(b)),
+            _line_count(_join_context(b)),
+            _line_count(_join_list(b.get("fix_suggestions"))),
+            _line_count(verdict_rationale),
+        )
+        ws.row_dimensions[row_idx].height = max(60, min(420, 16 * (ev_lines + 1)))
 
         if gap_mode:
-            # 给「人工确认」一个友好的提示 (不写入值; 仅注释样式)
+            # 给「备注」一个友好的提示 (不写入值; 仅文本)
             note = b.get("reason") or b.get("note") or ""
             if note:
-                ws.cell(row_idx, len(FINDING_COLUMNS), f"原因: {note}")
+                ws.cell(row_idx, COL_NOTE, f"原因: {note}")
 
 
 def _write_coverage_sheet(ws, bugs: list[dict], coverage: dict | None) -> None:

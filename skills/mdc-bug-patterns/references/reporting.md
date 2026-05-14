@@ -65,6 +65,37 @@ Required fields (all must be present, non-empty):
 
 A finding missing any required field is **invalid** — drop it or downgrade to `low` and move it to audit gaps.
 
+### Optional `second_pass_review` block
+
+After Pass 3.5, each finding gains an optional `second_pass_review` block populated by `scripts/merge_second_pass.py`:
+
+```json
+{
+  "second_pass_review": {
+    "verdict": "agree" | "disagree" | "uncertain" | "missing",
+    "rationale": "1–3 sentences in Chinese explaining the verdict.",
+    "evidence_check": {
+      "all_cited_lines_exist":          true,
+      "all_cited_lines_match_excerpts": true,
+      "fp_filters_actually_ruled_out":  true,
+      "additional_fp_filters_found":    []
+    },
+    "supporting_evidence": ["src/cache.cc:19  Buf* b = new Buf(64);", ...],
+    "reviewed_at": "2026-05-14T15:32:00Z",
+    "reviewer":    "subagent:explore"
+  }
+}
+```
+
+The block is **advisory** — it informs the human reviewer but does not auto-suppress or auto-promote findings. Verdict semantics:
+
+- `agree` — independent re-verification confirms the bug.
+- `disagree` — independent re-verification finds the original conclusion unsupported (cite the contradicting evidence in `rationale` + `supporting_evidence`).
+- `uncertain` — the subagent could not decide within bounded effort; `rationale` must state what additional information would resolve it.
+- `missing` — no verdict was produced (subagent timed out or returned malformed JSON). The Excel surfaces this so reviewers see the gap.
+
+See `references/second-pass-review.md` for the full subagent prompt template and verdict schema.
+
 ## Severity vs Confidence
 
 These are independent axes. Both are required.
@@ -152,17 +183,20 @@ One finding per row, frozen header (row 1) and frozen first two columns (编号 
 | 可信度 | `confidence` | translated |
 | 类别 | `category` | translated to 内存安全 / 并发 / 资源管理 / 空指针 / 逻辑·数值 |
 | 模板ID | `template_id` | stable id (English; matches `references/templates.md`) |
-| 文件:行 | `location.file:line` | for fast jump in the editor |
+| **文件** | `location.file` | path only — for `git blame` / CODEOWNERS / 责任人 lookup |
+| **行号** | `location.line` | numeric — separate column so the Excel can sort/filter by it |
 | 所在函数 | `location.function` | optional |
 | 问题摘要 | `summary` (or `name`) | one-line Chinese summary |
 | 证据 (file:line + 代码) | `required_evidence` | bullet list, **monospace**, one item per evidence key |
 | 已排除的误报模式 | `false_positive_filters_ruled_out` | the `fp.*` ids that the LLM actively ruled out |
 | 修复建议 | `fix_suggestions` | bullet list |
 | 代码上下文 (>>为问题行) | `context` | monospace, line-numbered, problem line marked `>>` |
+| **子代理复核结论** | `second_pass_review.verdict` | translated to 同意 / 反对 (误报) / 不确定 / 未复核; color-coded (green / red / yellow / grey) |
+| **子代理复核依据** | `second_pass_review.rationale` + `evidence_check` + `supporting_evidence` | rationale on top, evidence-check checkmarks, then bullet list of supporting evidence |
 | **人工确认** | (empty) | dropdown: ✓ 同意 (确认是bug) / ✗ 误报 (附理由) / ? 待定 (需更多上下文) |
 | **备注** | (empty) | free text for the reviewer |
 
-Row backgrounds are tinted by severity (light pink / light orange / light yellow / light green).
+Row backgrounds are tinted by severity (light pink / light orange / light yellow / light green). The 子代理复核结论 cell uses an independent colour layer (green / red / yellow / grey) so a `disagree` verdict on a `severe` finding immediately stands out.
 
 #### 3. `审计盲区` — Audit Gaps (low confidence + inconclusive)
 
@@ -181,13 +215,15 @@ These two tables together let the reviewer answer "did we look hard enough at ev
 
 1. Open the workbook. Read `审查总览` for the high-level picture.
 2. Open `发现明细`. The auto-filter and severity colours let you focus on `严重` / `高可信` first.
-3. For each row, read 问题摘要 → 证据 → 代码上下文. Use 已排除的误报模式 to verify that the relevant FP filters were actually ruled out.
-4. In the **人工确认** dropdown, pick one of:
+3. For each row, read 问题摘要 → 证据 → 代码上下文.
+4. Look at **子代理复核结论** — this is an independent re-verification by a second AI. If it says `反对 (误报)` or `不确定`, read 子代理复核依据 carefully before agreeing with the original finding. Disagreement between the two passes is a strong prior that something is off.
+5. Use 已排除的误报模式 to verify that the relevant FP filters were actually ruled out, and 文件 / 行号 to jump to the source (or run `git blame` to find the owner / 责任人).
+6. In the **人工确认** dropdown, pick one of:
    - `✓ 同意 (确认是bug)` — agree, the bug is real.
    - `✗ 误报 (附理由)` — disagree, with a reason in 备注.
    - `? 待定 (需更多上下文)` — needs more investigation.
-5. After finishing 发现明细, do the same for 审计盲区 — these are not confirmed bugs but the audit could not rule them out within bounded effort.
-6. Use `覆盖率明细` to decide whether to expand scope (e.g. re-audit a template with 0% coverage on a critical file).
+7. After finishing 发现明细, do the same for 审计盲区 — these are not confirmed bugs but the audit could not rule them out within bounded effort.
+8. Use `覆盖率明细` to decide whether to expand scope (e.g. re-audit a template with 0% coverage on a critical file).
 
 ### Schema notes
 

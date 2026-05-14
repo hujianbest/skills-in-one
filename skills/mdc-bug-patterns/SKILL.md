@@ -39,20 +39,22 @@ If you find yourself producing findings without having read the function body an
 
 Every reported finding MUST cite the lines that prove the bug and MUST list which false-positive filters from `references/false-positive-filters.md` were ruled out. A finding without a complete `required_evidence` block is invalid — drop it or downgrade to `low` (audit gaps).
 
-## Four-Pass Workflow
+## Five-Pass Workflow
 
-Execute the four passes in order. Pass 3 is where the token spend lives.
+Execute the passes in order. Pass 3 is where the LLM-driven analysis lives. Pass 3.5 is an independent re-verification by a subagent that catches hallucinations and missed FP filters.
 
 ```dot
 digraph workflow {
     "Pass 1: Map (cheap)" [shape=box];
     "Pass 2: Prioritise units (rg signals)" [shape=box];
     "Pass 3: Unit-by-unit deep review (LLM, expensive)" [shape=box];
-    "Pass 4: Report (evidence + confidence + coverage)" [shape=box];
+    "Pass 3.5: Second-pass subagent review (independent re-verification)" [shape=box];
+    "Pass 4: Report (Chinese Excel + evidence + confidence + coverage)" [shape=box];
 
     "Pass 1: Map (cheap)" -> "Pass 2: Prioritise units (rg signals)";
     "Pass 2: Prioritise units (rg signals)" -> "Pass 3: Unit-by-unit deep review (LLM, expensive)";
-    "Pass 3: Unit-by-unit deep review (LLM, expensive)" -> "Pass 4: Report (evidence + confidence + coverage)";
+    "Pass 3: Unit-by-unit deep review (LLM, expensive)" -> "Pass 3.5: Second-pass subagent review (independent re-verification)";
+    "Pass 3.5: Second-pass subagent review (independent re-verification)" -> "Pass 4: Report (Chinese Excel + evidence + confidence + coverage)";
 }
 ```
 
@@ -104,6 +106,31 @@ For each unit on the work-list, in priority order:
 
 For concurrency units you MUST also build a **lock-set / thread-affinity sketch**. See `references/methodology.md#concurrency-deep-dive`.
 
+### Pass 3.5 — Second-pass subagent review (independent re-verification)
+
+After Pass 3 produces findings, dispatch an **independent subagent** that does NOT see the auditor's reasoning chain. The subagent is given only the structured finding (template, location, summary, evidence, FP filters claimed) plus read access to the codebase, and is asked to re-derive a verdict by reading the source.
+
+Why: a single agent reasoning about its own findings has a strong bias toward confirming them. An independent reader catches hallucinated line numbers, falsely-claimed FP filters, missed `fp.test-code` / `fp.generated-code`, and over-reaching severity. The verdict (`agree` / `disagree` / `uncertain`) and rationale are merged into each finding and surfaced in the Excel as `子代理复核结论` + `子代理复核依据`.
+
+**This pass is mandatory.** Skip it only if the user explicitly asks for "no second pass" (e.g. exploratory dry runs).
+
+Procedure (full prompt template and verdict schema in `references/second-pass-review.md`):
+
+1. Group findings into batches (~5–10 each); group by file or directory when possible to share file reads.
+2. For each batch, dispatch the `Task` tool with `subagent_type="explore"` (preferred — read-only) or `"generalPurpose"` with `readonly=true`. Pass the prompt template from `references/second-pass-review.md` with the batch's findings JSON inlined.
+3. Each subagent returns a JSON array of verdicts (one per finding). Save them to `audit/verdicts-batchN.jsonl`.
+4. Concatenate all verdict files and merge into the findings:
+   ```bash
+   scripts/merge_second_pass.py \
+       --findings findings.json \
+       --verdicts verdicts.jsonl \
+       --out findings_with_review.json
+   ```
+   Findings that did not get a verdict (subagent timeout, malformed JSON) are tagged `verdict: "missing"` so the gap is visible to humans.
+5. The merged JSON is the input to `excel_helper.py` in Pass 4.
+
+The subagent's verdict is **advisory**, not authoritative — it informs the human reviewer but does not auto-suppress or auto-promote findings. The 人工确认 column is still the final word.
+
 ### Pass 4 — Report
 
 Use `references/reporting.md` for the exact format. Default report contains only `high` and `medium` confidence findings. `low` and `inconclusive` are listed separately as **audit gaps** so reviewers can decide whether to invest more time.
@@ -151,7 +178,8 @@ Templates focused on the user's stated priorities (concurrency / locking / memor
 | `scripts/scan_candidates.py` | Run all template `detection_query` patterns and emit JSONL of candidates. Pass 2 prioritisation input. Supports `--template ID`, `--path SUBDIR`, `--out FILE`, `--list`, `--dry-run`. |
 | `scripts/list_units.py` | Aggregate candidates per code unit (function / file) and emit a prioritised unit work-list with suspicion scores. Pass 2 output → Pass 3 input. |
 | `scripts/coverage_tracker.py` | Track per-candidate and per-unit verification outcomes (`confirmed` / `suppressed` / `inconclusive`) with reasons. Drives the coverage table in Pass 4. |
-| `scripts/excel_helper.py` | Render the final report into a Chinese, human-review-friendly `.xlsx` (4 sheets: 审查总览 / 发现明细 / 审计盲区 / 覆盖率明细) with severity colour coding, frozen header, autofilter, and a `人工确认` dropdown column for per-finding sign-off. Accepts `--coverage`, `--repo`, `--scope`, `--reviewer` for the overview sheet. |
+| `scripts/merge_second_pass.py` | Merge a JSONL of subagent verdicts (from Pass 3.5) into the findings JSON, producing `findings_with_review.json` that carries a `second_pass_review` block per finding. |
+| `scripts/excel_helper.py` | Render the final report into a Chinese, human-review-friendly `.xlsx` (4 sheets: 审查总览 / 发现明细 / 审计盲区 / 覆盖率明细) with severity colour coding, frozen header, autofilter, separate `文件` + `行号` columns (for `git blame` / 责任人 lookup), `子代理复核结论` (color-coded) + `子代理复核依据` columns from Pass 3.5, and a `人工确认` dropdown column for per-finding sign-off. Accepts `--coverage`, `--repo`, `--scope`, `--reviewer` for the overview sheet. |
 
 All scripts are runnable standalone with `--help`.
 
@@ -162,6 +190,7 @@ All scripts are runnable standalone with `--help`.
 | `references/methodology.md` | Always, before Pass 1. |
 | `references/templates.md` | Pass 2 (ranking signals) and Pass 3 (per-unit checklist). |
 | `references/false-positive-filters.md` | Pass 3 (mandatory FP check). |
+| `references/second-pass-review.md` | Pass 3.5 (subagent prompt template + verdict schema). |
 | `references/reporting.md` | Pass 4. |
 
 ## Common Mistakes (and how this skill prevents them)
