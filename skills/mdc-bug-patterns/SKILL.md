@@ -151,7 +151,7 @@ Templates focused on the user's stated priorities (concurrency / locking / memor
 | `scripts/scan_candidates.py` | Run all template `detection_query` patterns and emit JSONL of candidates. Pass 2 prioritisation input. Supports `--template ID`, `--path SUBDIR`, `--out FILE`, `--list`, `--dry-run`. |
 | `scripts/list_units.py` | Aggregate candidates per code unit (function / file) and emit a prioritised unit work-list with suspicion scores. Pass 2 output → Pass 3 input. |
 | `scripts/coverage_tracker.py` | Track per-candidate and per-unit verification outcomes (`confirmed` / `suppressed` / `inconclusive`) with reasons. Drives the coverage table in Pass 4. |
-| `scripts/excel_helper.py` | Render the final report (with confidence + evidence columns) to Excel; separate sheet for audit gaps. |
+| `scripts/excel_helper.py` | Render the final report into a Chinese, human-review-friendly `.xlsx` (4 sheets: 审查总览 / 发现明细 / 审计盲区 / 覆盖率明细) with severity colour coding, frozen header, autofilter, and a `人工确认` dropdown column for per-finding sign-off. Accepts `--coverage`, `--repo`, `--scope`, `--reviewer` for the overview sheet. |
 
 All scripts are runnable standalone with `--help`.
 
