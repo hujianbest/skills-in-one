@@ -22,6 +22,8 @@ Build a small, structured picture of the repository that lets you (a) scope subs
 
 Keep these in your TodoWrite or scratch notes.
 
+0. **Specialty selection** — read `references/templates.md` (the specialty index). Use its decision tree to choose one of:
+   `memory-safety` / `concurrency-and-isr` / `resource-management` / `logic-and-numeric` / `embedded-hardware`. Loading multiple is acceptable but should be deliberate. Loading all 5 is rare ("comprehensive audit"). Recording which specialties you chose is itself an audit artefact (cite it in Pass 4).
 1. **Layout & size**
    - Top-level directories and approximate LoC each.
    - Tooling: `tokei` → `cloc` → `find … -name '*.c*' | xargs wc -l`.
@@ -54,11 +56,14 @@ Produce a ranked list of **code units** to deeply review in Pass 3. The unit of 
 
 ### Procedure
 
-1. Decide which templates apply. Defaults:
-   - User asked for "concurrency / 加锁问题" → all `con-*` and `res-mutex-*` templates.
-   - User asked for "memory safety / 内存安全" → all `mem-*` and `ptr-*` templates.
-   - User asked for "general code review" → all templates.
-2. Run `scripts/scan_candidates.py --path <scope> --out candidates.jsonl` (optionally `--template ID` to scope by template).
+1. Decide which specialty file(s) apply (you already chose in Pass 1, step 0). Defaults:
+   - User asked for "concurrency / 加锁问题 / ISR / RTOS" → `concurrency-and-isr.md` (and possibly `resource-management.md` for `res-mutex-no-unlock`).
+   - User asked for "memory safety / 内存安全 / DMA / 指针" → `memory-safety.md`.
+   - User asked for "外设 / 资源 / 时钟 / 任务管理" → `resource-management.md`.
+   - User asked for "整数 / 字节序 / 可移植性" → `logic-and-numeric.md`.
+   - User asked for "看门狗 / 低功耗 / Flash / 临界区" → `embedded-hardware.md`.
+   - User asked for "general code review" → all 5 specialty files.
+2. Run `scripts/scan_candidates.py --specialty <name> --path <scope> --out candidates.jsonl` (single specialty), or omit `--specialty` to scan all specialties under `references/templates/`. `--template ID` further narrows to a single template.
 3. Run `scripts/list_units.py --candidates candidates.jsonl --path <scope> --out units.jsonl`. Output is a ranked work-list:
    ```json
    {"unit_id":"src/cache.cc::Cache::Insert", "file":"src/cache.cc",

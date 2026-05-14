@@ -122,10 +122,7 @@ class Unit:
     candidates: list[str] = field(default_factory=list)
 
 
-def load_template_severity(md_path: Path | None) -> dict[str, str]:
-    """Return {template_id: severity_lowercase}. Empty if md_path missing."""
-    if not md_path or not md_path.exists():
-        return {}
+def load_template_severity_from_file(md_path: Path) -> dict[str, str]:
     text = md_path.read_text(encoding="utf-8")
     headers = list(TEMPLATE_HEADER_RE.finditer(text))
     out: dict[str, str] = {}
@@ -137,6 +134,22 @@ def load_template_severity(md_path: Path | None) -> dict[str, str]:
         if m:
             out[tid] = m.group(1).strip().lower()
     return out
+
+
+def load_template_severity(path: Path | None) -> dict[str, str]:
+    """Return {template_id: severity_lowercase}.
+
+    Accepts either a single .md file or a directory of .md files (the
+    specialty-templates directory). Empty if path is missing.
+    """
+    if not path or not path.exists():
+        return {}
+    if path.is_dir():
+        out: dict[str, str] = {}
+        for md in sorted(path.glob("*.md")):
+            out.update(load_template_severity_from_file(md))
+        return out
+    return load_template_severity_from_file(path)
 
 
 def find_functions(file_path: Path) -> list[Function]:
@@ -199,8 +212,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="Codebase root used to read source files.")
     ap.add_argument("--templates-md", type=Path,
                     default=Path(__file__).resolve().parent.parent /
-                            "references" / "templates.md",
-                    help="Templates markdown (used for severity weights).")
+                            "references" / "templates",
+                    help="Templates source for severity weights — accepts "
+                         "either a single .md file or the specialty directory "
+                         "(default: references/templates/).")
     ap.add_argument("--out", type=Path, help="Output JSONL (default: stdout).")
     ap.add_argument("--top", type=int, default=0,
                     help="Show only top-N units (0 = all).")

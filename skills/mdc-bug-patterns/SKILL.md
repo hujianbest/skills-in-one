@@ -64,7 +64,14 @@ Detailed instructions for each pass live in `references/methodology.md`. **You M
 
 Build a small, structured picture of the repo: top-level layout, build system, concurrency surface, ownership conventions, existing safety nets (sanitizers, static analyzers), in-scope vs out-of-scope.
 
-Cheap and structural — no per-line LLM reading here.
+**Pass 1 also picks the specialty template file(s).** Read `references/templates.md` (the specialty index — small and cheap) and use its decision tree to choose one of:
+- `templates/memory-safety.md` (heap / stack / buffer / pointer / DMA)
+- `templates/concurrency-and-isr.md` (races / lock ordering / ISR / RTOS sync)
+- `templates/resource-management.md` (RAII / fd / peripheral lifecycle)
+- `templates/logic-and-numeric.md` (integer / portability / endianness)
+- `templates/embedded-hardware.md` (watchdog / low-power / MMIO RMW / flash)
+
+Loading multiple specialty files is acceptable but should be deliberate; loading all 5 is rare ("comprehensive audit"). Cheap and structural — no per-line LLM reading here.
 
 ### Pass 2 — Prioritise units (rg signals → ranked unit list)
 
@@ -157,19 +164,23 @@ Templates in `references/templates.md` are the **per-unit checklist**. Each temp
 
 **A finding is invalid if any `required_evidence` item is missing.** Do not paper over missing evidence with prose.
 
-## Built-in Templates
+## Built-in Templates — Specialty Files (C/C++ embedded)
 
-See `references/templates.md` for the full text. Categories (extended from the original set):
+Templates are split into **5 specialty files** to keep context small. Pass 1 chooses one (or more) specialty file based on the audit scope; the index `references/templates.md` is the only template-related file the agent reads unconditionally.
 
-| Category | Templates |
-|---|---|
-| Memory safety | `mem-leak-new-no-delete`, `mem-array-new-mismatched-delete`, `mem-double-free`, `mem-use-after-free`, `mem-uninitialized-read`, `mem-rule-of-three-five`, `mem-buffer-overflow-index`, `mem-strncpy-no-terminator` |
-| Null / optional | `ptr-deref-no-check`, `ptr-this-may-be-null-callback`, `ptr-optional-value-no-check`, `ptr-iterator-invalidated` |
-| Resource | `res-file-no-close`, `res-mutex-no-unlock`, `res-fd-leak-on-error`, `res-raii-broken-by-release` |
-| Concurrency | `con-unsynchronized-shared-write`, `con-lock-ordering-deadlock`, `con-double-checked-locking`, `con-sleep-or-blocking-with-lock-held`, `con-callback-invoked-with-lock-held`, `con-missing-memory-order`, `con-tocttou`, `con-condvar-no-predicate` |
-| Logic | `int-add-overflow`, `int-sub-underflow`, `int-mul-overflow-alloc-size`, `int-shift-out-of-range`, `int-signed-unsigned-mix`, `int-narrowing-cast`, `div-by-zero`, `empty-container-front-back` |
+| Specialty file | Load when audit scope is | # templates |
+|---|---|---|
+| `references/templates/memory-safety.md` | heap / stack / object lifetime / buffer / pointer / DMA buffer | 16 |
+| `references/templates/concurrency-and-isr.md` | data races / lock ordering / memory ordering / ISR / RTOS sync | 14 |
+| `references/templates/resource-management.md` | RAII / fd / mutex / peripheral clock / RTOS task / HW timer / NVIC | 8 |
+| `references/templates/logic-and-numeric.md` | integer overflow / signedness / shift / division / endianness / packed struct | 13 |
+| `references/templates/embedded-hardware.md` | watchdog / low-power / MMIO RMW / flash-write / IRQ-disabled critical sections | 6 |
 
-Templates focused on the user's stated priorities (concurrency / locking / memory safety) carry the deepest verification contracts.
+Total: **57 templates**, all C/C++-embedded-flavoured. Token economics: index (~6 KB) + 1 specialty file (~10–14 KB) ≈ 16–20 KB per audit, vs ~50 KB for loading the full catalogue.
+
+Template id prefixes (for quick identification): `mem-*`, `ptr-*`, `res-*`, `con-*`, `int-*`, `isr-*`, `rtos-*`, `emb-*`.
+
+See `references/templates.md` for the full per-specialty index, the decision tree, and the per-template-contract field definitions. The specialty files contain the actual detection contracts (`detection_query`, `false_positive_filters`, `verification`, `required_evidence`, `confidence_rubric`, `bad_example`, `good_example`, `fix_suggestions`).
 
 ## Scripts
 
@@ -188,7 +199,8 @@ All scripts are runnable standalone with `--help`.
 | File | Read when |
 |---|---|
 | `references/methodology.md` | Always, before Pass 1. |
-| `references/templates.md` | Pass 2 (ranking signals) and Pass 3 (per-unit checklist). |
+| `references/templates.md` | Pass 1 — read the specialty index + decision tree to pick which specialty file(s) to load. |
+| `references/templates/<specialty>.md` | Pass 2 (ranking signals) and Pass 3 (per-unit checklist). Load only the specialty file(s) chosen in Pass 1. |
 | `references/false-positive-filters.md` | Pass 3 (mandatory FP check). |
 | `references/second-pass-review.md` | Pass 3.5 (subagent prompt template + verdict schema). |
 | `references/reporting.md` | Pass 4. |

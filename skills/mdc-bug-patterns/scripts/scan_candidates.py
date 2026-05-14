@@ -2,18 +2,26 @@
 """
 scan_candidates.py — Pass 2 helper for the mdc-bug-patterns skill.
 
-Parses references/templates.md, extracts the `detection_query` shell snippet
-for each template, runs them against a target path, and emits a JSONL stream
+Walks the specialty-template directory (default: references/templates/),
+parses every <specialty>.md file, extracts each template's detection_query
+shell snippet, runs them against a target path, and emits a JSONL stream
 of candidates that Pass 3 verifies.
 
+Source-of-templates resolution (in order):
+  --specialty NAME   → references/templates/NAME.md only
+  --templates-md PATH→ a single .md file
+  --templates-dir DIR→ every *.md inside DIR (default: references/templates/)
+
 Usage:
-    scan_candidates.py [--templates-md PATH] [--path SUBDIR]
-                       [--template ID]... [--out FILE]
+    scan_candidates.py [--templates-dir DIR] [--specialty NAME]
+                       [--templates-md PATH]
+                       [--path SUBDIR] [--template ID]... [--out FILE]
                        [--list] [--dry-run]
 
 Each line of the output JSONL has the shape:
     {"candidate_id": "<template_id>::<file>:<line>",
      "template_id":  "<template_id>",
+     "specialty":    "<specialty-name (file stem) or '_root_' for top-level templates.md>",
      "file":         "<file>",
      "line":         <int>,
      "match":        "<matched line>",
@@ -35,8 +43,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-DEFAULT_TEMPLATES_MD = (
-    Path(__file__).resolve().parent.parent / "references" / "templates.md"
+DEFAULT_TEMPLATES_DIR = (
+    Path(__file__).resolve().parent.parent / "references" / "templates"
 )
 
 # Matches "### `template-id`" headers and following body up to next "### " or H2.
@@ -54,10 +62,11 @@ RG_LINE_RE = re.compile(r"^([^:]+):(\d+):(.*)$")
 @dataclass
 class Template:
     template_id: str
+    specialty: str  # file stem (e.g. "memory-safety") or "_root_"
     queries: list[str] = field(default_factory=list)
 
 
-def parse_templates(md_path: Path) -> list[Template]:
+def parse_templates_in_file(md_path: Path, specialty: str) -> list[Template]:
     text = md_path.read_text(encoding="utf-8")
     headers = list(TEMPLATE_HEADER_RE.finditer(text))
     out: list[Template] = []
@@ -77,7 +86,38 @@ def parse_templates(md_path: Path) -> list[Template]:
                 queries.append(snippet)
 
         if queries:
-            out.append(Template(template_id=tid, queries=queries))
+            out.append(Template(template_id=tid, specialty=specialty, queries=queries))
+    return out
+
+
+def collect_templates(
+    *,
+    templates_md: Path | None,
+    templates_dir: Path | None,
+    specialty: str | None,
+) -> list[Template]:
+    """Resolve where templates come from based on the CLI flags."""
+    if specialty:
+        if templates_md or (templates_dir and not templates_dir.samefile(DEFAULT_TEMPLATES_DIR)):
+            sys.stderr.write(
+                "warn: --specialty is set; ignoring --templates-md / --templates-dir\n"
+            )
+        path = (templates_dir or DEFAULT_TEMPLATES_DIR) / f"{specialty}.md"
+        if not path.exists():
+            sys.stderr.write(f"specialty file not found: {path}\n")
+            return []
+        return parse_templates_in_file(path, specialty=specialty)
+
+    if templates_md:
+        return parse_templates_in_file(templates_md, specialty="_root_")
+
+    dir_ = templates_dir or DEFAULT_TEMPLATES_DIR
+    if not dir_.exists():
+        sys.stderr.write(f"templates dir not found: {dir_}\n")
+        return []
+    out: list[Template] = []
+    for path in sorted(dir_.glob("*.md")):
+        out.extend(parse_templates_in_file(path, specialty=path.stem))
     return out
 
 
@@ -114,8 +154,15 @@ def run_query(query: str, target_path: Path) -> Iterable[tuple[str, int, str]]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--templates-md", type=Path, default=DEFAULT_TEMPLATES_MD,
-                    help="Path to templates.md (default: alongside the skill).")
+    ap.add_argument("--templates-dir", type=Path, default=DEFAULT_TEMPLATES_DIR,
+                    help="Directory of specialty .md files (default: references/templates/).")
+    ap.add_argument("--templates-md", type=Path, default=None,
+                    help="Single .md file (back-compat / overrides --templates-dir).")
+    ap.add_argument("--specialty", type=str, default=None,
+                    help="Load only references/templates/<NAME>.md "
+                         "(e.g. memory-safety, concurrency-and-isr, "
+                         "resource-management, logic-and-numeric, "
+                         "embedded-hardware).")
     ap.add_argument("--path", type=Path, default=Path("."),
                     help="Target codebase path (default: cwd).")
     ap.add_argument("--template", action="append", default=[],
@@ -123,16 +170,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, default=None,
                     help="Output JSONL file. Default: stdout.")
     ap.add_argument("--list", action="store_true",
-                    help="List parsed templates and exit.")
+                    help="List parsed templates (with specialty) and exit.")
     ap.add_argument("--dry-run", action="store_true",
                     help="Print queries that would run, then exit.")
     args = ap.parse_args(argv)
 
-    if not args.templates_md.exists():
-        sys.stderr.write(f"templates.md not found: {args.templates_md}\n")
+    templates = collect_templates(
+        templates_md=args.templates_md,
+        templates_dir=args.templates_dir,
+        specialty=args.specialty,
+    )
+    if not templates:
+        sys.stderr.write("no templates found\n")
         return 2
 
-    templates = parse_templates(args.templates_md)
     if args.template:
         wanted = set(args.template)
         templates = [t for t in templates if t.template_id in wanted]
@@ -142,14 +193,21 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     if args.list:
+        # Group by specialty for readability.
+        from collections import defaultdict
+        by_spec: dict[str, list[Template]] = defaultdict(list)
         for t in templates:
-            print(f"{t.template_id}\t{len(t.queries)} query/queries")
+            by_spec[t.specialty].append(t)
+        for spec in sorted(by_spec):
+            print(f"# {spec}  ({len(by_spec[spec])} templates)")
+            for t in by_spec[spec]:
+                print(f"  {t.template_id}\t{len(t.queries)} query/queries")
         return 0
 
     if args.dry_run:
         for t in templates:
             for q in t.queries:
-                print(f"# {t.template_id}\n{q}\n")
+                print(f"# {t.specialty} :: {t.template_id}\n{q}\n")
         return 0
 
     target = args.path.resolve()
@@ -168,6 +226,7 @@ def main(argv: list[str] | None = None) -> int:
                     rec = {
                         "candidate_id": f"{t.template_id}::{file_}:{line}",
                         "template_id": t.template_id,
+                        "specialty": t.specialty,
                         "file": file_,
                         "line": line,
                         "match": text,
