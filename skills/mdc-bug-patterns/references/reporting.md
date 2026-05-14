@@ -177,18 +177,20 @@ scripts/excel_helper.py \
 One finding per row, frozen header (row 1) and frozen first two columns (编号 + 严重程度), `auto_filter` on every column.
 
 Column order is chosen so the reviewer reads left-to-right in the order they actually want answers:
-**「这是什么」 → 「多严重 / 多可信」 → 「在哪」 → 「证据」 → 「修复」 → 「复核结论 / 人工确认」**.
+**「多严重 / 多可信」 → 「类型」 → 「位置 / 责任人」 → 「具体问题是什么」 → 「证据 / 上下文 / 修复」 → 「子代理复核」 → 「人工确认」**.
+
+The `文件` + `行号` pair sits immediately before `问题说明` so the reviewer first locates the code (and its owner via `git blame` / CODEOWNERS), then reads the one-sentence problem description tied to that location.
 
 | # | Column | Source | Notes |
 |---|---|---|---|
 | 1 | 编号 | row index | for citing in code review comments |
 | 2 | 严重程度 | `severity` | translated; bold, severity-coloured cell |
 | 3 | 可信度 | `confidence` | translated |
-| 4 | **问题说明 (具体问题是什么)** | `summary` (fallback `name`) | **首个内容列** — bold, navy text, larger size; one-sentence Chinese description of the specific problem so the reviewer immediately knows what this finding is about |
-| 5 | 类别 | `category` | translated to 内存安全 / 并发 / 资源管理 / 空指针 / 逻辑·数值 |
-| 6 | 模板ID | `template_id` | stable id (English; matches `references/templates.md`) |
-| 7 | **文件** | `location.file` | path only — for `git blame` / CODEOWNERS / 责任人 lookup |
-| 8 | **行号** | `location.line` | numeric — separate column so the Excel can sort/filter by it |
+| 4 | 类别 | `category` | translated to 内存安全 / 并发 / 资源管理 / 空指针 / 逻辑·数值 |
+| 5 | 模板ID | `template_id` | stable id (English; matches `references/templates.md`) |
+| 6 | **文件** | `location.file` | path only — for `git blame` / CODEOWNERS / 责任人 lookup |
+| 7 | **行号** | `location.line` | numeric — separate column so the Excel can sort/filter by it |
+| 8 | **问题说明 (具体问题是什么)** | `summary` (fallback `name`) | **bold, navy text, larger size**; one-sentence Chinese description of the specific problem at this location |
 | 9 | 所在函数 | `location.function` | optional |
 | 10 | 证据 (file:line + 代码) | `required_evidence` | bullet list, **monospace**, one item per evidence key |
 | 11 | 已排除的误报模式 | `false_positive_filters_ruled_out` | the `fp.*` ids that the LLM actively ruled out |
@@ -199,7 +201,7 @@ Column order is chosen so the reviewer reads left-to-right in the order they act
 | 16 | **人工确认** | (empty) | dropdown: ✓ 同意 (确认是bug) / ✗ 误报 (附理由) / ? 待定 (需更多上下文) |
 | 17 | **备注** | (empty) | free text for the reviewer |
 
-Row backgrounds are tinted by severity (light pink / light orange / light yellow / light green). The 子代理复核结论 cell uses an independent colour layer (green / red / yellow / grey) so a `disagree` verdict on a `severe` finding immediately stands out. The 问题说明 cell is rendered in bold navy so the "what" of every finding is visible without horizontal scrolling.
+Row backgrounds are tinted by severity (light pink / light orange / light yellow / light green). The 子代理复核结论 cell uses an independent colour layer (green / red / yellow / grey) so a `disagree` verdict on a `severe` finding immediately stands out. The 问题说明 cell is rendered in bold navy so the "what" of every finding is visually distinct from the surrounding metadata.
 
 > **Schema requirement:** the `summary` field is mandatory in the JSON. If absent, the renderer writes `(未提供问题说明)` so the gap is visible. LLM agents producing findings MUST populate `summary` with a substantive one-sentence Chinese description of the specific problem (not just the template name).
 

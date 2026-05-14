@@ -103,17 +103,18 @@ META_LABEL = Font(bold=True, size=11)
 
 # 发现明细 / 审计盲区 共用的列定义
 #
-# 列序原则: 让评审者从左到右先回答 "什么 → 多严重/多可信 → 在哪 → 证据 → 修复 → 复核",
-# 因此 「问题说明」 紧随 编号/严重程度/可信度, 是首个内容列。
+# 列序原则: 评审者按 "多严重/多可信 → 归属 (文件/行号) → 这里到底是什么问题
+# → 证据 / 上下文 / 修复 → 子代理复核 → 人工确认" 的顺序逐列读取。
+# 「问题说明」 紧贴 「行号」 之后, 让 "在哪 + 是什么" 视为一组。
 FINDING_COLUMNS = [
     ("编号",                   5),
     ("严重程度",               8),
     ("可信度",                 7),
-    ("问题说明 (具体问题是什么)", 56),  # 首个内容列, 一句话说明这条 finding 究竟在说什么
     ("类别",                   12),
     ("模板ID",                 30),
     ("文件",                   36),   # 干净路径, 便于 git blame / CODEOWNERS 查责任人
     ("行号",                    8),
+    ("问题说明 (具体问题是什么)", 56),  # 紧随 行号 — 看到位置后立即看到问题描述
     ("所在函数",               22),
     ("证据 (file:line + 代码)", 60),
     ("已排除的误报模式",       28),
@@ -126,9 +127,9 @@ FINDING_COLUMNS = [
 ]
 # 列号常量 (1-based)
 COL_SEV       = 2
-COL_SUMMARY   = 4
-COL_FILE      = 7
-COL_LINE      = 8
+COL_FILE      = 6
+COL_LINE      = 7
+COL_SUMMARY   = 8
 COL_VERDICT   = 14
 COL_VERDICT_R = 15
 COL_CONFIRM   = 16
@@ -452,8 +453,8 @@ def _write_overview(
                                           color="FF1F3864")
     row += 1
     for line in [
-        "1. 打开「发现明细」页后, 请按 编号 → 严重程度 → 可信度 → 「问题说明 (具体问题是什么)」 的顺序读每一行, 一句话先弄清「这条 finding 在说什么」。",
-        "2. 然后阅读「证据」「代码上下文」核对; 用「文件」「行号」两列直接 git blame 或在 CODEOWNERS 中查责任人。",
+        "1. 打开「发现明细」页后, 请按 编号 → 严重程度 → 可信度 → 类别 / 模板ID → 「文件 / 行号」(责任人定位) → 「问题说明 (具体问题是什么)」 的顺序读每一行: 先看多严重多可信、归属到谁, 再一句话弄清这条 finding 究竟在说什么。",
+        "2. 然后阅读「证据」「代码上下文」核对; 「文件」「行号」两列可直接 git blame 或在 CODEOWNERS 中查责任人 (行号为数字, 可排序/筛选)。",
         "3. 「子代理复核结论」是另一只 AI 子代理独立复核的判断 (绿=同意 / 红=反对 / 黄=不确定 / 灰=未复核); 与原结论分歧时请重点核对「子代理复核依据」列。",
         "4. 在最后两列填写「人工确认」(下拉: ✓ 同意 / ✗ 误报 / ? 待定) 与「备注」。",
         "5. 「审计盲区」页含低可信与不确定项 — 这些不是确认的 bug, 但本次审计未能完全排除, 请按需追加审查。",
@@ -526,11 +527,11 @@ def _write_findings_sheet(
             ("",        str(i)),                                    # 1  编号
             ("",        SEVERITY_ZH.get(sev, sev or "")),           # 2  严重程度
             ("",        CONFIDENCE_ZH.get(conf, conf or "")),       # 3  可信度
-            ("summary", summary_text),                              # 4  问题说明
-            ("",        CATEGORY_ZH.get(cat, cat or "")),           # 5  类别
-            ("",        b.get("template_id", "")),                  # 6  模板ID
-            ("",        file_text),                                 # 7  文件
-            ("",        line_val),                                  # 8  行号
+            ("",        CATEGORY_ZH.get(cat, cat or "")),           # 4  类别
+            ("",        b.get("template_id", "")),                  # 5  模板ID
+            ("",        file_text),                                 # 6  文件
+            ("",        line_val),                                  # 7  行号
+            ("summary", summary_text),                              # 8  问题说明
             ("",        func_text),                                 # 9  所在函数
             ("ev",      _join_evidence(b)),                         # 10 证据
             ("",        _join_list(b.get("false_positive_filters_ruled_out"))),  # 11
