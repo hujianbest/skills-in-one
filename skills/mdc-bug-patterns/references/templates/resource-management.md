@@ -1,15 +1,14 @@
 # 资源与外设管理专项 (resource-management)
 
-> Specialty file for the C/C++ embedded **resource and peripheral lifecycle** audit. Load this when the audit scope is RAII / handle leaks / fd leaks / RTOS task or timer or DMA channel cleanup / peripheral deinit. Per-template contract field definitions live in `references/templates.md` (the index).
+> Specialty file for the C/C++ embedded **resource and peripheral lifecycle** audit. Load this when the audit scope is RAII / handle leaks / fd leaks / RTOS task or timer or DMA channel cleanup / peripheral deinit.
 
-This file holds the historical `res-*` templates plus four embedded-flavoured additions covering peripheral clock / RTOS task / hardware timer / NVIC IRQ deinit pairing.
+> **Boundary**: mutex lock-leak is **not** in this file — `res-mutex-no-unlock` lives in `lock-usage.md` together with the rest of the lock-usage templates. Per-template contract field definitions live in `references/templates.md` (the index).
 
 ## 索引
 
 | ID | 名称 | 严重 | 适用 |
 |---|---|---|---|
 | `res-file-no-close` | `fopen` 未在所有路径上 `fclose` | high | C / C++ |
-| `res-mutex-no-unlock` | `mutex.lock()` 未在所有路径上 `unlock` | high | C / C++ |
 | `res-fd-leak-on-error` | 错误路径上 fd / handle 未关闭 | high | C / C++ |
 | `res-raii-broken-by-release` | RAII 守卫被 `release()` 但未接收为新 owner | medium | C++ |
 | `res-peripheral-clock-not-disabled` | RCC 时钟使能后未在 deinit 路径上 disable | high | C / C++ embedded |
@@ -40,28 +39,6 @@ This file holds the historical `res-*` templates plus four embedded-flavoured ad
 - **fix_suggestions:**
   - Use `std::ifstream` / `std::ofstream`.
   - Wrap `FILE*` in a `unique_ptr` with custom deleter.
-
----
-
-### `res-mutex-no-unlock`
-- **name:** `mutex.lock()` without `unlock()` on all paths
-- **category:** resource
-- **severity:** high
-- **detection_query:**
-  ```bash
-  rg -n --type cpp '\.lock\(\)\s*;' -g '!third_party/**'
-  ```
-- **false_positive_filters:**
-  - The lock is in fact a `std::lock_guard` / `std::unique_lock` constructor (the match was on a different `.lock()`).
-  - `fp.dead-code`
-- **verification:**
-  1. Identify the mutex and the lock site.
-  2. Confirm an explicit `unlock()` on every reachable exit, including exception paths (since `lock()` is not exception-safe).
-- **required_evidence:**
-  - `lock_site`, `leaking_exit`, `exception_path_check`.
-- **fix_suggestions:**
-  - Use `std::lock_guard<std::mutex> g(m);` or `std::unique_lock`.
-  - Use `std::scoped_lock` for multiple mutexes.
 
 ---
 

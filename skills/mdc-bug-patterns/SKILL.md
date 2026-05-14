@@ -66,12 +66,13 @@ Build a small, structured picture of the repo: top-level layout, build system, c
 
 **Pass 1 also picks the specialty template file(s).** Read `references/templates.md` (the specialty index — small and cheap) and use its decision tree to choose one of:
 - `templates/memory-safety.md` (heap / stack / buffer / pointer / DMA)
-- `templates/concurrency-and-isr.md` (races / lock ordering / ISR / RTOS sync)
-- `templates/resource-management.md` (RAII / fd / peripheral lifecycle)
+- `templates/lock-usage.md` (mutex / lock-guard / critical-section misuse)
+- `templates/concurrency-and-isr.md` (non-mutex sync: atomic / volatile / ISR-thread sharing / RTOS API)
+- `templates/resource-management.md` (RAII / fd / peripheral lifecycle, excluding mutex)
 - `templates/logic-and-numeric.md` (integer / portability / endianness)
 - `templates/embedded-hardware.md` (watchdog / low-power / MMIO RMW / flash)
 
-Loading multiple specialty files is acceptable but should be deliberate; loading all 5 is rare ("comprehensive audit"). Cheap and structural — no per-line LLM reading here.
+Loading multiple specialty files is acceptable but should be deliberate. The most common embedded pairing is `lock-usage.md` + `concurrency-and-isr.md` (~32 KB). Loading all 6 is rare ("comprehensive audit"). Cheap and structural — no per-line LLM reading here.
 
 ### Pass 2 — Prioritise units (rg signals → ranked unit list)
 
@@ -166,21 +167,24 @@ Templates in `references/templates.md` are the **per-unit checklist**. Each temp
 
 ## Built-in Templates — Specialty Files (C/C++ embedded)
 
-Templates are split into **5 specialty files** to keep context small. Pass 1 chooses one (or more) specialty file based on the audit scope; the index `references/templates.md` is the only template-related file the agent reads unconditionally.
+Templates are split into **6 specialty files** to keep context small. Pass 1 chooses one (or more) specialty file based on the audit scope; the index `references/templates.md` is the only template-related file the agent reads unconditionally.
 
 | Specialty file | Load when audit scope is | # templates |
 |---|---|---|
 | `references/templates/memory-safety.md` | heap / stack / object lifetime / buffer / pointer / DMA buffer | 16 |
-| `references/templates/concurrency-and-isr.md` | data races / lock ordering / memory ordering / ISR / RTOS sync | 14 |
-| `references/templates/resource-management.md` | RAII / fd / mutex / peripheral clock / RTOS task / HW timer / NVIC | 8 |
+| `references/templates/lock-usage.md` | mutex / lock-guard / critical-section misuse (lock leaks, ordering, recursive, wrong-mutex-guards-data, try_lock, condvar, DCLP, priority inversion, blocking/callback while held) | 11 |
+| `references/templates/concurrency-and-isr.md` | non-mutex sync: data races on atomics/volatiles, memory ordering, TOCTTOU, ISR-thread sharing, non-ISR-safe API misuse | 8 |
+| `references/templates/resource-management.md` | RAII / fd / peripheral clock / RTOS task / HW timer / NVIC (mutex unlock pairing lives in `lock-usage.md`) | 7 |
 | `references/templates/logic-and-numeric.md` | integer overflow / signedness / shift / division / endianness / packed struct | 13 |
 | `references/templates/embedded-hardware.md` | watchdog / low-power / MMIO RMW / flash-write / IRQ-disabled critical sections | 6 |
 
-Total: **57 templates**, all C/C++-embedded-flavoured. Token economics: index (~6 KB) + 1 specialty file (~10–14 KB) ≈ 16–20 KB per audit, vs ~50 KB for loading the full catalogue.
+Total: **61 templates**, all C/C++-embedded-flavoured. Token economics: index (~7 KB) + 1 specialty file (~10–14 KB) ≈ 17–21 KB per audit, vs ~60 KB for loading the full catalogue.
+
+A "lock + concurrency" combined audit (most common embedded pairing) loads `lock-usage.md` + `concurrency-and-isr.md` ≈ 32 KB.
 
 Template id prefixes (for quick identification): `mem-*`, `ptr-*`, `res-*`, `con-*`, `int-*`, `isr-*`, `rtos-*`, `emb-*`.
 
-See `references/templates.md` for the full per-specialty index, the decision tree, and the per-template-contract field definitions. The specialty files contain the actual detection contracts (`detection_query`, `false_positive_filters`, `verification`, `required_evidence`, `confidence_rubric`, `bad_example`, `good_example`, `fix_suggestions`).
+See `references/templates.md` for the full per-specialty index, the decision tree, the lock-usage cross-reference table, and the per-template-contract field definitions. The specialty files contain the actual detection contracts (`detection_query`, `false_positive_filters`, `verification`, `required_evidence`, `confidence_rubric`, `bad_example`, `good_example`, `fix_suggestions`).
 
 ## Scripts
 
