@@ -16,6 +16,10 @@ This file holds the historical `con-*` templates plus six embedded-flavoured add
 | `con-missing-memory-order` | `std::atomic` 用 relaxed 但需要 ordering | high | C++ |
 | `con-tocttou` | 检查-使用之间存在并发修改 | high | C / C++ |
 | `con-condvar-no-predicate` | `cv.wait` 无谓词, 无法应对 spurious wakeup | high | C++ |
+| `con-lock-guard-temporary-unnamed` | 未命名 `std::lock_guard(m);` 临时对象立即析构, 实际未持锁 | critical | C++ |
+| `con-recursive-lock-on-non-recursive-mutex` | 已持锁状态下再次获取同一非递归 mutex (`std::mutex`/`pthread_mutex`) | critical | C / C++ |
+| `con-wrong-mutex-guards-data` | 同一字段在不同路径上被不同 mutex 保护, 等同未保护 | critical | C / C++ |
+| `con-try-lock-no-check` | `m.try_lock()` 返回值被忽略, 之后不论是否拿到都按已持锁处理 | high | C / C++ |
 | `isr-shared-non-atomic` | ISR 与线程共享变量未做原子/临界区保护 | critical | C / C++ embedded |
 | `isr-non-volatile-shared` | ISR 与线程共享变量未声明 `volatile` | critical | C / C++ embedded |
 | `isr-blocking-rtos-call` | 在 ISR 中调用阻塞型或非 ISR-safe 的 RTOS API | critical | C / C++ embedded |
@@ -229,6 +233,166 @@ This file holds the historical `con-*` templates plus six embedded-flavoured add
 - **fix_suggestions:**
   - Use `cv.wait(lock, [&]{ return predicate; });`.
   - Or wrap in `while (!predicate) cv.wait(lock);`.
+
+---
+
+## Lock-usage misuse
+
+### `con-lock-guard-temporary-unnamed`
+- **name:** `std::lock_guard` / `std::scoped_lock` constructed as an unnamed temporary (releases immediately)
+- **category:** concurrency
+- **severity:** critical
+- **detection_query:**
+  ```bash
+  rg -n --type cpp '\b(std::)?(lock_guard|scoped_lock|unique_lock)\s*<' -g '!third_party/**'
+  ```
+  Pass 3 narrows to lines where the guard is built without binding to a named local — e.g. `std::lock_guard<std::mutex>(m);` or `std::scoped_lock(m1, m2);` as a statement.
+- **false_positive_filters:**
+  - The match is a typedef / `using` alias.
+  - The match is a function parameter (`void f(std::unique_lock<std::mutex> g)`).
+  - The match is followed by `=` or `(...) <name>` binding it to a variable.
+- **verification:**
+  1. For each match, confirm the syntactic form: `<guard><...>(<args>);` with **no** identifier between `<...>` and `(`.
+  2. C++ rules: an unnamed temporary is destroyed at the end of the *full-expression* (the `;`), so the lock is released immediately. The code that follows is unprotected even though it visually appears to be inside a critical section.
+  3. The most common typo is forgetting the variable name: `std::lock_guard<std::mutex>(m);` instead of `std::lock_guard<std::mutex> g(m);`.
+- **required_evidence:**
+  - `guard_construction_site`: `<file:line>` of the unnamed-temporary construction.
+  - `intended_critical_section`: `<file:line range>` of the code that the author *intended* to protect.
+  - `mutex_identity`: which mutex was passed in.
+- **confidence_rubric:**
+  - `high`: clearly an unnamed `lock_guard<T>(m);` statement followed by accesses to data the mutex protects.
+  - `medium`: unnamed guard but the surrounding code does not obviously touch protected data (still wrong, but lower blast radius).
+- **bad_example:**
+  ```cpp
+  void Cache::Insert(const Entry& e) {
+    std::lock_guard<std::mutex>(cache_mutex_);   // BUG: unnamed; releases now
+    entries_.push_back(e);                       // unprotected!
+    cache_size_ += e.size;                       // unprotected!
+  }
+  ```
+- **good_example:**
+  ```cpp
+  void Cache::Insert(const Entry& e) {
+    std::lock_guard<std::mutex> g(cache_mutex_); // named; lives until '}'
+    entries_.push_back(e);
+    cache_size_ += e.size;
+  }
+  ```
+- **fix_suggestions:**
+  - Always bind the guard to a named local. Modern compilers warn (`-Wunused-value` / Clang `-Wunused-lock`) — enable them.
+  - Prefer C++17 CTAD: `std::lock_guard g{cache_mutex_};` (still requires a name).
+
+---
+
+### `con-recursive-lock-on-non-recursive-mutex`
+- **name:** Re-acquiring a non-recursive mutex while already holding it
+- **category:** concurrency
+- **severity:** critical
+- **detection_query:**
+  ```bash
+  rg -n --type cpp '\b(std::mutex|pthread_mutex_t|os_mutex_t|SemaphoreHandle_t)\b' -g '!third_party/**'
+  ```
+  Pass 3 enumerates each mutex variable and the functions that take it; then walks the in-scope call graph from inside each critical section to find any callee that re-takes the same mutex.
+- **false_positive_filters:**
+  - The mutex is a `std::recursive_mutex` / `pthread_mutex_t` initialised with `PTHREAD_MUTEX_RECURSIVE` / FreeRTOS `xSemaphoreCreateRecursiveMutex`. Recursive mutexes by design accept re-entry from the same thread.
+  - The "re-take" is on a *different instance* (e.g. `obj1.mu_` vs `obj2.mu_`).
+- **verification:**
+  1. Identify the mutex type. `std::mutex`, default-initialised `pthread_mutex_t`, `xSemaphoreCreateMutex` are all NON-recursive.
+  2. For each function that takes this mutex, walk its body and the bodies of every function it calls (within audited scope). Flag any recursive acquisition of the same mutex.
+  3. Outcome: on `std::mutex` → undefined behaviour (typically deadlock or assertion). On default `pthread_mutex_t` → deadlock. On FreeRTOS non-recursive mutex → assertion / deadlock.
+- **required_evidence:**
+  - `mutex_declaration`: `<file:line>` of the mutex with its type.
+  - `outer_lock_site`, `inner_lock_site`: the two acquisitions on the same call stack.
+  - `call_path`: the sequence of calls from outer to inner.
+- **confidence_rubric:**
+  - `high`: a single function calls another function that locks the same mutex, with no `unlock` between them.
+  - `medium`: re-entry happens through a longer call chain; one of the intermediate calls might in fact unlock first.
+  - `low`: re-entry possible only via a callback that the auditor cannot enumerate.
+- **bad_example:**
+  ```cpp
+  std::mutex m_;
+  void Foo() { std::lock_guard g(m_); Bar(); }
+  void Bar() { std::lock_guard g(m_); /* deadlock if called from Foo */ }
+  ```
+- **fix_suggestions:**
+  - Refactor to release the lock before calling the callee, OR have the callee accept a "lock already held" overload (cite the precondition).
+  - If recursive locking is genuinely desired, use `std::recursive_mutex` (and document why).
+  - For RTOS, `xSemaphoreCreateRecursiveMutex` accepts re-entry; be explicit about the choice.
+
+---
+
+### `con-wrong-mutex-guards-data`
+- **name:** Same field protected by different mutexes on different paths (inconsistent guard)
+- **category:** concurrency
+- **severity:** critical
+- **detection_query:**
+  ```bash
+  rg -n --type cpp '\b(std::)?(lock_guard|scoped_lock|unique_lock)\s*<' -g '!third_party/**'
+  ```
+  Pass 3 enumerates each shared field's accesses and collects the lock-set held at each access site; flags fields where the lock-set differs across writers.
+- **false_positive_filters:**
+  - The differing lock-set is intentional and one of them is documented as a SUPERSET of the other (e.g. `big_lock_` always implies `small_lock_`).
+  - One access site is provably single-threaded (init / shutdown).
+- **verification:**
+  1. Pick a shared field (typically a non-`const` data member touched by ≥ 2 functions).
+  2. For each access (read or write), determine the lock-set held.
+  3. If the set differs across access sites and neither is a superset, the field has inconsistent protection — equivalent to no protection at all on the divergent paths.
+  4. Common project pattern: a refactor moved code from class A (protected by `a_mu_`) to class B (protected by `b_mu_`), but one access path still uses the old mutex.
+- **required_evidence:**
+  - `field_declaration`: `<file:line>`.
+  - `access_site_with_lock_a`: `<file:line>` and the mutex held.
+  - `access_site_with_lock_b`: `<file:line>` and the (different) mutex held.
+  - `proof_paths_can_concurrently_execute`: thread-affinity sketch showing both paths can run together.
+- **confidence_rubric:**
+  - `high`: same field written under `mu1_` in one method and under `mu2_` in another, with no superset relation.
+  - `medium`: field accessed under different locks but the access pattern suggests a refactor in progress.
+- **bad_example:**
+  ```cpp
+  class Cache {
+    std::mutex insert_mu_, evict_mu_;
+    size_t size_;
+    void Insert(...) { std::lock_guard g(insert_mu_); size_ += s; ... }
+    void Evict (...) { std::lock_guard g(evict_mu_);  size_ -= s; ... }   // races with Insert
+  };
+  ```
+- **fix_suggestions:**
+  - Pick ONE mutex per piece of state and use it everywhere the state is touched.
+  - Document the mutex/state mapping in a comment next to the data declarations.
+  - Use Clang `-Wthread-safety` annotations (`GUARDED_BY(mu_)`) — the compiler will catch most of these statically.
+
+---
+
+### `con-try-lock-no-check`
+- **name:** `try_lock()` return value ignored
+- **category:** concurrency
+- **severity:** high
+- **detection_query:**
+  ```bash
+  rg -n --type cpp '\.try_lock\s*\(\s*\)\s*;' -g '!third_party/**'
+  ```
+- **false_positive_filters:**
+  - The very next line is `if (!locked) { … }` style on a previously-captured value.
+  - The call is inside a `static_cast<void>(...)` / `(void) m.try_lock();` deliberately discarding the result (still wrong, but the developer was explicit — flag it).
+- **verification:**
+  1. Locate the `try_lock` call.
+  2. Confirm its return value is not consumed (no `if`, no assignment, no `[[nodiscard]]` warning suppression with a use).
+  3. Without the check, the subsequent code runs whether or not the lock was actually acquired — same as no lock at all on the contention path.
+- **required_evidence:**
+  - `try_lock_site`: `<file:line>`.
+  - `subsequent_use_of_protected_data`: `<file:line>` of the unprotected access.
+- **confidence_rubric:**
+  - `high`: `try_lock` followed by accesses to a field the corresponding mutex protects.
+- **bad_example:**
+  ```cpp
+  void Process() {
+    cache_mutex_.try_lock();    // return ignored
+    entries_.push_back(...);    // may execute without holding the lock
+    cache_mutex_.unlock();      // UB: unlock without lock
+  }
+  ```
+- **fix_suggestions:**
+  - Use `std::unique_lock<std::mutex> g(cache_mutex_, std::try_to_lock); if (!g.owns_lock()) return;`.
+  - Or `if (cache_mutex_.try_lock()) { …; cache_mutex_.unlock(); }`.
 
 ---
 

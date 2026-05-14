@@ -58,9 +58,9 @@ Heap / stack / object lifetime / buffer / pointer + embedded-flavoured: stack-ov
 | `mem-dma-buffer-alignment-or-region` | high |
 | `ptr-mmio-non-volatile` | critical |
 
-### `templates/concurrency-and-isr.md` — 并发与中断专项 (14 templates)
+### `templates/concurrency-and-isr.md` — 并发与中断专项 (18 templates)
 
-Multi-thread races / lock ordering / memory ordering + embedded-flavoured: ISR-shared variables, ISR-API misuse, MMIO RMW races, RTOS priority inversion.
+Multi-thread races / lock ordering / memory ordering / lock-usage misuse + embedded-flavoured: ISR-shared variables, ISR-API misuse, MMIO RMW races, RTOS priority inversion.
 
 | ID | severity |
 |---|---|
@@ -72,6 +72,10 @@ Multi-thread races / lock ordering / memory ordering + embedded-flavoured: ISR-s
 | `con-missing-memory-order` | high |
 | `con-tocttou` | high |
 | `con-condvar-no-predicate` | high |
+| `con-lock-guard-temporary-unnamed` | critical |
+| `con-recursive-lock-on-non-recursive-mutex` | critical |
+| `con-wrong-mutex-guards-data` | critical |
+| `con-try-lock-no-check` | high |
 | `isr-shared-non-atomic` | critical |
 | `isr-non-volatile-shared` | critical |
 | `isr-blocking-rtos-call` | critical |
@@ -126,6 +130,33 @@ Pure hardware-domain checks: watchdog timing, low-power mode pairing, MMIO bit-f
 | `emb-flash-write-blocks-execution` | high |
 | `emb-irq-disabled-too-long` | high |
 | `emb-recursion-in-task-fixed-stack` | high |
+
+## 锁使用 (lock usage) 相关模板分布
+
+锁使用是横跨「并发」和「资源」两个专项的复合主题，不需要单独专项文件。下表把所有锁相关模板列在一起，方便专门做"锁审计"时一眼查全：
+
+| 锁误用模式 | 模板 ID | 所在专项文件 | 严重 |
+|---|---|---|---|
+| 锁泄漏 (lock 后某些路径没 unlock) | `res-mutex-no-unlock` | `resource-management.md` | high |
+| 加锁不充分 → 数据竞争 | `con-unsynchronized-shared-write` | `concurrency-and-isr.md` | critical |
+| 同一字段被不同 mutex 保护 (实际无保护) | `con-wrong-mutex-guards-data` | `concurrency-and-isr.md` | critical |
+| 锁顺序不一致 → 死锁 | `con-lock-ordering-deadlock` | `concurrency-and-isr.md` | critical |
+| 已持锁状态下再次获取同一非递归 mutex → UB / 死锁 | `con-recursive-lock-on-non-recursive-mutex` | `concurrency-and-isr.md` | critical |
+| 持锁时阻塞 (sleep / I-O / wait) | `con-sleep-or-blocking-with-lock-held` | `concurrency-and-isr.md` | high |
+| 持锁时回调外部代码 → 重入死锁 | `con-callback-invoked-with-lock-held` | `concurrency-and-isr.md` | high |
+| 双重检查锁 (DCLP) on non-atomic | `con-double-checked-locking` | `concurrency-and-isr.md` | critical |
+| `cv.wait` 无谓词 (spurious wakeup 误判) | `con-condvar-no-predicate` | `concurrency-and-isr.md` | high |
+| 未命名 `lock_guard(m);` 临时对象立即析构 | `con-lock-guard-temporary-unnamed` | `concurrency-and-isr.md` | critical |
+| `m.try_lock()` 返回值被忽略 | `con-try-lock-no-check` | `concurrency-and-isr.md` | high |
+| `std::atomic` 误用 `relaxed` 缺序 | `con-missing-memory-order` | `concurrency-and-isr.md` | high |
+| ISR-线程共享变量未做临界区/原子保护 | `isr-shared-non-atomic` | `concurrency-and-isr.md` | critical |
+| ISR-线程共享变量缺 `volatile` (编译器优化掉读) | `isr-non-volatile-shared` | `concurrency-and-isr.md` | critical |
+| ISR 中调用阻塞型 / 非 ISR-safe 的 RTOS API | `isr-blocking-rtos-call` | `concurrency-and-isr.md` | critical |
+| 寄存器 RMW 无独占 (LDREX/STREX 或临界区) | `isr-rmw-mmio-no-exclusive` | `concurrency-and-isr.md` | high |
+| RTOS mutex 缺优先级继承 → 优先级反转 | `rtos-priority-inversion-no-protocol` | `concurrency-and-isr.md` | high |
+| 关中断的临界区过长 (RT 抖动) | `emb-irq-disabled-too-long` | `embedded-hardware.md` | high |
+
+> 做"锁专项审计"的快捷做法：加载 `concurrency-and-isr.md` (主菜) + `resource-management.md` (取 `res-mutex-no-unlock`) + `embedded-hardware.md` 中只看 `emb-irq-disabled-too-long`。这套组合相当于上表的全部 18 条。
 
 ## Operating with specialty files
 
