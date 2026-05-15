@@ -143,6 +143,39 @@ The subagent's verdict is **advisory**, not authoritative — it informs the hum
 
 Use `references/reporting.md` for the exact format. Default report contains only `high` and `medium` confidence findings. `low` and `inconclusive` are listed separately as **audit gaps** so reviewers can decide whether to invest more time.
 
+## Long-running audits (multi-hour / overnight)
+
+For audits that will take more than ~30 minutes, use `scripts/run_audit.py` instead of the ad-hoc Pass-3 loop. It implements a **disk-driven resumable state machine** that checkpoints after every reviewed unit; if the cloud-agent VM restarts, context overflows, the network drops, or a subagent fails, the next invocation reads `audit/state.json` and picks up where the previous run left off — losing at most one in-progress unit.
+
+Operational protocol — `references/long-running-audits.md`. Workflow:
+
+```bash
+# Pass 1+2: build the work-queue (one-time)
+run_audit.py init --scope src/ \
+    --specialty lock-usage --specialty concurrency-and-isr \
+    --repo "myorg/myrepo" --reviewer "auto-overnight" \
+    --out audit/
+
+# Pass 3: cloud-agent loop (each unit checkpointed individually)
+while true:
+    unit = run_audit.py next --out audit/        # JSON or empty if done
+    findings = review_unit(unit)                 # LLM does the deep read
+    write_json("/tmp/f.json", findings)
+    run_audit.py record --out audit/ --unit-id <id> --findings /tmp/f.json
+
+# Pass 3.5: subagent verdicts (same shape)
+run_audit.py next-verdict / record-verdict ...
+
+# Pass 4: assemble final Excel
+run_audit.py finalize --out audit/
+```
+
+**Cloud-agent restart contract**: if a fresh agent finds an `audit/HOWTO_RESUME.md` in the workspace, it MUST NOT re-run `init`. Read the HOWTO, run `status`, and continue from `next`. Any unit whose `audit/findings/<unit-id>.json` exists is already done.
+
+**Rolling partial reports**: every K=50 units (or T=30 min, whichever first), `record` automatically regenerates `audit/partial_reports/bug_report-<ts>.xlsx`. The "wake up at 7am to find the audit died at 4am" guarantee — there's always a usable Chinese 4-sheet workbook of work-so-far.
+
+**Liveness**: every checkpoint writes `audit/heartbeat.txt` with `<pid> <iso-ts> <last-action>`. Run the conductor inside `tmux` (snippet in `references/long-running-audits.md`) so SSH drops don't kill it.
+
 Always include:
 - **Coverage summary**: units reviewed / total units in scope; per-template hit / suppression / inconclusive counts.
 - **Audit gaps**: un-reviewed units (with rationale), inconclusive findings, out-of-scope paths.
@@ -193,6 +226,7 @@ See `references/templates.md` for the full per-specialty index, the decision tre
 | `scripts/scan_candidates.py` | Run all template `detection_query` patterns and emit JSONL of candidates. Pass 2 prioritisation input. Supports `--template ID`, `--path SUBDIR`, `--out FILE`, `--list`, `--dry-run`. |
 | `scripts/list_units.py` | Aggregate candidates per code unit (function / file) and emit a prioritised unit work-list with suspicion scores. Pass 2 output → Pass 3 input. |
 | `scripts/coverage_tracker.py` | Track per-candidate and per-unit verification outcomes (`confirmed` / `suppressed` / `inconclusive`) with reasons. Drives the coverage table in Pass 4. |
+| `scripts/run_audit.py` | **Long-running audit conductor.** Resumable disk-driven state machine that survives VM restart / context overflow / network drops. Subcommands: `init` / `status` / `next` / `record` / `next-verdict` / `record-verdict` / `partial` / `finalize` / `mark` / `reset-unit`. See `references/long-running-audits.md`. |
 | `scripts/merge_second_pass.py` | Merge a JSONL of subagent verdicts (from Pass 3.5) into the findings JSON, producing `findings_with_review.json` that carries a `second_pass_review` block per finding. |
 | `scripts/excel_helper.py` | Render the final report into a Chinese, human-review-friendly `.xlsx` (4 sheets: 审查总览 / 发现明细 / 审计盲区 / 覆盖率明细) with severity colour coding, frozen header, autofilter, separate `文件` + `行号` columns (for `git blame` / 责任人 lookup), `子代理复核结论` (color-coded) + `子代理复核依据` columns from Pass 3.5, and a `人工确认` dropdown column for per-finding sign-off. Accepts `--coverage`, `--repo`, `--scope`, `--reviewer` for the overview sheet. |
 
@@ -207,6 +241,7 @@ All scripts are runnable standalone with `--help`.
 | `references/templates/<specialty>.md` | Pass 2 (ranking signals) and Pass 3 (per-unit checklist). Load only the specialty file(s) chosen in Pass 1. |
 | `references/false-positive-filters.md` | Pass 3 (mandatory FP check). |
 | `references/second-pass-review.md` | Pass 3.5 (subagent prompt template + verdict schema). |
+| `references/long-running-audits.md` | When the audit will run for hours / overnight — operational protocol for the disk-driven resumable state machine (`scripts/run_audit.py`). Read before starting any multi-hour run. |
 | `references/reporting.md` | Pass 4. |
 
 ## Common Mistakes (and how this skill prevents them)
