@@ -112,14 +112,16 @@ skills/mdc-bug-patterns/
 │   ├── false-positive-filters.md ← 跨专项 fp.* 过滤器 (fp.ownership.smart-pointer 等)
 │   ├── second-pass-review.md     ← Pass 3.5 子代理 prompt 模板 + verdict schema
 │   ├── reporting.md              ← finding JSON schema + 17 列 Chinese Excel 详解
-│   └── long-running-audits.md    ← 长跑可恢复协议 (read me before any multi-hour run)
+│   ├── long-running-audits.md    ← 长跑可恢复协议 (read me before any multi-hour run)
+│   └── opencode-integration.md   ← 在 opencode 中跑 (装 skill + tmux + serve + driver) ★
 └── scripts/
     ├── scan_candidates.py        ← Pass 2: rg 候选 → JSONL
     ├── list_units.py             ← Pass 2: 候选聚合到 unit (function/file) + 排序
     ├── coverage_tracker.py       ← Pass 2/3/4: per-candidate 状态簿记
     ├── merge_second_pass.py      ← Pass 3.5: 合并子代理 verdicts 到 findings.json
     ├── excel_helper.py           ← Pass 4: 渲染中文 4-sheet Excel
-    └── run_audit.py              ← 长跑 conductor: init/next/record/.../finalize
+    ├── run_audit.py              ← 长跑 conductor: init/next/record/.../finalize
+    └── audit-overnight-opencode.sh ← 一行启动 opencode 过夜审计 (tmux + serve + driver) ★
 ```
 
 ---
@@ -145,7 +147,7 @@ scripts/excel_helper.py --bugs-file findings.json --output bug_report.xlsx
 
 ### 场景 2: 长跑过夜审计 (大仓库, 数小时)
 
-**用 `scripts/run_audit.py`**，可恢复，挂了不丢已审单元。详细协议在 [`references/long-running-audits.md`](references/long-running-audits.md)。
+**用 `scripts/run_audit.py`**，可恢复，挂了不丢已审单元。详细协议在 [`references/long-running-audits.md`](references/long-running-audits.md)；如果你用的是 [opencode](https://opencode.ai)，可以直接用现成的 `scripts/audit-overnight-opencode.sh` 启动整夜跑（详见 [`references/opencode-integration.md`](references/opencode-integration.md)）。
 
 ```bash
 # 1) 初始化 (一次性)
@@ -189,6 +191,26 @@ ls -lt audit/partial_reports/ | head -3
 scripts/run_audit.py finalize --out audit/
 # → audit/bug_report.xlsx
 ```
+
+**用 opencode 整夜跑的极简方式** (一行启动 + 关电脑去睡):
+
+```bash
+# 0) 一次性
+scripts/run_audit.py init --scope src/ \
+    --specialty lock-usage --specialty concurrency-and-isr \
+    --repo "myorg/myrepo" --reviewer "auto-overnight" \
+    --out audit/
+
+# 1) 启 tmux + opencode serve + Pass 3 / Pass 3.5 driver loop + finalize
+scripts/audit-overnight-opencode.sh audit/
+
+# 早上回来:
+scripts/run_audit.py status --out audit/        # 看进度
+ls -t audit/partial_reports/ | head -3           # 最新部分 Excel
+# 如果跑完了, audit/bug_report.xlsx 就是终稿
+```
+
+详见 [`references/opencode-integration.md`](references/opencode-integration.md) — 包含安装到 opencode、tmux + serve 架构、prompt 模板、retry/timeout、model 选择 (e.g. Pass 3 用 sonnet, Pass 3.5 用 haiku)、opencode 非交互权限规则等 gotchas。
 
 **Cloud agent 重启 / 上下文爆掉时**：新 agent 看到 `audit/HOWTO_RESUME.md` 就**绝不再 init**，先 `status` → 然后从 `next` 继续。任何 `audit/findings/<unit-id>.json` 已存在的单元就是已审完，不重复审。
 
@@ -243,6 +265,7 @@ scripts/run_audit.py init --scope src/ --out audit/      # 不传 --specialty
 | | `finalize` | 生成最终 Excel | |
 | | `mark --unit-id ID --status STATUS` | 手动改单元状态 | |
 | | `reset-unit --unit-id ID` | 把某单元重新放回 pending | |
+| `audit-overnight-opencode.sh` | (default) | 一键启动 opencode 过夜审计 (tmux + serve + driver loop + finalize) | `audit-overnight-opencode.sh audit/ --port 4096 --model anthropic/claude-sonnet-4` |
 
 所有脚本都支持 `--help`。
 
@@ -362,4 +385,5 @@ A: 解析器只识别两个东西：`### \`<id>\`` 形式的标题、`**detectio
 | Pass 3.5 子代理的 prompt 模板 + verdict schema | [`references/second-pass-review.md`](references/second-pass-review.md) |
 | Excel 报告的 finding JSON schema + 17 列详解 | [`references/reporting.md`](references/reporting.md) |
 | 长跑 / 过夜 / 可恢复审计的运行手册 | [`references/long-running-audits.md`](references/long-running-audits.md) |
+| 在 opencode 中跑 (装 skill + tmux + serve + driver) | [`references/opencode-integration.md`](references/opencode-integration.md) |
 | Skill 本身的 frontmatter / 哲学 / Iron Rule | [`SKILL.md`](SKILL.md) |
