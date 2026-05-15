@@ -23,19 +23,29 @@ What is the audit scope?
 
 If unsure, ask the user to narrow scope first. A 60 KB context dump is the failure mode this index is here to prevent.
 
-## Per-template-contract format
+## Per-template slim format
 
-Every template across every specialty file uses the same structured contract. Roles of each field:
+Templates are kept deliberately compact because the LLM already knows the patterns; the value the template adds is **discipline + output contract**, not pattern tutorials. Each template carries only the fields that constrain LLM behaviour:
 
-- `detection_query` — a `rg` (ripgrep) invocation used in Pass 2 only. It is a **prior / ranking signal**, not a finding gate. The query intentionally over-matches; the LLM decides whether there is a bug by reading the code.
-- `false_positive_filters` — filters from `references/false-positive-filters.md` that the LLM must explicitly rule out before promoting a finding.
-- `verification` — the procedural checklist the LLM executes on each unit where the template might apply.
-- `required_evidence` — the exact pieces of code / data flow that must be cited in the report. **A finding is invalid if any item is missing.**
-- `confidence_rubric` — how to rate `high` / `medium` / `low` for this template.
-- `bad_example` / `good_example` — calibration examples.
-- `fix_suggestions` — recommended fixes.
+| Field | Role | Required? |
+|---|---|---|
+| `### \`<id>\`` (header) | Stable id used in `coverage.json`, Excel, `--template`. | yes |
+| `severity` | `critical` / `high` / `medium` / `low`. Read by `list_units.py`. | yes |
+| `what` | One sentence describing the bug shape — for human triage, NOT for teaching the LLM. | yes |
+| `detection_query` | `rg` one-liner (in a ```bash``` block). Pass 2 prior / ranking signal — over-matches by design; Pass 3 narrows. | yes |
+| `fp_filters` | Comma-separated list of `fp.*` ids (from `references/false-positive-filters.md`) and/or short inline filter descriptors. The LLM MUST explicitly rule these out before promoting a finding. | yes |
+| `verification` | 2-5 step procedural checklist. Discipline-enforcing: tells the LLM HOW to check, not WHAT the bug is. | yes |
+| `required_evidence` | List of evidence keys the LLM MUST cite in the report (`<key>: <file:line> <code excerpt>`). **A finding missing any required evidence is invalid.** | yes |
+| `confidence` | One-line `high` / `medium` / `low` rubric for this template. | yes |
+| `fix` | Terse one-line or two-bullet recommended fix. | yes |
 
-Reminder of the philosophy: **trade tokens for code quality**. Pattern matching tells you *where to look first*; the LLM decides *whether there is a bug* by actually reading and understanding the code.
+Fields **deliberately dropped** (the LLM already knows these from training data — including them wastes tokens):
+- `name` — long human-readable description (`id` is self-descriptive).
+- `category` — always equals the specialty file name; redundant.
+- `bad_example` / `good_example` — code samples illustrating the pattern. The LLM has seen thousands of examples.
+- Long prose explanations of WHY a pattern is wrong.
+
+The philosophy: **trade tokens for code quality**. Pattern matching tells you *where to look first*; the LLM decides *whether there is a bug* by actually reading the code. Templates exist to enforce **auditable output discipline** (named FP filters, required evidence, structured confidence), not to teach what UAF is.
 
 ## Specialty index
 

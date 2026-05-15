@@ -1,326 +1,241 @@
 # 逻辑与数值专项 (logic-and-numeric)
 
-> Specialty file for the C/C++ embedded **integer / arithmetic / portability** audit. Load this when the audit scope is integer overflow / signedness / shift / division / container access / endianness / bit-field / packed-struct portability. Per-template contract field definitions live in `references/templates.md` (the index).
+> Specialty file for the C/C++ embedded **integer / arithmetic / portability** audit. Load when audit scope is integer overflow / signedness / shift / division / container access / endianness / bit-field / packed-struct portability.
 
-This file holds the historical `int-*`, `div-by-zero`, and `empty-container-*` templates plus five embedded-flavoured additions covering 16-bit MCU promotion, bit-field portability, packed-struct misaligned access, endianness, and `char` signedness.
+Per-template slim format: see `references/templates.md`.
 
 ## 索引
 
-| ID | 名称 | 严重 | 适用 |
-|---|---|---|---|
-| `int-add-overflow` | 有符号加法溢出未做检查 | high | C / C++ |
-| `int-sub-underflow` | 减法/无符号下溢未做检查 | high | C / C++ |
-| `int-mul-overflow-alloc-size` | 用作分配大小的乘法可能溢出 | critical | C / C++ |
-| `int-shift-out-of-range` | 移位量 ≥ 类型宽度 | medium | C / C++ |
-| `int-signed-unsigned-mix` | 有符号与无符号混合比较/运算 | medium | C / C++ |
-| `int-narrowing-cast` | 窄化转换未做边界检查 | low | C / C++ |
-| `div-by-zero` | 除/模未做零检查 | high | C / C++ |
-| `empty-container-front-back` | 容器空时调 `front()`/`back()`/`top()` | high | C++ |
-| `int-implicit-promotion-narrow-mcu` | 16-bit MCU 上 int 提升导致溢出/截断 | high | C / C++ embedded |
-| `int-bitfield-portability` | 位域布局是 implementation-defined, 不可直接序列化 | medium | C / C++ embedded |
-| `int-packed-struct-misaligned-access` | 在对齐严格的 ARM 上取 packed struct 字段地址 | high | C / C++ embedded |
-| `int-endianness-no-conversion` | 序列化整数到字节流时未做字节序转换 | high | C / C++ embedded |
-| `int-char-signedness` | 假定 `char` 有/无符号; 不同平台/编译器不一致 | medium | C / C++ embedded |
+| ID | severity |
+|---|---|
+| `int-add-overflow` | high |
+| `int-sub-underflow` | high |
+| `int-mul-overflow-alloc-size` | critical |
+| `int-shift-out-of-range` | medium |
+| `int-signed-unsigned-mix` | medium |
+| `int-narrowing-cast` | low |
+| `div-by-zero` | high |
+| `empty-container-front-back` | high |
+| `int-implicit-promotion-narrow-mcu` | high |
+| `int-bitfield-portability` | medium |
+| `int-packed-struct-misaligned-access` | high |
+| `int-endianness-no-conversion` | high |
+| `int-char-signedness` | medium |
 
 ---
 
-## Logic / integer
-
 ### `int-add-overflow`
-- **name:** Signed integer addition without overflow check
-- **category:** logic
 - **severity:** high
+- **what:** Signed integer addition without overflow check; UB on overflow per C/C++ standard.
 - **detection_query:**
   ```bash
   rg -n --type cpp '\b(int|long|int32_t|int64_t|ssize_t)\s+\w+\s*=\s*\w+\s*\+\s*\w+' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - `fp.integer.bounded-by-precondition`
-  - `fp.signed-unsigned.deliberate-modular`
+- **fp_filters:** `fp.integer.bounded-by-precondition`, `fp.signed-unsigned.deliberate-modular`.
 - **verification:**
-  1. Determine the domain of each operand.
-  2. If `max(a)+max(b)` exceeds the type, report.
-- **required_evidence:**
-  - `expression_site`, `operand_domains`, `overflow_path`.
-- **fix_suggestions:**
-  - `__builtin_add_overflow(a, b, &r)`.
-  - Use wider intermediate type and clamp.
+  1. Determine domain of each operand.
+  2. If `max(a) + max(b)` exceeds the type → report.
+- **required_evidence:** `expression_site`, `operand_domains`, `overflow_path`.
+- **confidence:** `high` if domain demonstrably reaches overflow; `medium` if domain unbounded.
+- **fix:** `__builtin_add_overflow`; wider intermediate type with clamp.
 
 ---
 
 ### `int-sub-underflow`
-- **name:** Subtraction underflow (especially `size_t` / unsigned)
-- **category:** logic
 - **severity:** high
+- **what:** Subtraction underflow; for `size_t` / unsigned this wraps to a huge value (`if (avail - needed >= 0)` is always true).
 - **detection_query:**
   ```bash
   rg -n --type cpp '\b(int|long|size_t|uint32_t|uint64_t)\s+\w+\s*=\s*\w+\s*-\s*\w+' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - `fp.integer.bounded-by-precondition`
+- **fp_filters:** `fp.integer.bounded-by-precondition`.
 - **verification:**
-  1. Determine the domain. For `size_t` / unsigned types, any case where the right operand can exceed the left wraps to a huge value.
-  2. The classic embedded bug: `if (avail - needed >= 0)` always true if `avail` is `size_t`.
-- **required_evidence:**
-  - `expression_site`, `operand_domains`, `underflow_path`.
-- **fix_suggestions:**
-  - `__builtin_sub_overflow(a, b, &r)`.
-  - Re-write as `if (avail >= needed) { … = avail - needed; }`.
+  1. Determine domain — for unsigned types, any case where `b > a` wraps.
+  2. Look for the `avail - needed >= 0` anti-pattern in particular.
+- **required_evidence:** `expression_site`, `operand_domains`, `underflow_path`.
+- **confidence:** `high` for unsigned subtraction without prior `>=` guard.
+- **fix:** `__builtin_sub_overflow`; restructure as `if (avail >= needed) { ... = avail - needed; }`.
 
 ---
 
 ### `int-mul-overflow-alloc-size`
-- **name:** Multiplication used as allocation size without overflow check
-- **category:** logic
 - **severity:** critical
+- **what:** Multiplication used as allocation size without overflow check; `count * sizeof(T)` wraps to small value, allocation succeeds, subsequent indexing OOB.
 - **detection_query:**
   ```bash
   rg -n --type cpp '\b(new\s+\w[\w:]*\s*\[[^\]]*\*|malloc\s*\([^)]*\*|calloc\s*\()' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - `fp.integer.allocator-already-checks`
+- **fp_filters:** `fp.integer.allocator-already-checks`.
 - **verification:**
   1. Trace `count` to its origin.
-  2. Confirm `count * sizeof(T)` cannot wrap (`count <= SIZE_MAX / sizeof(T)`).
-- **required_evidence:**
-  - `alloc_site`, `count_origin`, `bound_check_or_absence`.
-- **fix_suggestions:**
-  - Add `if (count > SIZE_MAX / sizeof(T)) throw std::bad_alloc();` before allocation.
-  - Prefer `std::vector<T>(count)`.
+  2. Confirm `count <= SIZE_MAX / sizeof(T)`.
+- **required_evidence:** `alloc_site`, `count_origin`, `bound_check_or_absence`.
+- **confidence:** `high` if `count` is from untrusted input.
+- **fix:** check `count > SIZE_MAX / sizeof(T)` before allocation; prefer `std::vector<T>(count)`.
 
 ---
 
 ### `int-shift-out-of-range`
-- **name:** Shift amount ≥ type width
-- **category:** logic
 - **severity:** medium
+- **what:** Shift amount ≥ type width is UB; left-shifting a signed value into the sign bit is also UB.
 - **detection_query:**
   ```bash
   rg -n --type cpp '<<|>>' -g '!third_party/**'
   ```
-  (Noisy — narrow with `rg '<<\s*[A-Za-z_]\w*'`.)
-- **false_positive_filters:**
-  - Stream operators (`std::cout << x`).
-  - Shift amount is a literal `< type width`.
+- **fp_filters:** stream operators (`std::cout << x`); shift amount is a literal `< type width`.
 - **verification:**
-  1. Confirm the operand types and the variable shift amount's domain.
-  2. Report if the amount can equal or exceed the type width.
-  3. On embedded: also check that left-shifting a signed type into the sign bit is avoided (UB in C/C++).
-- **required_evidence:**
-  - `shift_site`, `type_width`, `amount_domain`.
-- **fix_suggestions:**
-  - Validate amount before shifting; mask with `(amount & (width-1))` if intentional rotation.
-  - Use unsigned types for bit manipulation.
+  1. Confirm operand types and the variable shift amount's domain.
+  2. Report if amount can equal or exceed the type width.
+  3. For signed: also flag shifts into the sign bit.
+- **required_evidence:** `shift_site`, `type_width`, `amount_domain`.
+- **confidence:** `high` if amount is unvalidated user input.
+- **fix:** validate amount; mask with `(amount & (width - 1))` if intentional rotation; use unsigned types for bit manipulation.
 
 ---
 
 ### `int-signed-unsigned-mix`
-- **name:** Comparison or arithmetic between signed and unsigned types
-- **category:** logic
 - **severity:** medium
+- **what:** Comparison or arithmetic between signed and unsigned types; implicit conversion can change semantics (`for (int i = 0; i < v.size(); ...)` — `i` becomes huge if `size()` is small).
 - **detection_query:**
   ```bash
   rg -n --type cpp 'for\s*\(\s*int\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*\w+\.size\(\)' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - `fp.signed-unsigned.deliberate-modular`
+- **fp_filters:** `fp.signed-unsigned.deliberate-modular`.
 - **verification:**
   1. Identify the signed and unsigned operands.
-  2. Confirm comparison or arithmetic happens with implicit conversion that can change semantics.
-- **required_evidence:**
-  - `expression_site`, `operand_types`, `breaking_value_example`.
-- **fix_suggestions:**
-  - Match types (`size_t i = 0; i < v.size()`).
-  - Use `static_cast<T>(...)` with explicit bounds check.
+  2. Confirm implicit conversion can change semantics.
+- **required_evidence:** `expression_site`, `operand_types`, `breaking_value_example`.
+- **confidence:** `high` if breaking value is reachable.
+- **fix:** match types (`size_t i = 0; i < v.size()`); explicit `static_cast` with bounds check.
 
 ---
 
 ### `int-narrowing-cast`
-- **name:** Narrowing conversion without bounds check
-- **category:** logic
 - **severity:** low
+- **what:** `static_cast<T>` to a narrower type without bounds check; silently truncates.
 - **detection_query:**
   ```bash
   rg -n --type cpp 'static_cast\s*<\s*(int|short|char|int8_t|int16_t|int32_t|uint8_t|uint16_t|uint32_t)\s*>' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - Source value is bounded.
+- **fp_filters:** source value is bounded.
 - **verification:** confirm source domain fits target type.
 - **required_evidence:** `cast_site`, `source_domain`, `target_range`.
-- **fix_suggestions:** add bounds check; use `gsl::narrow` (throws on loss).
+- **confidence:** `medium` if domain unbounded.
+- **fix:** add bounds check; `gsl::narrow` (throws on loss).
 
 ---
 
 ### `div-by-zero`
-- **name:** Division or modulus without zero check
-- **category:** logic
 - **severity:** high
+- **what:** Division or modulus where the divisor is a variable that can reach zero on some path.
 - **detection_query:**
   ```bash
   rg -n --type cpp '[/%]\s*\w' -g '!third_party/**'
   ```
-  Pass 3 must determine that the divisor is a variable (not a literal) and could be zero.
-- **false_positive_filters:** `fp.divbyzero.unreachable`
-- **verification:** confirm divisor can be zero on some reachable path.
+- **fp_filters:** `fp.divbyzero.unreachable`.
+- **verification:**
+  1. Confirm divisor is a variable (not literal).
+  2. Confirm divisor can be zero on some reachable path.
 - **required_evidence:** `divide_site`, `divisor_origin`, `zero_path`.
-- **fix_suggestions:** explicit zero check; pre-condition documented.
+- **confidence:** `high` if zero path demonstrably reachable.
+- **fix:** explicit zero check; documented precondition.
 
 ---
 
 ### `empty-container-front-back`
-- **name:** `front()` / `back()` / `top()` on container without empty check
-- **category:** logic
 - **severity:** high
+- **what:** `front()` / `back()` / `top()` on a container that may be empty → UB.
 - **detection_query:**
   ```bash
   rg -n --type cpp '\.(front|back|top)\s*\(\s*\)' -g '!third_party/**'
   ```
-- **false_positive_filters:** `fp.empty-container.checked`
+- **fp_filters:** `fp.empty-container.checked`.
 - **verification:** confirm preceding `if (!c.empty())` / equivalent.
 - **required_evidence:** `access_site`, `prior_check_search`, `container_origin`.
-- **fix_suggestions:** guard with empty check; or use `c.at(0)` (throws) for vector.
+- **confidence:** `high` if no prior empty check.
+- **fix:** guard with empty check; use `c.at(0)` (throws) for vector.
 
 ---
 
-## Embedded portability / numeric
-
 ### `int-implicit-promotion-narrow-mcu`
-- **name:** Implicit promotion to `int` causes overflow on a 16-bit MCU
-- **category:** logic
 - **severity:** high
+- **what:** On 16-bit `int` targets (AVR / MSP430 / PIC18), `uint16_t a, b; uint32_t c = a * b;` computes in 16-bit `int` and overflows BEFORE assignment.
 - **detection_query:**
   ```bash
   rg -n --type cpp '\b(uint8_t|int8_t|uint16_t|int16_t)\s+\w+\s*=\s*\w+\s*[\+\-\*]\s*\w+' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - The target architecture has 32-bit `int` (most ARM Cortex-M / RISC-V); operands ≤ 16-bit cannot overflow `int`.
-  - Operand domains demonstrably cannot reach the boundary.
+- **fp_filters:** target arch has 32-bit `int` (most ARM Cortex-M / RISC-V); operand domains demonstrably cannot reach the boundary.
 - **verification:**
-  1. Identify the target MCU. AVR (ATmega/ATtiny) and MSP430 have 16-bit `int`. PIC18 typically 16-bit. Cortex-M / ESP32 / RISC-V use 32-bit `int`.
-  2. For 16-bit `int` targets, `uint8_t a, b; uint16_t c = a + b;` does the addition in 16-bit `int` and is safe; but `uint16_t a, b; uint16_t c = a * b;` may overflow in 16-bit `int` before being assigned.
-  3. Note the dual concern: assigning a wider expression to a narrow type (truncation), AND computing a wider expression in a possibly-narrow `int` (overflow before assignment).
-- **required_evidence:**
-  - `expression_site`, `target_int_width`, `operand_domains`, `overflow_or_truncation_path`.
-- **bad_example (16-bit `int` target):**
-  ```c
-  uint16_t a = 30000, b = 30000;
-  uint32_t product = a * b;     // computes in 16-bit int → overflow → garbage
-  ```
-- **good_example:**
-  ```c
-  uint16_t a = 30000, b = 30000;
-  uint32_t product = (uint32_t)a * b;   // promote one operand explicitly
-  ```
-- **fix_suggestions:**
-  - Cast at least one operand to the target type before multiplying.
-  - Use `uint32_t` everywhere if the values can grow beyond 16 bits.
+  1. Identify target MCU + `int` width.
+  2. For 16-bit `int` targets, both narrow→wide assignment AND wide computation in narrow `int` are concerns.
+- **required_evidence:** `expression_site`, `target_int_width`, `operand_domains`, `overflow_or_truncation_path`.
+- **confidence:** `high` if target is 16-bit `int` and operands can reach boundary.
+- **fix:** cast at least one operand to target type before multiplying; use `uint32_t` everywhere if values can grow > 16 bits.
 
 ---
 
 ### `int-bitfield-portability`
-- **name:** Bit-field used in a way that depends on layout (serialization / wire format)
-- **category:** logic
 - **severity:** medium
+- **what:** Bit-field layout within a storage unit is implementation-defined; serialising bit-field structs over wire / flash / hardware breaks across compilers (GCC vs IAR vs Keil) and endianness.
 - **detection_query:**
   ```bash
   rg -nU --type cpp 'struct\s+\w+\s*\{[^}]*\b\w+\s*:\s*\d+\s*;' -g '!third_party/**'
   ```
-  Find struct types containing bit-fields. Pass 3 narrows to whether their byte layout is exposed to wire / flash / hardware.
-- **false_positive_filters:**
-  - Bit-fields used purely for memory savings inside the program (never serialised).
-  - Bit-fields explicitly aligned by `__attribute__((packed))` AND tested to match the wire format on the target compiler.
+- **fp_filters:** bit-fields used purely for in-memory savings (never serialised); explicitly tested `__attribute__((packed))` matches wire format on the target compiler.
 - **verification:**
   1. Identify struct types with bit-fields.
   2. Determine whether instances are written to flash / sent over UART/SPI/CAN / mapped over MMIO.
-  3. C/C++ standards leave the **order** of bit-field allocation within a storage unit implementation-defined. Code that relies on a specific order is non-portable across compilers (GCC vs IAR vs Keil) and across endianness.
-- **required_evidence:**
-  - `struct_decl`, `serialization_site`, `assumption_about_layout`.
-- **bad_example:**
-  ```c
-  struct CanFrame {
-      uint16_t id : 11;
-      uint16_t rtr : 1;
-      uint16_t dlc : 4;
-  };
-  send_can(&frame, sizeof frame);   // wire format depends on compiler
-  ```
-- **fix_suggestions:**
-  - Build wire frames byte-by-byte with explicit shift / mask, not bit-fields.
-  - If you must keep bit-fields for ergonomics, copy field-by-field into a serialisation buffer.
+- **required_evidence:** `struct_decl`, `serialization_site`, `assumption_about_layout`.
+- **confidence:** `high` if the struct is sent over wire as-is.
+- **fix:** build wire frames byte-by-byte with explicit shift / mask, not bit-fields; or copy field-by-field into a serialisation buffer.
 
 ---
 
 ### `int-packed-struct-misaligned-access`
-- **name:** Taking address of a member in a `__attribute__((packed))` struct on alignment-strict ARM
-- **category:** logic
 - **severity:** high
+- **what:** Taking the address of a member of a `__attribute__((packed))` struct; the resulting unaligned load/store can fault on Cortex-M0/M0+ and is slow on newer M-profiles.
 - **detection_query:**
   ```bash
   rg -n --type cpp '__attribute__\(\(\s*packed\s*\)\)|#\s*pragma\s+pack' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - Target architecture supports unaligned access in hardware (Cortex-M3 and up generally do, with caveats for `STRD`/`LDRD`; older M0 does not).
-  - Code only assigns/reads fields by value (compiler emits byte-wise access).
+- **fp_filters:** target arch supports unaligned access (Cortex-M3+ generally do, with caveats); code only assigns/reads fields by value (compiler emits byte-wise).
 - **verification:**
-  1. Find `packed` struct definitions.
-  2. Search for code that takes the address of a member: `&pkt->field`, `memcpy(dst, &pkt->field, n)`, passing the field by reference / pointer.
-  3. On Cortex-M0/M0+ and on Cortex-A under certain conditions, the resulting unaligned load/store traps; on newer M-profiles it may work but be slow.
-- **required_evidence:**
-  - `packed_struct_decl`, `member_address_site`, `target_arch`.
-- **bad_example:**
-  ```c
-  struct __attribute__((packed)) Hdr { uint8_t a; uint32_t b; };
-  void f(struct Hdr *h, uint32_t *out) {
-      *out = *(&h->b);   // unaligned 32-bit load on Cortex-M0 → fault
-  }
-  ```
-- **fix_suggestions:**
-  - Read packed fields by value (compiler emits safe byte-wise access).
-  - Or `memcpy` into an aligned local before reading.
+  1. Find packed struct definitions.
+  2. Search for `&pkt->field` / `memcpy(dst, &pkt->field, n)` / passing the field by reference / pointer.
+- **required_evidence:** `packed_struct_decl`, `member_address_site`, `target_arch`.
+- **confidence:** `high` if Cortex-M0 target + member-address taken.
+- **fix:** read packed fields by value (compiler emits safe byte-wise access); `memcpy` into an aligned local before reading.
 
 ---
 
 ### `int-endianness-no-conversion`
-- **name:** Serializing / deserializing integers to bytes without endianness conversion
-- **category:** logic
 - **severity:** high
+- **what:** Multi-byte integer copied to/from a byte buffer crossing an endianness boundary (network, file, cross-MCU bus) without explicit `htonl` / `cpu_to_le32`.
 - **detection_query:**
   ```bash
   rg -n --type cpp '\b(memcpy|memmove)\s*\([^,]+,\s*&\w+\s*,\s*sizeof' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - Both endpoints are the same architecture (single-MCU project, never moves data off-chip).
-  - The code uses explicit conversion (`htonl`, `__builtin_bswap32`, `cpu_to_le32`, etc.).
+- **fp_filters:** both endpoints same arch (single-MCU, never moves data off-chip); explicit `htonl` / `__builtin_bswap32` / `cpu_to_le32`.
 - **verification:**
-  1. Identify call sites that copy a multi-byte integer to/from a byte buffer that crosses an endianness boundary (network, file, cross-MCU bus).
+  1. Identify call sites copying multi-byte integers across an endianness boundary.
   2. Confirm explicit byte-order handling.
-  3. Without it, the same firmware running on big- vs little-endian sides will mis-interpret the value.
-- **required_evidence:**
-  - `serialization_site`, `wire_endianness`, `host_endianness`.
-- **fix_suggestions:**
-  - Use `htonl`/`htons` (network = big endian) or vendor `cpu_to_le32` / `cpu_to_be32`.
-  - Build wire bytes with explicit shifts: `buf[0] = v >> 24; buf[1] = v >> 16; …`.
+- **required_evidence:** `serialization_site`, `wire_endianness`, `host_endianness`.
+- **confidence:** `high` if wire spec is one endianness and host is the other.
+- **fix:** `htonl` / `htons`; vendor `cpu_to_le32` / `cpu_to_be32`; explicit byte shifts (`buf[0] = v >> 24;` …).
 
 ---
 
 ### `int-char-signedness`
-- **name:** Code assumes `char` is signed (or unsigned) — undefined per platform
-- **category:** logic
 - **severity:** medium
+- **what:** Code assumes `char` is signed (or unsigned); ARM `gcc` defaults to unsigned, x86 `gcc` to signed; `getchar()` returning -1 EOF can be conflated with 0xFF.
 - **detection_query:**
   ```bash
   rg -n --type cpp '\bchar\s+\w+\s*=' -g '!third_party/**'
   ```
-- **false_positive_filters:**
-  - Code uses `signed char` / `unsigned char` explicitly.
-  - Code uses `int8_t` / `uint8_t` from `<stdint.h>`.
+- **fp_filters:** code uses `signed char` / `unsigned char` explicitly; uses `int8_t` / `uint8_t` from `<stdint.h>`.
 - **verification:**
-  1. C standard leaves `char` signedness implementation-defined. ARM `gcc` defaults to **unsigned**; x86 `gcc` defaults to **signed**; some toolchains expose a flag (`-fsigned-char` / `-funsigned-char`).
-  2. Look for code that compares `char` to `< 0` or stores a value > 127 into a `char` and reads it back; both are signedness-dependent.
-  3. Especially watch for return values of `getchar()` / `read()`-style APIs where -1 (EOF) is conflated with 0xFF.
-- **required_evidence:**
-  - `char_use_site`, `signedness_assumption`, `target_default`.
-- **fix_suggestions:**
-  - Use `int8_t` / `uint8_t` from `<stdint.h>` for byte values.
-  - Use `signed char` / `unsigned char` explicitly when signedness matters.
-  - For `getchar`-style APIs, store the result in `int` first and only cast to `char` after the EOF check.
+  1. Look for `char` compared to `< 0` or storing > 127 into `char` then reading back.
+  2. `getchar()` / `read()` results stored in `char` before EOF check.
+- **required_evidence:** `char_use_site`, `signedness_assumption`, `target_default`.
+- **confidence:** `high` if code compares `char` to `< 0` and target's `char` is unsigned.
+- **fix:** `int8_t` / `uint8_t` from `<stdint.h>`; explicit `signed char` / `unsigned char`; store `getchar` result in `int` first.
