@@ -176,6 +176,8 @@ run_audit.py finalize --out audit/
 
 **Liveness**: every checkpoint writes `audit/heartbeat.txt` with `<pid> <iso-ts> <last-action>`. Run the conductor inside `tmux` (snippet in `references/long-running-audits.md`) so SSH drops don't kill it.
 
+**Driving from opencode**: see `references/opencode-integration.md`. The recommended architecture is `tmux` containing `opencode serve` + a bash driver that loops `run_audit.py next` → `opencode run --attach …` → `run_audit.py record`. Each `opencode run` is a fresh session (no cross-unit context bloat). The one-line `scripts/audit-overnight-opencode.sh` packages the whole pattern; you only need `run_audit.py init …` first.
+
 Always include:
 - **Coverage summary**: units reviewed / total units in scope; per-template hit / suppression / inconclusive counts.
 - **Audit gaps**: un-reviewed units (with rationale), inconclusive findings, out-of-scope paths.
@@ -227,6 +229,7 @@ See `references/templates.md` for the full per-specialty index, the decision tre
 | `scripts/list_units.py` | Aggregate candidates per code unit (function / file) and emit a prioritised unit work-list with suspicion scores. Pass 2 output → Pass 3 input. |
 | `scripts/coverage_tracker.py` | Track per-candidate and per-unit verification outcomes (`confirmed` / `suppressed` / `inconclusive`) with reasons. Drives the coverage table in Pass 4. |
 | `scripts/run_audit.py` | **Long-running audit conductor.** Resumable disk-driven state machine that survives VM restart / context overflow / network drops. Subcommands: `init` / `status` / `next` / `record` / `next-verdict` / `record-verdict` / `partial` / `finalize` / `mark` / `reset-unit`. See `references/long-running-audits.md`. |
+| `scripts/audit-overnight-opencode.sh` | One-line wrapper that launches an unattended overnight audit driven by [opencode](https://opencode.ai): `tmux` session containing `opencode serve` + a Pass-3/Pass-3.5/finalize driver loop. See `references/opencode-integration.md`. |
 | `scripts/merge_second_pass.py` | Merge a JSONL of subagent verdicts (from Pass 3.5) into the findings JSON, producing `findings_with_review.json` that carries a `second_pass_review` block per finding. |
 | `scripts/excel_helper.py` | Render the final report into a Chinese, human-review-friendly `.xlsx` (4 sheets: 审查总览 / 发现明细 / 审计盲区 / 覆盖率明细) with severity colour coding, frozen header, autofilter, separate `文件` + `行号` columns (for `git blame` / 责任人 lookup), `子代理复核结论` (color-coded) + `子代理复核依据` columns from Pass 3.5, and a `人工确认` dropdown column for per-finding sign-off. Accepts `--coverage`, `--repo`, `--scope`, `--reviewer` for the overview sheet. |
 
@@ -242,6 +245,7 @@ All scripts are runnable standalone with `--help`.
 | `references/false-positive-filters.md` | Pass 3 (mandatory FP check). |
 | `references/second-pass-review.md` | Pass 3.5 (subagent prompt template + verdict schema). |
 | `references/long-running-audits.md` | When the audit will run for hours / overnight — operational protocol for the disk-driven resumable state machine (`scripts/run_audit.py`). Read before starting any multi-hour run. |
+| `references/opencode-integration.md` | When the audit is invoked via [opencode](https://opencode.ai) — install paths, `tmux + opencode serve + run_audit.py` driver architecture, prompt templates, gotchas, and the one-line `scripts/audit-overnight-opencode.sh` wrapper. |
 | `references/reporting.md` | Pass 4. |
 
 ## Common Mistakes (and how this skill prevents them)
