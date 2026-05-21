@@ -72,52 +72,54 @@ flowchart TD
 
 ### 普通 AR 路径
 
-```text
-using-devflow
-  -> devflow-router
-  -> devflow-specify
-  -> devflow-spec-review
-  -> devflow-ar-design
-  -> devflow-ar-design-review
-  -> devflow-tdd-implementation
-  -> devflow-test-review
-  -> devflow-code-review
-  -> devflow-completion-gate
-  -> devflow-finalize
+```mermaid
+flowchart TD
+  usingDevflow[using-devflow] --> router[devflow-router]
+  router --> specify[devflow-specify]
+  specify --> specReview[devflow-spec-review]
+  specReview --> arDesign[devflow-ar-design]
+  arDesign --> arDesignReview[devflow-ar-design-review]
+  arDesignReview --> tddImplementation[devflow-tdd-implementation]
+  tddImplementation --> testReview[devflow-test-review]
+  testReview --> codeReview[devflow-code-review]
+  codeReview --> completionGate[devflow-completion-gate]
+  completionGate --> finalize[devflow-finalize]
 ```
 
 ### Component Impact 路径
 
 当工作项新增组件，或修改 SOA 服务接口、组件职责、依赖方向、状态机、运行机制、跨组件协作时，会插入组件设计与组件设计评审。
 
-```text
-devflow-router
-  -> devflow-specify
-  -> devflow-spec-review
-  -> devflow-component-design
-  -> devflow-component-design-review
-  -> devflow-ar-design
-  -> devflow-ar-design-review
-  -> devflow-tdd-implementation
-  -> devflow-test-review
-  -> devflow-code-review
-  -> devflow-completion-gate
-  -> devflow-finalize
+```mermaid
+flowchart TD
+  router[devflow-router] --> specify[devflow-specify]
+  specify --> specReview[devflow-spec-review]
+  specReview --> componentDesign[devflow-component-design]
+  componentDesign --> componentDesignReview[devflow-component-design-review]
+  componentDesignReview --> arDesign[devflow-ar-design]
+  arDesign --> arDesignReview[devflow-ar-design-review]
+  arDesignReview --> tddImplementation[devflow-tdd-implementation]
+  tddImplementation --> testReview[devflow-test-review]
+  testReview --> codeReview[devflow-code-review]
+  codeReview --> completionGate[devflow-completion-gate]
+  completionGate --> finalize[devflow-finalize]
 ```
 
 ### Hotfix / Problem Fix 路径
 
 问题修复不能直接跳到“改代码”。Hotfix 可以压缩文档量，但不能跳过复现、根因、测试检查、代码检视和完成门禁。
 
-```text
-using-devflow
-  -> devflow-router
-  -> devflow-problem-fix
-  -> devflow-ar-design 或 devflow-tdd-implementation
-  -> devflow-test-review
-  -> devflow-code-review
-  -> devflow-completion-gate
-  -> devflow-finalize
+```mermaid
+flowchart TD
+  usingDevflow[using-devflow] --> router[devflow-router]
+  router --> problemFix[devflow-problem-fix]
+  problemFix --> arDesign[devflow-ar-design]
+  problemFix --> tddImplementation[devflow-tdd-implementation]
+  arDesign --> testReview[devflow-test-review]
+  tddImplementation --> testReview
+  testReview --> codeReview[devflow-code-review]
+  codeReview --> completionGate[devflow-completion-gate]
+  completionGate --> finalize[devflow-finalize]
 ```
 
 ## 安装与准备
