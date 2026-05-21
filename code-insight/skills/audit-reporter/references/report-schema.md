@@ -53,7 +53,22 @@
 - `复核状态` 单元格按 status 着色
 - 长文本自动换行
 
-### Sheet 2: `汇总`
+### Sheet 2: `问题总结`
+
+单独对发现的问题做人工可读汇总。
+
+- `draft` 模式：纳入所有一审 finding 草稿。
+- `final` 模式：只纳入 `verifier.status ∈ {confirmed, upgrade, downgrade}` 的确认问题；`rejected` 和 `needs_more_evidence` 仍在各自 sheet 中保留。
+
+内容：
+
+- 总览：报告模式、审查目标、纳入本页总结的问题数、全部 finding 数、非问题数、待补证据数
+- 本页问题按严重级别统计
+- 本页问题按模块统计
+- 本页问题按审查类别统计
+- 重点问题列表：发现ID、模块、位置、审查类别、严重级别、复核状态、标题、问题说明、建议修复
+
+### Sheet 3: `汇总`
 
 包含以下统计块：
 
@@ -62,7 +77,7 @@
 - 按审查类别统计：动态来自 `plan.review_checklist.categories[].id`
 - 按模块和严重级别统计：模块 × severity 透视表
 
-### Sheet 3: `运行信息`
+### Sheet 4: `运行信息`
 
 key-value 表，字段名使用中文：
 
@@ -84,7 +99,7 @@ key-value 表，字段名使用中文：
 | 仍需补证据数 | `status = needs_more_evidence` |
 | 模块数量 | `len(plan.modules)` |
 
-### Sheet 4: `非问题记录`
+### Sheet 5: `非问题记录`
 
 记录所有 `verifier.status = rejected` 的 finding。该 sheet 是审计完整性要求，不能省略。
 
@@ -102,7 +117,7 @@ key-value 表，字段名使用中文：
 | 复核核验证据 | `verifier.evidence_check` |
 | 原问题描述 | `description` |
 
-### Sheet 5: `待补证据`
+### Sheet 6: `待补证据`
 
 记录所有 `verifier.status = needs_more_evidence` 的 finding，字段与 `非问题记录` 相同。
 
@@ -114,11 +129,13 @@ key-value 表，字段名使用中文：
 - 每条 finding 必须有完整一审字段
 - `verifier` 必须存在且为 object，允许为空 `{}`
 - `category` 必须属于当前 run 的 review checklist；旧 plan 缺失 checklist 时回退 base 11
+- `title` / `description` / `evidence.reasoning` / `evidence.trigger_conditions` / `evidence.expected_vs_actual` / `suggested_fix` 必须包含中文说明；英文代码标识符、路径、API 名、错误码可以作为辅助术语出现
 
 ### final
 
 - 满足 draft 的所有规则
 - 每条 finding 的 `verifier` 必须含 `status` / `reason` / `evidence_check` / `agent` / `ts`
+- `verifier.reason` / `verifier.evidence_check` 必须包含中文说明
 - `confirmed.json` 必须存在且为 JSON array
 - `confirmed.json` 的 ID 集合必须等于 `findings/*.json` 中 `status ∈ {confirmed, upgrade, downgrade}` 的 ID 集合
 - `rejected` 和 `needs_more_evidence` 不进入 `confirmed.json`，但必须进入 Excel 的对应 sheet

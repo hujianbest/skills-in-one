@@ -28,6 +28,7 @@ description: Use as the SECOND-STAGE independent confirmer in the two-agent code
 - **rejected 也要写理由**：不丢弃 finding，保留以备审计
 - **不改 `category`**：category 由 reviewer 主导；如认为分类完全错误且无法救，用 `rejected` + 在 reason 中说明
 - **不改 `evidence`**：verifier 不替换 reviewer 的证据；如证据不足应给 `needs_more_evidence` 打回
+- **复核说明必须用中文**：写回 `findings/*.json` 的 `verifier.reason` 与 `verifier.evidence_check` 必须是中文说明；代码标识符、路径、API 名、错误码可保留英文，但不能整段英文输出
 
 ## Workflow
 
@@ -121,6 +122,7 @@ next_action: audit-reporter
 - [ ] 所有 `verifier.status ∈ {confirmed, upgrade, downgrade}` 的 finding 已合并到 `confirmed.json`
 - [ ] 所有 `verifier.status = rejected` 的 finding 保留在 `findings/` 与 `verifications/`，并会进入 Excel 的 `非问题记录` sheet
 - [ ] 所有 finding 的 `verifier.evidence_check` 字段非空
+- [ ] 所有 finding 的 `verifier.reason` 与 `verifier.evidence_check` 均为中文说明
 - [ ] severity ≥ medium 且 `confirmed` 的 finding，其 `evidence_check` 含具体核对动作描述（不只是 "verified")
 - [ ] `reports/report.xlsx` 已按 `--mode final` 刷新
 - [ ] 返回摘要含 `by_status` 分布与 `report_path`

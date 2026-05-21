@@ -1,6 +1,6 @@
 ---
 name: audit-planner
-description: Use when starting an existing-code bug audit on a repository or large directory tree. First detects project language + architecture (e.g. C/C++ embedded SOA, Python web service, frontend SPA), proposes a tailored review checklist (scenario-specific bug categories) for user confirmation, then slices the codebase into modules within a per-module token budget. Produces plan.json with profile + review_checklist + modules that downstream audit-reviewer consumes module-by-module. Not for PR diff review (use hf-code-review) or for actually finding bugs (use audit-reviewer).
+description: Use when starting an existing-code bug audit on a repository or large directory tree. First detects project language + architecture (e.g. C/C++ embedded SOA, Python web service, frontend SPA), proposes a tailored review checklist (scenario-specific bug categories) for user confirmation, then slices the codebase into modules within a per-module token budget. Produces plan.json and task.md for downstream audit-reviewer. Not for PR diff review (use hf-code-review) or for actually finding bugs (use audit-reviewer).
 ---
 
 # Audit Planner
@@ -34,6 +34,7 @@ description: Use when starting an existing-code bug audit on a repository or lar
 - 不出 finding（即便扫目录时已感觉到可疑），只出"审查计划"
 - 单模块预算超限必须再切，不允许把超大模块原样塞给 reviewer
 - **必须把 detected profile + 推荐的 review_checklist 显式回放给用户、等待确认/修改后才能写 `plan.json`**（除非显式 `--yes` 自动接受）。`plan.json` 内 `profile.user_confirmed` 与 `review_checklist.user_confirmed` 字段记录这次握手
+- **必须同时写 `task.md`**：planner 阶段除 `plan.json` 外，还要写 `.garage/code-audit/runs/<run_id>/task.md`，用中文记录审查对象、项目 profile、用户确认后的 review checklist、模块切分摘要和续跑指令，避免长流程多会话过程中丢失任务上下文
 
 ## Workflow
 
@@ -175,15 +176,27 @@ signals:
   - 中：knowledge / business logic / API surface
   - 低：types-only / 纯 enum / 纯 dataclass 集合 / 纯 utility
 
-### 4. 写 `plan.json`
+### 4. 写 `plan.json` 和 `task.md`
 
 落到 `.garage/code-audit/runs/<run_id>/plan.json`，格式见 `references/plan-schema.md`。**必须**带上 Step 0 / 0.5 产出的 `profile` 与 `review_checklist`。
+
+同时写 `.garage/code-audit/runs/<run_id>/task.md`。内容必须为中文，至少包含：
+
+- 审查对象：`target`、`run_id`、创建时间
+- 项目画像：语言、架构、框架、风险关注点、主要检测信号
+- 审查 checklist：preset、是否经用户确认、每个 category 的 `id`、中文/中英混排描述、默认严重级别
+- 模块计划：模块名、路径、优先级、文件数、行数估算、当前状态
+- 执行约束：每个模块必须在新会话中独立审查；一审后刷新草稿 Excel；全部模块完成后启动 `code-audit-verifier`
+- 下一步指令：`请用 code-audit-reviewer --resume run <run_id> 处理下一个模块`
+
+`task.md` 是给后续 agent 和用户快速恢复上下文的任务说明，不替代 `plan.json` 的机器可读契约。若 `plan.json` 与 `task.md` 冲突，以 `plan.json` 为准，并在后续摘要中提示重新生成 `task.md`。
 
 返回结构化摘要给 agent：
 
 ```
 run_id: <run_id>
 plan_path: .garage/code-audit/runs/<run_id>/plan.json
+task_path: .garage/code-audit/runs/<run_id>/task.md
 profile: {languages, architectures, frameworks}
 review_checklist: {preset, category_count, user_confirmed}
 partition_strategy: <directory-tree | top-level | agents-md | hybrid>
@@ -200,7 +213,8 @@ next_action: audit-reviewer (one module per fresh session — see audit-reviewer
 ## Output Contract
 
 - 写盘：`.garage/code-audit/runs/<run_id>/plan.json`（含 `profile` + `review_checklist` + `modules`；不写 finding，不写 verification）
-- 返回：`run_id` + `plan_path` + profile / checklist 摘要 + `partition_strategy` + module 清单摘要 + 可选 `oversized_modules` 警告
+- 写盘：`.garage/code-audit/runs/<run_id>/task.md`（中文任务说明，含审查对象和 checklist）
+- 返回：`run_id` + `plan_path` + `task_path` + profile / checklist 摘要 + `partition_strategy` + module 清单摘要 + 可选 `oversized_modules` 警告
 - 唯一下一步：`audit-reviewer`（agent 接力时按 priority desc 排队，并把 `review_checklist.categories` 作为唯一允许的 `finding.category` 来源；**每个模块在独立新会话内执行**，详见 `../audit-reviewer/references/per-module-context-protocol.md`）
 
 ## Red Flags
@@ -209,6 +223,7 @@ next_action: audit-reviewer (one module per fresh session — see audit-reviewer
 - 模块切得太细（如每个 `.py` 一个模块）→ 失去模块级关联性 + 报告噪声大；首选目录树切而不是单文件切
 - 仅靠"顶层目录切"（策略 2）就交差，未对超大顶层目录展开二级子目录 → 0.3.0 起视作未完成切分，必须走策略 4
 - 不写 `plan.json` 直接返回模块清单 → 中断恢复无依据
+- 只写 `plan.json` 不写 `task.md` → 多会话续跑时人类和 agent 缺少任务上下文摘要
 - 在 plan 阶段提"我看到 X 文件可能有 bug" → 越权，不是本 skill 的职责
 - 忽略 `AGENTS.md` 已声明的模块概览，自己造一套 → 与项目约定漂移
 - 跳过 Step 0.5 用户确认却写 `user_confirmed=true` → 严重违反握手契约
@@ -218,6 +233,7 @@ next_action: audit-reviewer (one module per fresh session — see audit-reviewer
 ## Verification
 
 - [ ] `plan.json` 已落到 `.garage/code-audit/runs/<run_id>/`
+- [ ] `task.md` 已落到 `.garage/code-audit/runs/<run_id>/`，且包含审查对象、profile、review checklist、模块计划和下一步指令
 - [ ] 每个模块的 `loc_estimate` 与 `file_count` 已填
 - [ ] 每个模块的 `priority` 已分类
 - [ ] 单模块 `loc_estimate` 不超 `module_budget_*` 的 1.5 倍（超出必须走策略 4 再切；residual oversized 必须在返回摘要 `oversized_modules` 显式列出）
@@ -225,7 +241,7 @@ next_action: audit-reviewer (one module per fresh session — see audit-reviewer
 - [ ] `plan.profile` 含 `languages` / `architectures` / `risk_focus` 三个非空字段
 - [ ] `plan.review_checklist.categories[]` 非空，每项含 `id` + `description`
 - [ ] 交互模式下 `profile.user_confirmed=true` 与 `review_checklist.user_confirmed=true`；`--yes` 模式下两者为 `false`（如实记录）
-- [ ] 返回摘要含 `run_id` + `plan_path` + profile/checklist 摘要 + `partition_strategy` + `next_action=audit-reviewer`，并明示 reviewer 在每模块独立会话执行
+- [ ] 返回摘要含 `run_id` + `plan_path` + `task_path` + profile/checklist 摘要 + `partition_strategy` + `next_action=audit-reviewer`，并明示 reviewer 在每模块独立会话执行
 
 ## Reference Guide
 

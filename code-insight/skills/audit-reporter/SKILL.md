@@ -65,6 +65,7 @@ python code-insight/skills/audit-reporter/scripts/render_xlsx.py --run-id <run_i
 - `evidence` 至少包含 `code_snippet` / `reasoning` / `trigger_conditions` / `expected_vs_actual`
 - `reviewer` 至少包含 `agent` / `ts`
 - `final` 模式下每条 finding 的 `verifier` 必须包含 `status` / `reason` / `evidence_check` / `agent` / `ts`
+- finding JSON 的说明性字段必须包含中文：`title` / `description` / `evidence.reasoning` / `evidence.trigger_conditions` / `evidence.expected_vs_actual` / `suggested_fix`，最终模式还包括 `verifier.reason` / `verifier.evidence_check`
 
 ### 4. 渲染 Excel
 
@@ -79,6 +80,7 @@ Workbook sheets：
 | Sheet | 内容 |
 |---|---|
 | `审查结果` | 所有 finding，一审草稿和复核结果都在这里；含中文表头、中文严重级别说明、中文复核状态说明、审查类别说明 |
+| `问题总结` | 单独汇总发现的问题：总览、按严重级别/模块/类别统计、重点问题列表 |
 | `汇总` | 按复核状态、严重级别、审查类别、模块 × 严重级别统计 |
 | `运行信息` | run_id、target、profile、review_checklist、生成时间、总数和状态分布 |
 | `非问题记录` | `verifier.status = rejected` 的 finding，记录复核理由与核验证据 |
@@ -110,6 +112,7 @@ next_action: done
 
 - 仍然调用旧 HTML 导出脚本或输出 `report.html`
 - Excel 表头继续使用英文 key 作为展示名
+- finding JSON 的问题说明或复核说明整段英文输出
 - `rejected` finding 只保留在 JSON，Excel 里看不到
 - 一审草稿因为 `verifier: {}` 被拒绝渲染
 - `openpyxl` 缺失时仍声称报告生成成功
@@ -122,6 +125,7 @@ next_action: done
 - [ ] 复核后调用使用 `--mode final` 或 `--mode auto`，Excel 已刷新
 - [ ] `非问题记录` sheet 包含所有 `verifier.status = rejected` 的 finding
 - [ ] `待补证据` sheet 包含所有 `verifier.status = needs_more_evidence` 的 finding
+- [ ] `问题总结` sheet 已生成，且包含问题总览和重点问题列表
 - [ ] sheet 名、表头、状态说明、统计字段为中文
 
 ## Reference Guide

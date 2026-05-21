@@ -25,7 +25,7 @@ description: Use when the user asks to audit existing code in a repository or la
 
 本 agent 是"剧本"，串联 3 个 skill：
 
-1. **`audit-planner`** — 切模块清单（**0.3.0 起默认目录树切 + 紧预算 token=12000 / files=8**），输出 `plan.json`
+1. **`audit-planner`** — 切模块清单（**0.3.0 起默认目录树切 + 紧预算 token=12000 / files=8**），输出 `plan.json` + `task.md`
 2. **`audit-reviewer`** — 每次调用扫**单个**模块，输出 `findings/<module>.json`，扫完即停
 3. **`audit-reporter`** — 每个模块一审完成后立即以 `--mode draft` 刷新 `reports/report.xlsx`
 
@@ -96,9 +96,9 @@ signals:
 
 ### Step 2: 调用 `audit-planner` 切模块
 
-profile + checklist 落定后，按 audit-planner workflow Step 1-4 切模块，把 modules 数组并入同一份 `.garage/code-audit/runs/<run_id>/plan.json`。
+profile + checklist 落定后，按 audit-planner workflow Step 1-4 切模块，把 modules 数组并入同一份 `.garage/code-audit/runs/<run_id>/plan.json`，并写 `.garage/code-audit/runs/<run_id>/task.md` 作为中文任务说明。
 
-把 plan 的 module 清单 + priority 回显给用户做最后一轮确认（同 0.1.0 行为），等用户 `ok` 后进入 Step 3。
+把 plan 的 module 清单 + priority + `task.md` 路径回显给用户做最后一轮确认（同 0.1.0 行为），等用户 `ok` 后进入 Step 3。
 
 ### Step 3: 调用 `audit-reviewer` **处理单个模块**
 
@@ -214,8 +214,9 @@ audit-reviewer/references/per-module-context-protocol.md。
 agent 应：
 
 1. 读 `.garage/code-audit/runs/<run_id>/plan.json`
-2. 若用户传了 `--module` → 直接用该模块；否则按 priority desc → path asc 找第一个 `status=pending` 的模块（`status=in-review` 视为 stale，重置回 pending 后处理，并在 audit-log 写 `{warning: "stale in-review status reset", module, ts}`）
-3. 处理**该单一模块**，进入 Step 4 移交
+2. 读 `.garage/code-audit/runs/<run_id>/task.md`（若存在）快速恢复审查对象和 checklist；若缺失，不阻塞，但在摘要里提示 planner 产物不完整
+3. 若用户传了 `--module` → 直接用该模块；否则按 priority desc → path asc 找第一个 `status=pending` 的模块（`status=in-review` 视为 stale，重置回 pending 后处理，并在 audit-log 写 `{warning: "stale in-review status reset", module, ts}`）
+4. 处理**该单一模块**，进入 Step 4 移交
 
 ## Verification
 
@@ -231,6 +232,7 @@ agent 应：
 整个 run 完结时（情形 B 触发）追加：
 
 - [ ] `plan.json` 已落盘，含 `profile` + `review_checklist` 两段
+- [ ] `task.md` 已落盘，含审查对象和 review checklist
 - [ ] `profile.languages` / `profile.architectures` 非空
 - [ ] `review_checklist.categories[]` 非空且 `user_confirmed` 字段与实际交互一致（interactive=true / `--yes`=false）
 - [ ] 所有模块 `status` 已演进到 `done` 或 `skipped`

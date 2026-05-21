@@ -31,6 +31,7 @@ description: Use when scanning an existing-code module for bugs and emitting fin
 - **不输出 prose review**：不写"这个模块整体来说……"之类的总体评价；只出结构化 finding
 - **category 严格来自 plan.json `review_checklist`**：finding `category` 必须 ∈ `review_checklist.categories[].id`；不在清单内的疑似问题按 `bug-taxonomy.md §4.3` 处理（改写到最接近 category 并在 reasoning 注明；或暂存到模块返回摘要的 `skipped_findings` 字段建议用户更新 checklist 重审），**禁止**自己造一个清单外的 category 写盘
 - **若 `plan.json` 无 `review_checklist`**（旧 plan，0.1.0 时代）：回退到 `bug-taxonomy.md §1` 的 base 11 类，并在返回摘要里提示 `using base 11 universal taxonomy (no review_checklist found)`
+- **finding JSON 的自然语言字段必须用中文**：`title` / `description` / `evidence.reasoning` / `evidence.trigger_conditions` / `evidence.expected_vs_actual` / `suggested_fix` 必须是中文说明；代码标识符、路径、API 名、错误码可保留英文，但不能整段英文输出
 
 ## Workflow
 
@@ -39,6 +40,7 @@ description: Use when scanning an existing-code module for bugs and emitting fin
 - 读 `.garage/code-audit/runs/<run_id>/plan.json` 找到目标模块（状态应为 `pending`）
   - 单次 invocation **只挑一个**模块——如果调用方没指定模块名，按 `priority desc → path asc` 取第一个 `status=pending` 的模块
   - **绝不**在同一调用里遍历多个模块（违反 Hard Gate "每次调用只审一个模块"）
+- 读 `.garage/code-audit/runs/<run_id>/task.md`（若存在）恢复审查对象、用户确认后的 checklist 和执行约束；若缺失不阻塞，但在返回摘要中提示 planner 产物不完整
 - 把模块 `status` 改为 `in-review`（原子写）
 - **加载 review_checklist**：从 plan.json 取 `review_checklist.categories[]`，构造 `{id, description, severity_default, examples}` 索引；作为本次扫描的唯一合法 category 集合
   - 若 `review_checklist.user_confirmed=false`：在返回摘要顶部加一行警告 `⚠ review_checklist not user-confirmed; findings will be re-validated on next run`
@@ -69,6 +71,8 @@ description: Use when scanning an existing-code module for bugs and emitting fin
 - `trigger_conditions`：触发条件（如"并发 archive + read"）
 - `expected_vs_actual`：期望 vs 实际行为
 - `related_files`：旁证文件（如调用方、同语义但正确的实现）
+
+除 `code_snippet`、`related_files`、代码标识符和路径外，finding JSON 内面向人工阅读的说明必须使用中文。
 
 证据收集的详细标准见 `references/evidence-contract.md`。
 
@@ -133,6 +137,7 @@ next_action:
 - 在 finding 里写"建议引入新框架重构"（越权；如要重构走 `hf-design` / `hf-increment`）
 - `finding.category` 不在 `review_checklist.categories[].id` 内（无论自创还是从 base 11 抄进来）
 - `review_checklist.preset = c-cpp-embedded-soa` 但 finding 大量是 `typing` / `i18n-or-encoding`（清单跟项目不匹配；应在返回摘要里 challenge 用户）
+- finding 的 `title` / `description` / `evidence.*` / `suggested_fix` 整段英文输出（Excel renderer 会拒绝）
 - **同一会话连扫多个模块** → 触发上下文压缩 / 滑窗淘汰，后续模块漏检率显著上升；必须每模块开新会话（per-module-context-protocol.md）
 - 摘要里写"我在这个模块同时也注意到了模块 X 的问题" → 跨模块联想说明上下文有交叉污染；本模块只出本模块 finding，跨模块建议写到下个模块的会话里
 - 处理一个 pending 模块完成后接着把 status=pending 的下一个模块也扫了 → 严重违反 Hard Gate，摘要必须 stop after 单模块
@@ -141,6 +146,7 @@ next_action:
 
 - [ ] `findings/<module>.json` 已落盘
 - [ ] 每条 finding 含 `id` / `module` / `file` / `line_start` / `line_end` / `file_sha256` / `category` / `severity` / `confidence` / `description` / `evidence{code_snippet, reasoning, trigger_conditions, expected_vs_actual}` / `suggested_fix` / `reviewer{agent, ts}` / `verifier: {}`（占位）
+- [ ] 每条 finding 的 `title` / `description` / `evidence.reasoning` / `evidence.trigger_conditions` / `evidence.expected_vs_actual` / `suggested_fix` 均为中文说明
 - [ ] 每条 finding 的 `category` 严格属于 `plan.review_checklist.categories[].id`（或回退情形下属于 base 11）
 - [ ] 行号在文件总行数范围内
 - [ ] `plan.json` 中**只有一个**模块 status 从 `pending` 变 `done`（本次 invocation 的目标模块）

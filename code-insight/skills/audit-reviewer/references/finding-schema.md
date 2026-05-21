@@ -60,6 +60,15 @@
 | `reviewer` | ✅ | `object` | reviewer | `{agent, ts}` |
 | `verifier` | ✅ | `object` | verifier | reviewer 占位 `{}`，verifier 写入 |
 
+### 中文输出约束
+
+finding JSON 面向人工阅读的自然语言字段必须使用中文：
+
+- reviewer 写入：`title` / `description` / `evidence.reasoning` / `evidence.trigger_conditions` / `evidence.expected_vs_actual` / `suggested_fix`
+- verifier 写入：`verifier.reason` / `verifier.evidence_check`
+
+允许保留英文的内容：`id`、`run_id`、`module`、`file`、`category`、`severity`、`confidence`、`agent`、代码标识符、路径、API 名、错误码、`evidence.code_snippet` 原文。允许中英混排，但说明性 prose 不能整段英文。
+
 ### `evidence`
 
 | 字段 | 必需 | 类型 | 说明 |
@@ -97,3 +106,4 @@
 3. `line_start <= line_end`，两者均 1-indexed
 4. `severity` / `confidence` / `verifier.status` 必须是固定 enum 值之一（`severity`：critical/high/medium/low/info；`confidence`：high/medium/low；`verifier.status`：confirmed/rejected/upgrade/downgrade/needs_more_evidence）。草稿 Excel 允许 `verifier: {}`；最终 Excel 会拒绝缺失或拼写错误的 `verifier.status`
 5. `category` 是**动态 enum**：合法值集合来自当前 run 的 `plan.json` `review_checklist.categories[].id`（无 review_checklist 时回退到 base 11，见 `bug-taxonomy.md §1`）。`audit-reporter` 在渲染前会拒绝清单外的 category。
+6. 中文输出约束是 schema 的一部分：上述自然语言字段缺少中文说明时，`audit-reporter` 在渲染 Excel 前会拒绝。

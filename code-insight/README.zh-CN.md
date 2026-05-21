@@ -26,7 +26,7 @@ code-insight/
 
 1. 识别项目语言、架构、框架和风险关注点。
 2. 与用户确认审查清单 `review_checklist`。
-3. 按目录树切分模块，写入 `plan.json`。
+3. 按目录树切分模块，写入 `plan.json` 和 `task.md`。
 4. 每个新会话只审一个模块，写入 `findings/<module>.json`。
 5. 模块审完后立即刷新草稿 Excel：`reports/report.xlsx`。
 
@@ -61,6 +61,7 @@ code-insight/
 ```text
 .garage/code-audit/runs/<run_id>/
   plan.json
+  task.md
   findings/
     <module>.json
   verifications/
@@ -89,6 +90,7 @@ Excel 分两次刷新：
 | Sheet | 内容 |
 |---|---|
 | `审查结果` | 所有 finding，含中文表头、审查类别说明、严重级别说明、复核状态说明 |
+| `问题总结` | 对发现的问题做独立汇总：总数、按严重级别/模块/类别统计、重点问题列表 |
 | `汇总` | 按复核状态、严重级别、审查类别、模块统计 |
 | `运行信息` | run_id、target、profile、review_checklist、数量分布 |
 | `非问题记录` | 复核认为不是问题的 finding，即 `verifier.status = rejected` |
@@ -120,4 +122,5 @@ python code-insight/skills/audit-reporter/scripts/render_xlsx.py --run-id <run_i
 - 一审每次只处理一个模块，不在同一会话连续扫多个模块。
 - 二审不新增 finding，不修改 reviewer 的 `description`、`evidence`、`category`。
 - `rejected` 不代表删除记录，必须保留在 JSON 和 Excel 中。
+- finding JSON 中面向人工阅读的自然语言字段必须使用中文，包括问题标题、问题描述、证据推理、触发条件、预期与实际、建议修复、复核理由和复核核验证据。
 - Excel 中面向人工阅读的描述、表头和状态说明必须使用中文。

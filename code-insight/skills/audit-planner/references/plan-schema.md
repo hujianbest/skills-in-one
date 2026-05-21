@@ -1,6 +1,6 @@
 # `plan.json` Schema
 
-`audit-planner` 输出工件，写到 `.garage/code-audit/runs/<run-id>/plan.json`。
+`audit-planner` 输出机器可读工件，写到 `.garage/code-audit/runs/<run-id>/plan.json`。同一阶段还必须写人类可读任务说明 `.garage/code-audit/runs/<run-id>/task.md`，记录审查对象、profile、review checklist、模块计划和续跑指令。
 
 ## 顶层结构
 
@@ -70,6 +70,43 @@
 ```
 
 ## 字段定义
+
+## `task.md` 配套工件
+
+`task.md` 是 planner 阶段的上下文恢复说明，避免多模块、多会话审查过程中丢失任务目标。它必须使用中文，建议结构如下：
+
+```markdown
+# Code Audit Task - <run_id>
+
+## 审查对象
+- run_id: <run_id>
+- target: <target>
+- created_at: <created_at>
+
+## 项目画像
+- languages: ...
+- architectures: ...
+- frameworks: ...
+- risk_focus: ...
+- detected_signals:
+  - ...
+
+## Review Checklist
+| id | description | severity_default |
+|---|---|---|
+| correctness | 正确性问题 | high |
+
+## 模块计划
+| module | path | priority | files | loc | status |
+|---|---|---|---:|---:|---|
+
+## 执行约束和下一步
+- 每个模块必须在新会话中独立审查。
+- 一审后刷新 `reports/report.xlsx` 草稿。
+- 下一步：请用 `code-audit-reviewer --resume run <run_id>` 处理下一个模块。
+```
+
+若 `task.md` 与 `plan.json` 冲突，以 `plan.json` 为准；后续 agent 应提示重新生成 `task.md`。
 
 ### Top level
 

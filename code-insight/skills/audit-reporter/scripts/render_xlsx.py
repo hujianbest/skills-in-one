@@ -170,6 +170,18 @@ NON_ISSUE_COLUMNS = [
     ("原问题描述", 60),
 ]
 
+ISSUE_SUMMARY_COLUMNS = [
+    ("发现ID", 22),
+    ("模块", 18),
+    ("位置", 36),
+    ("审查类别", 22),
+    ("严重级别", 12),
+    ("复核状态", 24),
+    ("标题", 50),
+    ("问题说明", 70),
+    ("建议修复", 60),
+]
+
 
 def render_workbook(
     *,
@@ -258,6 +270,15 @@ def render_workbook(
     _build_findings_sheet(
         ws_findings,
         all_findings,
+        category_descriptions=category_descriptions,
+    )
+
+    ws_issue_summary = wb.create_sheet("问题总结")
+    _build_issue_summary_sheet(
+        ws_issue_summary,
+        plan,
+        all_findings,
+        actual_mode,
         category_descriptions=category_descriptions,
     )
 
@@ -477,6 +498,7 @@ def _validate_findings(
         for k in REQUIRED_EVIDENCE_FIELDS:
             if k not in ev:
                 raise ReportError(f"finding {f['id']} evidence missing field '{k}'")
+        _validate_chinese_finding_text(f)
         rv = f["reviewer"]
         if not isinstance(rv, dict):
             raise ReportError(f"finding {f['id']} reviewer must be an object")
@@ -499,10 +521,37 @@ def _validate_verifier(finding: dict[str, Any], *, require_verifier: bool) -> No
         raise ReportError(
             f"finding {finding['id']} verifier.status {vr['status']!r} invalid; must be one of {VALID_VERIFIER_STATUSES}"
         )
+    _require_chinese_text(vr["reason"], f"finding {finding['id']} verifier.reason")
+    _require_chinese_text(
+        vr["evidence_check"],
+        f"finding {finding['id']} verifier.evidence_check",
+    )
     severity_after = vr.get("severity_after")
     if severity_after is not None and severity_after not in VALID_SEVERITIES:
         raise ReportError(
             f"finding {finding['id']} verifier.severity_after {severity_after!r} invalid; must be one of {VALID_SEVERITIES}"
+        )
+
+
+def _validate_chinese_finding_text(finding: dict[str, Any]) -> None:
+    evidence = finding["evidence"]
+    for field in ("title", "description", "suggested_fix"):
+        _require_chinese_text(finding[field], f"finding {finding['id']} {field}")
+    for field in ("reasoning", "trigger_conditions", "expected_vs_actual"):
+        _require_chinese_text(
+            evidence[field],
+            f"finding {finding['id']} evidence.{field}",
+        )
+
+
+def _require_chinese_text(value: Any, field_name: str) -> None:
+    text = str(value or "").strip()
+    if not text:
+        raise ReportError(f"{field_name} must be non-empty Chinese text")
+    if not any("\u4e00" <= ch <= "\u9fff" for ch in text):
+        raise ReportError(
+            f"{field_name} must contain Chinese explanatory text; "
+            "English identifiers, paths, and API names may be included as supporting terms"
         )
 
 
@@ -696,6 +745,104 @@ def _build_summary_sheet(
         ws.column_dimensions[get_column_letter(c_idx)].width = 18
 
 
+def _build_issue_summary_sheet(
+    ws: Any,
+    plan: dict[str, Any],
+    findings: list[dict[str, Any]],
+    mode: str,
+    *,
+    category_descriptions: dict[str, str],
+) -> None:
+    issue_findings = _issue_findings_for_summary(findings, mode)
+    non_issue_count = sum(1 for finding in findings if _verifier_status(finding) == "rejected")
+    needs_more_evidence_count = sum(
+        1 for finding in findings if _verifier_status(finding) == "needs_more_evidence"
+    )
+    wrap = Alignment(wrap_text=True, vertical="top")
+
+    row = 1
+    row = _write_section_title(ws, row, "问题总结")
+    overview_rows = [
+        ("报告模式", "一审草稿" if mode == "draft" else "复核后最终结果"),
+        ("审查目标", str(plan.get("target") or "")),
+        ("纳入本页总结的问题数", len(issue_findings)),
+        ("全部 finding 数", len(findings)),
+        ("复核认为非问题数", non_issue_count),
+        ("仍需补证据数", needs_more_evidence_count),
+    ]
+    for key, value in overview_rows:
+        ws.cell(row=row, column=1, value=key).font = Font(bold=True)
+        ws.cell(row=row, column=2, value=value).alignment = wrap
+        row += 1
+
+    row += 1
+    row = _write_counter_block(
+        ws,
+        row,
+        "本页问题按严重级别统计",
+        Counter(finding["severity"] for finding in issue_findings),
+        SEVERITY_ZH,
+    )
+    row += 1
+    row = _write_counter_block(
+        ws,
+        row,
+        "本页问题按模块统计",
+        Counter(finding["module"] for finding in issue_findings),
+        {},
+    )
+    row += 1
+    row = _write_counter_block(
+        ws,
+        row,
+        "本页问题按审查类别统计",
+        Counter(finding["category"] for finding in issue_findings),
+        category_descriptions,
+    )
+    row += 1
+
+    row = _write_section_title(ws, row, "重点问题列表")
+    _write_table_header(ws, row, ISSUE_SUMMARY_COLUMNS)
+    row += 1
+    for finding in _sorted(issue_findings):
+        values = [
+            finding["id"],
+            finding["module"],
+            _location(finding),
+            finding["category"],
+            finding["severity"],
+            STATUS_ZH.get(_verifier_status(finding), _verifier_status(finding)),
+            finding["title"],
+            finding["description"],
+            finding["suggested_fix"],
+        ]
+        for col_idx, value in enumerate(values, start=1):
+            cell = ws.cell(row=row, column=col_idx, value=value)
+            cell.alignment = wrap
+        severity_cell = ws.cell(row=row, column=_column_index(ISSUE_SUMMARY_COLUMNS, "严重级别"))
+        severity_cell.fill = PatternFill(
+            "solid",
+            fgColor=SEVERITY_FILL_COLORS.get(finding["severity"], SEVERITY_FILL_COLORS["info"]),
+        )
+        severity_cell.font = Font(color="FFFFFFFF", bold=True)
+        row += 1
+    if not issue_findings:
+        ws.cell(row=row, column=1, value="无已确认问题" if mode == "final" else "无 finding 草稿")
+
+
+def _issue_findings_for_summary(
+    findings: list[dict[str, Any]],
+    mode: str,
+) -> list[dict[str, Any]]:
+    if mode == "draft":
+        return list(findings)
+    return [
+        finding
+        for finding in findings
+        if _verifier_status(finding) in CONFIRMED_STATUSES
+    ]
+
+
 def _write_section_title(ws: Any, row: int, title: str) -> int:
     cell = ws.cell(row=row, column=1, value=title)
     cell.font = Font(bold=True)
@@ -814,10 +961,14 @@ def _build_non_issue_sheet(
 
 
 def _write_header(ws: Any, columns: list[tuple[str, int]]) -> None:
+    _write_table_header(ws, 1, columns)
+
+
+def _write_table_header(ws: Any, row: int, columns: list[tuple[str, int]]) -> None:
     header_font = Font(bold=True, color="FFFFFFFF")
     header_fill = PatternFill("solid", fgColor=HEADER_FILL_COLOR)
     for col_idx, (name, width) in enumerate(columns, start=1):
-        cell = ws.cell(row=1, column=col_idx, value=name)
+        cell = ws.cell(row=row, column=col_idx, value=name)
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center", vertical="center")
