@@ -122,9 +122,9 @@ using-devflow
 
 ## 安装与准备
 
-DevFlow 当前不是 npm / pip 安装包，也没有必须执行的公共 CLI。它是一组 Cursor Agent Skills 和配套文档。
+DevFlow 当前不是 npm / pip 安装包。它由一组 Cursor Agent Skills、slash-style commands 和配套文档组成。
 
-当前 DevFlow skills 位于本仓库的 `skills/` 目录。安装的本质是让 Cursor 能加载这些 `SKILL.md` 文件：可以直接在本仓库中使用，也可以把需要的 skill 目录复制到项目或团队约定的 `.cursor/skills/` 位置。
+当前 DevFlow skills 位于本仓库的 `skills/` 目录；阶段入口命令位于 `commands/` 目录。安装的本质是让 Cursor 能加载这些 `SKILL.md`，并让命令入口在目标仓库可用：可以直接在本仓库中使用，也可以把需要的 skill 与 command 目录复制到项目或团队约定的位置。
 
 ```text
 skills/
@@ -142,13 +142,31 @@ skills/
   devflow-completion-gate/
   devflow-finalize/
   devflow-problem-fix/
+commands/
+  devflow.md
+  devflow-specify.md
+  devflow-design.md
+  devflow-build.md
+  devflow-ship.md
+  devflow-fix.md
 ```
+
+这些 command 只是用户视角的阶段入口，不替代 `devflow-*` skills，也不绕开 `devflow-router`、独立评审和完成门禁：
+
+| Command | 适用阶段 |
+|---|---|
+| `/devflow` | 入口 / 续作：先判断当前 work item 应该从哪里恢复 |
+| `/devflow-specify` | 规格澄清 + 独立 spec review |
+| `/devflow-design` | 组件设计（按需）+ AR 设计 + 独立设计评审 |
+| `/devflow-build` | TDD 实现 + test review + code review |
+| `/devflow-ship` | completion gate + finalize |
+| `/devflow-fix` | DTS / hotfix：复现、根因、最小修复边界，然后回到 build / ship |
 
 在目标组件仓库中，建议准备 `AGENTS.md` 或等价团队规则文件，用来声明构建命令、测试命令、代码规范、默认工件目录和已有团队目录的映射。没有团队覆盖时，DevFlow 使用本文档中的默认布局。
 
 ## 快速开始
 
-直接用自然语言触发 DevFlow，不需要命令封装。
+可以从 `/devflow` 进入，让 DevFlow 根据工件证据路由；也可以继续用自然语言描述目标。
 
 ```text
 请使用本仓库的 DevFlow，从 using-devflow 开始。
