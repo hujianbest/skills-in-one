@@ -1,6 +1,6 @@
 ---
 name: code-audit-verifier
-description: Use as the SECOND-STAGE agent of the two-agent code-audit pipeline, after code-audit-reviewer has emitted finding drafts. Operates in a FRESH context to independently confirm each finding by re-reading the source code. Orchestrates audit-verifier and refreshes the Excel workbook. Not for emitting new findings (use code-audit-reviewer) or for PR diff review.
+description: Use as the SECOND-STAGE agent of the two-agent code-audit pipeline, after code-audit-reviewer has emitted finding drafts. Operates in a fresh context when possible to independently confirm each finding by re-reading source code. Supports unattended invocation from code-audit-reviewer for nightly runs. Orchestrates audit-verifier and refreshes Excel. Not for emitting new findings or PR diff review.
 ---
 
 # Code Audit Verifier
@@ -13,6 +13,7 @@ description: Use as the SECOND-STAGE agent of the two-agent code-audit pipeline,
 
 - `code-audit-reviewer` 已完成 `plan.json` + `findings/<module>.json`
 - 用户在新会话启动本 agent，传入 `run_id`
+- `code-audit-reviewer --unattended` 自动调用本 agent 完成夜间复核
 
 不适用：
 
@@ -52,6 +53,7 @@ description: Use as the SECOND-STAGE agent of the two-agent code-audit pipeline,
 ```
 --run-id <id>            (必填)
 --re-render-only         (跳过 verifier，仅重渲染 Excel)
+--unattended             (由夜间无人值守流程调用；不等待用户确认)
 ```
 
 ### Step 2: 验前置
@@ -59,6 +61,7 @@ description: Use as the SECOND-STAGE agent of the two-agent code-audit pipeline,
 - 检查 `.garage/code-audit/runs/<run_id>/plan.json` 存在且所有模块 `status=done`
 - 检查 `findings/<module>.json` 对每个 done 模块都存在
 - 若 `--re-render-only`，跳到 Step 5
+- 若 `--unattended` 且当前上下文不是 fresh context，在 `audit-log.jsonl` 写 degraded warning，但继续执行
 
 不满足 → 报错 + 提示用户先跑 `code-audit-reviewer` 或 `--resume`。
 

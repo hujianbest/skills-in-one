@@ -55,7 +55,9 @@ findings/<module>.json 落盘 + plan.json status=done
 3. 该模块完成后**立即返回控制权 + 移交消息**，告诉用户在新对话里继续下一个模块
 4. 不进入循环、不在同一会话里继续抓下一个模块
 
-非交互场景（CI / 脚本，`--yes` + `--auto-loop`）才允许同 session 串跑，且必须在 `audit-log.jsonl` 里写一条 warning：`{role: "reviewer", warning: "auto-loop mode: per-module independence relaxed", ts: ...}`，并在最终摘要里告知用户。
+非交互场景（CI / 脚本 / 夜间无人值守，`--yes` + `--auto-loop` 或 `--unattended`）才允许同 session 串跑，且必须在 `audit-log.jsonl` 里写一条 warning：`{role: "reviewer", warning: "auto-loop mode: per-module independence relaxed", unattended: true|false, ts: ...}`，并在最终摘要里告知用户。
+
+`--unattended` 的定位不是高保真替代品，而是无人值守吞吐模式：允许自动接受 checklist、连续处理模块、自动调用 verifier 和 reporter。宿主若支持 fresh subagent / fresh context，应优先用它隔离每个模块；不支持时才降级为同会话串跑。
 
 ## 3. 三家宿主的具体做法
 
@@ -154,4 +156,4 @@ reviewer agent / orchestrator 在每个 MWU 末尾自检：
 - [ ] 本会话内只调了 audit-reviewer 一次（针对单一模块）
 - [ ] `plan.json` 中正好一个模块从 `pending` 变 `done`
 - [ ] 移交消息明确指引用户开新会话 + 给出 `--resume` 指令
-- [ ] `audit-log.jsonl` 末尾不含同一 run、同一会话内多个 module 的 `module_done` 事件（除非显式 auto-loop 模式）
+- [ ] `audit-log.jsonl` 末尾不含同一 run、同一会话内多个 module 的 `module_done` 事件（除非显式 auto-loop / unattended 模式）

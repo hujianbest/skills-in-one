@@ -26,13 +26,16 @@
 2. **只读 finding 文件**：verifier agent 的指令明确"只读 `.garage/code-audit/runs/<run_id>/findings/*.json` + 原代码"，不读 `audit-log.jsonl` 内 reviewer 的中间记录
 3. **不接 reviewer 对话**：用户 / orchestrator 必须先 close reviewer session 再启动 verifier session
 
+夜间无人值守模式例外：`code-audit-reviewer --unattended` 可以自动调用 `code-audit-verifier --unattended`。此时宿主若支持 fresh subagent / fresh context，必须优先使用；若不支持，按下一节的同上下文降级规则执行，并写 audit-log warning。
+
 ## 当 reviewer 与 verifier 在同一上下文运行时
 
-某些宿主可能不支持"两个独立 agent 上下文"。此时 verifier skill 启动后必须：
+某些宿主可能不支持"两个独立 agent 上下文"，或用户显式选择夜间无人值守模式。此时 verifier skill 启动后必须：
 
 1. **声明独立模式**：在 `audit-log.jsonl` 写一条 `{role: "verifier", mode: "independent-pass", ts: ...}`
-2. **重新建立上下文**：忽略本上下文之前 reviewer 阶段的所有推理，只信任落到 `findings/*.json` 的字段
-3. **不在 verifier 阶段问 reviewer "你当时想的是什么"**：所有澄清通过补 `evidence_check` 或打回 `needs_more_evidence` 完成
+2. **标记降级风险**：若是 `--unattended` 同上下文执行，再写 `{role: "verifier", warning: "unattended verifier context is degraded", ts: ...}`
+3. **重新建立上下文**：忽略本上下文之前 reviewer 阶段的所有推理，只信任落到 `findings/*.json` 的字段
+4. **不在 verifier 阶段问 reviewer "你当时想的是什么"**：所有澄清通过补 `evidence_check` 或打回 `needs_more_evidence` 完成
 
 ## "看到但不依赖" vs "完全屏蔽"
 

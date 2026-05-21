@@ -132,6 +132,7 @@ signals:
 - `module_budget_files`：可选，**默认 8**（单模块期望文件数上限；0.3.0 起从 20 下调）
 - `preset`：可选，跳过 Step 0.5 的 LLM 推断，直接采用指定 preset（如 `c-cpp-embedded-soa`、`python-web-service`、`frontend-spa`、`generic`）
 - `assume_yes`：可选，跳过 Step 0.5 的用户确认 prompt（CI / 脚本场景）
+- `unattended`：可选，夜间无人值守；等价于 `assume_yes=true`，并要求调用方后续连续跑完所有模块、自动复核、刷新最终 Excel
 
 > **0.3.0 设计理由**：每个模块在一审阶段都会被 `audit-reviewer` 在**独立、新鲜的对话上下文**中处理（per-module-context-protocol.md）。把单模块 token 预算压到 ~12k 让单次 round-trip 远低于主流模型的硬上限，避免上下文压缩 / 滑窗淘汰导致的 finding 漏检与 severity 漂移。倾向于"模块多、每个小"，而不是"模块少、每个大"。
 

@@ -37,6 +37,24 @@ code-insight/
 请用 code-audit-reviewer --resume run <run_id> 处理下一个模块
 ```
 
+### 夜间无人值守
+
+如果需要夜间连续跑完且中间没有人工确认，使用：
+
+```text
+请用 code-audit-reviewer 审查 src/ --unattended
+```
+
+`--unattended` 会自动：
+
+1. 选择最匹配的 preset，并以 `user_confirmed=false` 写入 `plan.json`。
+2. 写 `task.md` 作为中文任务摘要。
+3. 连续处理所有 pending 模块，并在每个模块后刷新草稿 Excel。
+4. 所有模块完成后自动调用 `code-audit-verifier --unattended`。
+5. 刷新最终 Excel。
+
+该模式会在 `audit-log.jsonl` 中记录上下文独立性降级 warning。白天有人工参与时，优先使用默认“每模块新会话”的高保真流程。
+
 ### 2. 二审：独立复核并刷新最终 Excel
 
 所有模块一审完成后，在新会话启动 `code-audit-verifier`：
@@ -119,7 +137,7 @@ python code-insight/skills/audit-reporter/scripts/render_xlsx.py --run-id <run_i
 ## 关键约束
 
 - 一审和二审必须使用新会话隔离上下文。
-- 一审每次只处理一个模块，不在同一会话连续扫多个模块。
+- 默认模式下一审每次只处理一个模块，不在同一会话连续扫多个模块；`--unattended` / `--auto-loop` 是夜间或 CI 的显式降级模式。
 - 二审不新增 finding，不修改 reviewer 的 `description`、`evidence`、`category`。
 - `rejected` 不代表删除记录，必须保留在 JSON 和 Excel 中。
 - finding JSON 中面向人工阅读的自然语言字段必须使用中文，包括问题标题、问题描述、证据推理、触发条件、预期与实际、建议修复、复核理由和复核核验证据。

@@ -1,11 +1,11 @@
 ---
 name: code-audit-reviewer
-description: Use when the user asks to audit existing code in a repository or large directory tree for bugs. This is the FIRST-STAGE agent of the two-agent code-audit pipeline. It first detects the project's language + architecture (e.g. C/C++ embedded SOA, Python web service, frontend SPA) via audit-planner Step 0/0.5, proposes a tailored review checklist of bug categories and confirms it with the user, then orchestrates audit-planner to slice the codebase into modules (directory-tree partition with tight per-module budgets to avoid context compression). Each invocation processes ONE pending module per fresh session via audit-reviewer and hands off — the user opens a new session for the next module. Once all modules are scanned, the user launches code-audit-verifier in a fresh context for independent confirmation. Not for PR diff review (use code-review-agent) or for fixing code (use hf-test-driven-dev).
+description: Use when the user asks to audit existing code in a repository or large directory tree for bugs. This is the FIRST-STAGE agent of the two-agent code-audit pipeline. It detects project profile, confirms or auto-selects a checklist, partitions modules, and runs audit-reviewer. Default interactive mode processes ONE pending module per fresh session; unattended/nightly mode can auto-accept, process all modules, run verifier, and refresh Excel without human confirmation. Not for PR diff review or fixing code.
 ---
 
 # Code Audit Reviewer
 
-第一阶段 agent：识别项目 profile → 与用户敲定 review checklist → 按目录树切分 → **每次调用单模块独立审查**，靠新会话隔绝上下文，避免上下文压缩导致的审查精度下降。
+第一阶段 agent：识别项目 profile → 与用户敲定或自动接受 review checklist → 按目录树切分 → 调 `audit-reviewer`。默认交互模式每次只审一个模块；夜间无人值守模式可连续跑完整个 run，并自动进入复核与 Excel 刷新。
 
 ## When to Use
 
@@ -28,10 +28,13 @@ description: Use when the user asks to audit existing code in a repository or la
 1. **`audit-planner`** — 切模块清单（**0.3.0 起默认目录树切 + 紧预算 token=12000 / files=8**），输出 `plan.json` + `task.md`
 2. **`audit-reviewer`** — 每次调用扫**单个**模块，输出 `findings/<module>.json`，扫完即停
 3. **`audit-reporter`** — 每个模块一审完成后立即以 `--mode draft` 刷新 `reports/report.xlsx`
+4. **`code-audit-verifier`** — 仅 `--unattended` 模式下自动进入二审并刷新最终 Excel
 
 每个 skill 自带 references；本 agent 只决定调用顺序与中断恢复策略，不重复 skill 已经定义的契约。
 
-> **0.3.0 关键变化**：本 agent **不再**在同一个对话里一口气把所有模块跑完。每个模块在用户的**新会话**里执行一次，避免上下文堆叠导致的压缩 / 滑窗淘汰。详见 `audit-reviewer/references/per-module-context-protocol.md`。
+> **默认高保真模式**：本 agent 不在同一个对话里一口气把所有模块跑完。每个模块在用户的新会话里执行一次，避免上下文堆叠导致压缩 / 滑窗淘汰。详见 `audit-reviewer/references/per-module-context-protocol.md`。
+>
+> **无人值守模式**：用户显式传 `--unattended` / `--nightly` 时，允许自动接受 checklist、连续处理所有 pending 模块、自动启动 `code-audit-verifier` 并刷新最终 Excel。该模式必须写 audit-log warning，明确上下文独立性低于默认模式。
 
 ## Workflow
 
@@ -45,7 +48,8 @@ description: Use when the user asks to audit existing code in a repository or la
 - `module_budget_*`（可选，沿用 audit-planner 默认 0.3.0 起 token=12000 / files=8）
 - `--resume`（可选）：用户带 `<run-id>` 要求继续未完成的 run，跳过 Step 2.0/2.5/2，直接进入 Step 3
 - `--module <name>`（可选）：用户指定要扫的具体模块；不传则按 priority desc → path asc 取第一个 pending
-- `--auto-loop`（**强烈不推荐**，仅 CI / 脚本）：在同一会话内把所有 pending 模块串跑；触发 audit-log warning + 输出最终摘要里特别提示用户结果可能受上下文压缩影响
+- `--auto-loop`（可选，仅自动化）：在同一会话内把所有 pending 模块串跑；触发 audit-log warning + 输出最终摘要里提示用户结果可能受上下文压缩影响
+- `--unattended` / `--nightly`（可选，夜间无人值守）：等价于 `--yes --auto-loop --verify`，不中途等待用户确认；首次运行会自动采用最匹配 preset，写 `user_confirmed=false`，连续跑完一审、二审和最终 Excel
 
 判断当前会话的处境：
 
@@ -54,6 +58,7 @@ description: Use when the user asks to audit existing code in a repository or la
 | 首次：用户给 `target`，无 `run_id` | Step 2.0 → 2.5 → 2 → 3（处理一个模块）→ 4 |
 | 续跑：用户给 `--resume <run_id>` 且 plan.json 已有 modules | 跳到 Step 3（处理一个模块）→ 4 |
 | 所有模块 done，用户错误地 resume | 跳到 Step 4（直接给出 verifier 移交消息） |
+| 无人值守：用户给 `--unattended` / `--nightly` | Step 2.0 → 自动接受 Step 2.5 → 2 → 3U（所有模块）→ 5U（自动复核） |
 
 如果用户没给 `target` 且没有 `--resume`，先问清。如果用户已经在对话里描述了项目（如"项目是 C/C++ 嵌入式 SOA"），把该描述作为 Step 2.0 的强信号优先采信。
 
@@ -98,7 +103,7 @@ signals:
 
 profile + checklist 落定后，按 audit-planner workflow Step 1-4 切模块，把 modules 数组并入同一份 `.garage/code-audit/runs/<run_id>/plan.json`，并写 `.garage/code-audit/runs/<run_id>/task.md` 作为中文任务说明。
 
-把 plan 的 module 清单 + priority + `task.md` 路径回显给用户做最后一轮确认（同 0.1.0 行为），等用户 `ok` 后进入 Step 3。
+把 plan 的 module 清单 + priority + `task.md` 路径回显给用户做最后一轮确认（同 0.1.0 行为），等用户 `ok` 后进入 Step 3。若是 `--unattended`，不等待 `ok`，但必须在摘要和 `audit-log.jsonl` 中记录 `user_confirmed=false` 与 `unattended=true`。
 
 ### Step 3: 调用 `audit-reviewer` **处理单个模块**
 
@@ -120,9 +125,9 @@ log to .garage/code-audit/runs/<run_id>/audit-log.jsonl as
 
 完成后立刻进入 Step 4。**不**继续抓下一个模块，**不**进 for 循环。
 
-#### Step 3 例外：`--auto-loop` 模式（CI / 脚本，强烈不推荐）
+#### Step 3 例外：`--auto-loop` / `--unattended` 模式
 
-仅当用户显式传 `--auto-loop` 时才允许在同一会话内串跑：
+仅当用户显式传 `--auto-loop` 或 `--unattended` 时才允许在同一会话内串跑：
 
 ```
 for module in plan.modules sorted by priority:
@@ -130,10 +135,25 @@ for module in plan.modules sorted by priority:
   audit-reviewer(run_id, module.name) → ...
   audit-reporter(run_id, mode=draft) → reports/report.xlsx
   log {role: "reviewer", event: "module_done", ...}
-log {role: "reviewer", warning: "auto-loop mode: per-module independence relaxed", ts}
+log {role: "reviewer", warning: "auto-loop mode: per-module independence relaxed", unattended: <bool>, ts}
 ```
 
-进入 Step 4 时在最终摘要顶部加 `⚠ auto-loop mode used; review fidelity for later modules may be reduced; consider re-auditing critical modules in fresh sessions`。
+进入 Step 4 时在最终摘要顶部加 `⚠ auto-loop/unattended mode used; review fidelity for later modules may be reduced; consider re-auditing critical modules in fresh sessions`。
+
+#### Step 5U：无人值守自动复核
+
+仅当用户显式传 `--unattended` / `--nightly` 时启用。所有模块处理完成后，不等待用户新开会话，自动调用：
+
+```text
+code-audit-verifier --run-id <run_id> --unattended
+```
+
+执行要求：
+
+- 优先用宿主支持的 fresh subagent / fresh context 启动 `code-audit-verifier`；若宿主不支持，允许同会话降级执行，但必须在 `audit-log.jsonl` 写 `{role: "verifier", warning: "unattended verifier context is degraded", run_id, ts}`
+- `code-audit-verifier` 仍只能依赖 `findings/*.json` + 源代码作判断，不得引用 reviewer 对话历史
+- 最终必须刷新 `reports/report.xlsx`（`audit-reporter --mode final`）
+- 若任何模块或复核失败，停止后输出失败阶段、最后成功产物路径和可 resume 指令
 
 ### Step 4: 收尾 + 移交
 
@@ -185,9 +205,9 @@ audit-reviewer/references/per-module-context-protocol.md。
 
 **重要**：
 
-- 本 agent **不**自动续跑 verifier；必须由用户在 fresh context / 新会话启动 verifier，以确保独立性（见 `audit-verifier/references/independence-protocol.md`）
+- 默认交互模式下，本 agent **不**自动续跑 verifier；必须由用户在 fresh context / 新会话启动 verifier，以确保独立性（见 `audit-verifier/references/independence-protocol.md`）。`--unattended` 模式例外，会自动启动 verifier 并记录降级风险
 - 本 agent **不**自动跑下一个模块；必须由用户在新会话启动续跑，以确保模块间独立性（见 `audit-reviewer/references/per-module-context-protocol.md`）
-- `--auto-loop` 是降级模式，文档不推广给普通用户；只在 CI 等无人值守场景使用
+- `--auto-loop` / `--unattended` 是自动化降级模式；允许夜间无人值守，但结果摘要和 audit-log 必须保留降级提示
 
 ## Hard Gates
 
@@ -195,9 +215,9 @@ audit-reviewer/references/per-module-context-protocol.md。
 - 不直接手写报告；每个模块一审完成后必须调用 `audit-reporter --mode draft` 刷新 Excel
 - 不修改代码；只审不改
 - 单次 run 不重启 plan：若用户改主意要换 target，应起新 `run_id`
-- **必须先识别 profile + 与用户敲定 review_checklist 才能进入切模块步骤**；非交互（`--yes`）模式可跳过用户确认 prompt，但仍要在 `plan.json` 真实记录 `user_confirmed=false`，并在最终移交消息里向用户重申"checklist 未确认，可手编 plan.json 后用 `--resume` 重跑"
+- **必须先识别 profile + 敲定 review_checklist 才能进入切模块步骤**；非交互（`--yes` / `--unattended`）模式可跳过用户确认 prompt，但仍要在 `plan.json` 真实记录 `user_confirmed=false`，并在最终摘要里向用户重申"checklist 未人工确认，可手编 plan.json 后用 `--resume` 重跑"
 - 不允许 reviewer 写出 `review_checklist.categories[].id` 之外的 `finding.category`（agent 在 Step 3 调 reviewer 前应自检 plan.json 内 checklist 完整性）
-- **每次会话只调一次 audit-reviewer 处理单一模块**（0.3.0 起）：除 `--auto-loop` 显式降级外，禁止在同一会话连扫多个模块；模块完成 → 移交消息 → 用户开新会话续跑
+- **每次会话只调一次 audit-reviewer 处理单一模块**（默认高保真模式）：除 `--auto-loop` / `--unattended` 显式降级外，禁止在同一会话连扫多个模块；模块完成 → 移交消息 → 用户开新会话续跑
 
 ## Resume 协议
 
@@ -241,6 +261,14 @@ agent 应：
 - [ ] `reports/report.xlsx` 已存在，且为一审草稿 Excel
 - [ ] `audit-log.jsonl` 末尾有 `event: "all_modules_done"` 记录
 - [ ] 最终移交消息明确指引用户启动 verifier 的新会话
+
+无人值守模式追加：
+
+- [ ] `plan.profile.user_confirmed=false` 与 `plan.review_checklist.user_confirmed=false`（除非用户预先提供已确认 plan）
+- [ ] `audit-log.jsonl` 含 `unattended=true` 与 per-module independence relaxed warning
+- [ ] 所有 pending 模块已连续处理到 `done` 或明确 `skipped`
+- [ ] 已自动调用 `code-audit-verifier --run-id <run_id> --unattended`
+- [ ] `confirmed.json`、`verifications/*.json`、最终 `reports/report.xlsx` 已生成
 
 ## Notes
 
