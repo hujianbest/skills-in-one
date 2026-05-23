@@ -23,6 +23,8 @@ DevFlow is intentionally narrower than an idea-to-product workflow. It does not 
 
 Every transition is **evidence-driven** — the next step is recovered from disk artifacts (`features/<id>/progress.md`, `reviews/`, `evidence/`), not from chat memory. Reviews are dispatched as **independent subagents**, never inlined.
 
+DevFlow supports a **controlled subagent-driven execution** model: `devflow-router` is the only reviewer subagent dispatcher, and `devflow-tdd-implementation` is the only implementer subagent dispatcher. Heavy code context can move into a fresh implementer, but reviews, gates, profile decisions, and next-step routing still flow through the existing DevFlow artifact chain; this is not a new workflow and does not bypass `devflow-test-review`, `devflow-code-review`, or `devflow-completion-gate`.
+
 ---
 
 ## Quick Start (OpenCode)
@@ -73,6 +75,8 @@ Pick by what you're trying to do — DevFlow auto-routes from the entry skill.
 | Reproduce, root-cause, scope a hotfix / DTS | [`devflow-problem-fix`](skills/devflow-problem-fix/SKILL.md) | Reproduction + root cause + minimal safe fix |
 
 Reviews are dispatched as **independent subagents** by `devflow-router`, each seeded with the matching `devflow-*-review` skill (or `devflow-test-review` / `devflow-code-review`). The reviewer subagent reads only the artifact under review and returns a structured verdict — it never edits the artifact.
+
+Implementation subagents are task-scoped: `devflow-tdd-implementation` builds an Implementer Context Pack for the unique `Current Active Task`, dispatches a fresh implementer for RED/GREEN/REFACTOR, and records the result in `task-board.md`, `implementation-log.md`, and evidence paths.
 
 ---
 
@@ -238,7 +242,7 @@ Project `AGENTS.md` may override equivalent paths and templates.
 
 ## Subagent Context Strategy
 
-The controller session should stay small. Heavy code context belongs in subagents.
+The controller session should stay small. Heavy code context belongs in subagents, but subagent orchestration stays on two controlled tracks: reviewers are dispatched only by `devflow-router`, and implementers are dispatched only by `devflow-tdd-implementation`.
 
 `devflow-tdd-implementation` uses an **Implementer Context Pack** for each Current Active Task:
 
@@ -264,7 +268,7 @@ The implementer subagent receives that pack rather than the full chat history or
 - `NEEDS_CONTEXT`
 - `BLOCKED`
 
-The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-review`. Implementer self-review never replaces test review or code review.
+The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-review`. Implementer self-review never replaces test review or code review; `NEEDS_CONTEXT` stays inside `devflow-tdd-implementation` for repacking, while only routing, profile, or scope blockers return to `devflow-router`.
 
 ---
 

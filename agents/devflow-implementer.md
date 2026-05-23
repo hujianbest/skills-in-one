@@ -25,6 +25,16 @@ expected_return_contract  本文件 Output contract
 
 如发现 Implementer Context Pack 缺关键字段（acceptance criteria / 测试设计锚点 / 测试或构建命令）→ 立即返回 `NEEDS_CONTEXT`，**不要** 猜测、不要从父会话拉取、不要读取无关代码。
 
+## Dispatch guidance（供 `devflow-tdd-implementation` 派发前使用）
+
+模型选择应跟 task 风险匹配，而不是跟 work item 大小机械绑定：
+
+- 机械、局部、1-2 个文件且 acceptance 完整的 task，可使用快模型。
+- 需要跨多文件协调、理解既有测试 harness、处理构建 / 静态分析异常的 task，使用标准模型。
+- 需要设计判断、边界判断、并发 / 内存 / 实时性风险分析的 task，不应靠 implementer 猜；先回 `devflow-tdd-implementation` 收敛 context，必要时交 `devflow-router` 或上游设计节点。
+
+不要用更强模型掩盖不完整 context pack。若缺 acceptance、测试设计锚点、verify 命令或允许文件范围，正确动作仍是 `NEEDS_CONTEXT`。
+
 ## Procedure
 
 1. **读输入**：
@@ -84,7 +94,7 @@ notes: <one short paragraph; tdd cycle summary>
 ```
 
 - `DONE` → acceptance 全通过、回归全绿、静态分析按项目要求清洁
-- `DONE_WITH_CONCERNS` → acceptance 通过，但有需后续处理的非阻塞问题
+- `DONE_WITH_CONCERNS` → acceptance 通过，但有需后续处理的非阻塞问题。concerns 必须具体到 evidence、文件位置或规则 ID，并说明是否影响 acceptance、证据可信度、组件边界或后续维护；不要把 blocking scope/profile 问题伪装成 concern
 - `NEEDS_CONTEXT` → 缺关键输入字段；**只回到 `devflow-tdd-implementation`**，不去 `devflow-router`
 - `BLOCKED` → 路由 / profile / 越界；必须 `reroute_via_router=true`，由父节点把控制交回 `devflow-router`
 

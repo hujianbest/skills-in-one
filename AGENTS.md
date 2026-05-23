@@ -101,6 +101,10 @@ These rules apply at all times, across every DevFlow skill. Violating any of the
 
 ### 6. Subagent context discipline
 
+- DevFlow uses a controlled two-track subagent model:
+  - `devflow-router` is the only dispatcher for reviewer subagents.
+  - `devflow-tdd-implementation` is the only dispatcher for implementer subagents.
+  No other leaf may spawn reviewers, implementers, coordinators, or nested personas.
 - The controller session must stay small. When `devflow-tdd-implementation` dispatches an implementer subagent, it MUST pass the curated **Implementer Context Pack** (see `skills/devflow-tdd-implementation/SKILL.md`) and not the full chat history.
 - Implementer subagents return one of `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, `BLOCKED`. `NEEDS_CONTEXT` stays inside `devflow-tdd-implementation` (re-pack and retry). Only routing / profile / scope blockers escalate to `devflow-router`.
 
