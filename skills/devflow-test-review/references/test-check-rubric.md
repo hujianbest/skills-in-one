@@ -7,7 +7,7 @@
 | 维度 | 关键检查 |
 |---|---|
 | **TC1 Fresh RED / GREEN Validity** | RED 真失败、GREEN 本会话产生、新鲜度锚点（commit/build ID）完整 |
-| **TC2 Behavior & Acceptance Mapping** | 每个用例回指 requirement row + Test Design Case ID；核心 row 至少一个用例覆盖 |
+| **TC2 Behavior & Acceptance Mapping** | 每个用例回指 requirement row + Test Design Case ID + Change Type；核心 row 至少一个用例覆盖；`modify` / `remove` 覆盖 regression / removal 语义 |
 | **TC3 Boundary & Exception Coverage** | 边界 / null / 错误路径 / 异常路径覆盖 |
 | **TC4 Embedded Risk Coverage** | 内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI 被 `embedded-risk` 用例覆盖 |
 | **TC5 Mock Boundary Discipline** | mock 限定真正边界；不 mock 内部纯逻辑；不引入「测试专用方法」 |
@@ -31,6 +31,8 @@
 - `TC2.2` 每个用例回指 AR 设计 Test Design Case ID
 - `TC2.3` 每条核心 requirement row 至少有一个用例覆盖
 - `TC2.4` Acceptance 中的可判定条件被显式断言
+- `TC2.5` `modify` row 覆盖旧行为中要求保留的 regression 条件，或显式断言批准的破坏行为
+- `TC2.6` `remove` row 覆盖旧入口 / 旧输入 / 旧配置删除后的可观察语义
 
 ### Group TC3 - Boundary & Exception（边界与异常）（边界与异常）（边界与异常）
 
@@ -77,7 +79,7 @@
 
 ## Severity 分级
 
-- `critical`：阻塞 code review（无效 RED / GREEN、关键 requirement row 无覆盖、嵌入式风险全维度未覆盖、mock 越界严重）
+- `critical`：阻塞 code review（无效 RED / GREEN、关键 requirement row 无覆盖、modify/remove 无 regression/removal 证据、嵌入式风险全维度未覆盖、mock 越界严重）
 - `important`：approval 前应修（断言过弱、边界覆盖不全、单个嵌入式维度未覆盖）
 - `minor`：建议改进（命名、轻微稳定性问题）
 

@@ -12,7 +12,7 @@
 | **CD4 Dependency & Direction** | 依赖方向无环；初始化 / shutdown 顺序明确；版本约束清晰 | 循环依赖；初始化顺序模糊 |
 | **CD5 Data Model & State Machine** | 数据模型与状态机覆盖核心生命周期；转换条件清晰 | 状态机缺关键路径；异常状态无说明 |
 | **CD6 Concurrency / Real-time / Resource / Error Handling** | 中断上下文限制、锁策略、资源回收、错误处理、ABI / API 兼容 | 中断上下文无说明；资源回收缺 |
-| **CD7 AR Design Constraints & Cross-Component Impact** | 对 AR 实现设计的基线约束清晰：功能编号、接口契约、软件单元、测试项、成本约束可被下游引用；跨组件影响显式列出且与下游协调 | 对 AR 设计无任何约束；跨组件影响只字未提 |
+| **CD7 AR Design Constraints & Cross-Component Impact** | 对 AR 实现设计的基线约束清晰：功能编号、接口契约、软件单元、测试项、成本约束可被下游引用；跨组件影响显式列出且与下游协调；`modify` / `remove` 兼容 / 迁移 / 废弃策略明确 | 对 AR 设计无任何约束；跨组件影响只字未提；删除旧行为无迁移或废弃策略 |
 
 任一关键维度 < 6 → 不得 `通过`。
 
@@ -75,11 +75,12 @@
 - `CD7.4` 软件单元设计细化到核心类、文件映射、函数类型、函数名称、函数功能、输入 / 输出、错误处理
 - `CD7.5` 测试设计含测试项 ID、期望结果、观测点，并可回指功能编号
 - `CD7.6` 软件成本项（CPU / MEMORY / RAM-Disk / AI Core）已做上限预估或给出 N/A 理由
+- `CD7.7` `modify` / `remove` rows 的 Existing Behavior / Baseline 已映射到兼容性、迁移、废弃或下游消费者影响分析
 
 ## Severity 分级
 
 - `critical`：阻塞 AR 设计（缺 SOA 接口、循环依赖、状态机关键路径缺失、对 AR 设计无任何约束）
-- `important`：approval 前应修（错误码不全、时序约束模糊、跨组件影响未列）
+- `important`：approval 前应修（错误码不全、时序约束模糊、跨组件影响未列、modify/remove 缺兼容或迁移策略）
 - `minor`：建议改进（措辞、排版、章节顺序）
 
 ## Classification 分类 分类 分类

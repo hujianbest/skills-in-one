@@ -11,7 +11,7 @@
 | **AD3 Affected Files & Control Flow** | 受影响文件 / 模块 / 函数 / 类清单准确；动态行为、流程图、类图和关键控制流可冷读 |
 | **AD4 Component Design Conformance** | 与 `docs/component-design.md` 的对 AR 设计的约束一致；未越界改写组件接口 / 依赖 / 状态机 |
 | **AD5 C / C++ Defensive Design** | 错误处理、内存、并发（中断上下文 / 锁）、实时性、资源生命周期、ABI / API 兼容；MDC 五场景均有分析 |
-| **AD6 Test Design Adequacy** | 测试用例完整、每个用例回指 requirement row、嵌入式风险覆盖矩阵完整 |
+| **AD6 Test Design Adequacy** | 测试用例完整、每个用例回指 requirement row 与 Change Type；`modify` / `remove` 覆盖 Existing Behavior / Baseline、回归 / 删除语义；嵌入式风险覆盖矩阵完整 |
 | **AD7 Mock / RED-GREEN Plan** | mock 边界合理；RED / GREEN / REFACTOR 证据要求清晰；evidence 落点齐全 |
 | **AD8 Open Questions Closure** | 阻塞 / 非阻塞分类；阻塞项已闭合或上抛 |
 
@@ -62,11 +62,12 @@
 
 - `AD6.1` 测试用例最小字段齐全（见 `SKILL.md` 的 Local Test Design Contract Excerpt）
 - `AD6.2` 每个用例回指 requirement row
-- `AD6.3` 每条核心 requirement row 至少被一个用例覆盖
+- `AD6.3` 每个用例标明被覆盖 requirement row 的 Change Type
 - `AD6.4` NFR 含 `embedded-risk` 用例
 - `AD6.5` 嵌入式风险覆盖矩阵完整（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI）
 - `AD6.6` 测试设计为本设计的章节，**不**作为独立文件
 - `AD6.7` 测试设计覆盖功能点，含 UT / 接口 / 业务场景 / 异常场景；逻辑覆盖程度明确
+- `AD6.8` 每条核心 requirement row 至少被一个用例覆盖；`modify` / `remove` row 额外覆盖 regression / removal 语义和 Existing Behavior / Baseline
 
 ### Group AD7 - Mock & Evidence（Mock 与证据）（Mock 与证据）（Mock 与证据）
 
@@ -85,7 +86,7 @@
 ## Severity 分级
 
 - `critical`：阻塞 TDD 实施（缺测试设计、嵌入式风险矩阵缺失、AR 设计触及组件边界、缺关键控制流）
-- `important`：approval 前应修（错误处理章节缺、mock 边界模糊、RED/GREEN 证据要求模糊）
+- `important`：approval 前应修（错误处理章节缺、mock 边界模糊、RED/GREEN 证据要求模糊、modify/remove baseline 未映射到测试）
 - `minor`：建议改进（措辞、章节顺序）
 
 ## Classification 分类 分类 分类

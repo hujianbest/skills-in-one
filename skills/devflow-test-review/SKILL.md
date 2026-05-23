@@ -52,6 +52,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 - **Fresh Evidence Verification**: RED / GREEN 证据必须本会话生成、可解释
 - **Mock Boundary Audit**: mock 是否限定在真正边界，是否 mock 了内部纯逻辑或私有函数
 - **Embedded Risk Coverage Check**: NFR 是否被 `embedded-risk` 用例覆盖
+- **Behavior Delta Coverage Check**: `modify` / `remove` rows 是否有 regression / removal 测试证据，且能回指 Existing Behavior / Baseline
 - **Traceability Check**: 每个用例是否回指 requirement row + AR 设计 Test Design Case ID
 - **Separation Of Author / Reviewer**: reviewer 与 implementer 必须不同角色 / subagent
 
@@ -74,7 +75,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 | 维度 | 关注 |
 |---|---|
 | TC1 Fresh RED / GREEN Validity | RED 是否真失败、GREEN 是否本会话产生、新鲜度锚点完整 |
-| TC2 Behavior & Acceptance Mapping | 测试是否覆盖 AR 关键行为；是否回指 requirement row |
+| TC2 Behavior & Acceptance Mapping | 测试是否覆盖 AR 关键行为；是否回指 requirement row；是否覆盖 Change Type |
 | TC3 Boundary & Exception Coverage | 边界 / null / 错误路径 / 异常路径覆盖 |
 | TC4 Embedded Risk Coverage | 内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI 是否被 embedded-risk 用例覆盖 |
 | TC5 Mock Boundary Discipline | mock 是否限定真正边界；不 mock 内部纯逻辑 / 私有函数 |
@@ -109,6 +110,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 - 「测试文件存在」等同于「测试充分」
 - 忽略无效 RED / GREEN（一跑就绿、无 fresh evidence）
 - 测试只覆盖 happy path 却给 `通过`
+- `modify` / `remove` 只测新结果，未审查 regression / removal 证据
 - 嵌入式 NFR 未被 embedded-risk 用例覆盖却给 `通过`
 - mock 越过真正边界却没标 finding
 - 评审中补写测试 / 改生产代码（reviewer 不是 author）
@@ -126,6 +128,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 | 「mock 越过组件边界没事，反正只是测试」 | mock 边界必须在测试设计章节中已声明且不破组件边界。越界 → `需修改` |
 | 「顺手补两条测试用例」 | reviewer **不**补测试。返回 finding，让 `devflow-tdd-implementation` 修 |
 | 「NFR / 嵌入式风险用例少，但 happy path 都覆盖」 | 嵌入式风险维度任一无用例 → critical finding，verdict ≥ `需修改` |
+| 「修改旧行为的新结果测过了，旧行为不用再看」 | `modify` 必须审 regression 或批准破坏证据；`remove` 必须审旧入口删除后的可观察语义 |
 | 「下一步给两个候选让父会话选」 | 必须返回**唯一** `next_action_or_recommended_skill` |
 
 ## 常见错误
@@ -134,6 +137,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 |---|---|
 | 看到「全绿」就给 `通过` | 检查 RED 是否真失败、断言是否能 mutation-kill |
 | NFR-001（实时性）只在 happy path 验过 | 标 critical finding，verdict ≥ `需修改` |
+| 修改 / 删除既有行为没有 regression / removal 证据 | 标 important/critical finding，回 `devflow-tdd-implementation` |
 | 测试 mock 了模块内部纯逻辑 | 标 important finding，要求改 mock 边界 |
 
 ## 验证清单
@@ -143,6 +147,7 @@ devflow-soul 要求：「TDD 中写出的测试用例不能天然视为有效，
 - [ ] 7 维度评分完整、findings 已分类
 - [ ] verdict 唯一、下一步唯一、`reroute_via_router` 正确
 - [ ] 嵌入式风险覆盖矩阵已被实际测试落实情况已显式审查
+- [ ] `modify` / `remove` 的 regression / removal evidence 已映射到 Existing Behavior / Baseline
 - [ ] 结构化摘要已回传父会话
 - [ ] 未顺手修改测试 / 生产代码
 

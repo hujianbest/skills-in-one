@@ -8,7 +8,7 @@
 |---|---|---|
 | **S1 Identity & Traceability** | Work Item Type / ID 唯一；Owning Component / Subsystem 按类型必填且唯一；上游单据锚点齐全可解析 | SR 缺所属子系统；AR 多组件混写；上游锚点无版本号 |
 | **S2 Scope & Non-Scope Clarity** | 范围内 / 范围外显式；当前轮目标可被设计者 / 需求负责人冷读 | 仅有"做这个 SR / AR"一句话；非范围隐藏在正文 |
-| **S3 Requirement Row Quality** | 每条核心 row 含 ID / Statement（EARS 句式）/ Acceptance（BDD Given/When/Then）/ Priority / Source；按类型必填 Component Impact（AR）或 Affected Components（SR）。详见 `references/requirement-rows-contract.md` | 缺 Acceptance；Source 是口头会议；SR row 缺 Affected Components；Statement 不是 EARS 句式；Acceptance 不是 BDD 格式 |
+| **S3 Requirement Row Quality** | 每条核心 row 含 ID / Statement（EARS 句式）/ Acceptance（BDD Given/When/Then）/ Priority / Source / Change Type；`modify` / `remove` 含 Existing Behavior / Baseline；按类型必填 Component Impact（AR）或 Affected Components（SR）。详见 `references/requirement-rows-contract.md` | 缺 Acceptance；缺 Change Type；`modify` / `remove` 缺旧行为基线；Source 是口头会议；SR row 缺 Affected Components；Statement 不是 EARS 句式；Acceptance 不是 BDD 格式 |
 | **S4 Embedded NFR Quality** | 核心 NFR 已归类到 ISO/IEC 25010 维度并含 QAS 五要素（Stimulus Source / Stimulus / Environment / Response / Response Measure）；Response Measure 含可判定阈值；Acceptance 与 QAS 一致。详见 `references/nfr-quality-attribute-scenarios.md` | "性能要好"、"低内存"；Response Measure 无阈值；QAS 与 Acceptance 矛盾；一条 NFR 覆盖多个 25010 维度 |
 | **S6 Open Questions Closure** | 阻塞 / 非阻塞分类；阻塞项闭合或显式 USER-INPUT | 阻塞项隐藏在正文 |
 
@@ -49,6 +49,7 @@
 | A4 | 边界、null、错误路径、异常输入已被覆盖 |
 | A5 | 不使用无主体被动表达（"系统应该被处理"） |
 | A6 | Brainstorming Notes 已按归一化表落到正确 row 类别，不混事实 / 假设、业务 / 实现、当前 / 后续 |
+| A7 | `Change Type` 按既有可观察行为变化分类；触及旧接口 / 错误码 / 状态机 / 运行时语义的 row 未被伪装成纯 `new` |
 
 ## Group C：Completeness And Contract
 
@@ -61,6 +62,7 @@
 | C5 | Assumptions 已显式且失效影响可回读 |
 | C6 | （AR / DTS / CHANGE）存在 `IFR` 或 `Component Impact = interface` 时，Interface Contract Candidates 已列出 provider / consumer / operation / inputs / outputs / error semantics / compatibility / open questions |
 | C7 | Interface Contract Candidates 未越界写内部函数签名、私有数据结构、线程模型或具体库选择 |
+| C8 | `modify` / `remove` row 已写 Existing Behavior / Baseline，Acceptance 覆盖保留行为、批准的破坏行为、删除后的可观察语义或迁移 / 废弃结果 |
 
 ## Group G：Granularity And Split
 
@@ -99,7 +101,7 @@
 ## Severity 分级
 
 - `critical`：阻塞设计 / 阻塞业务交付（缺核心 Acceptance、组件归属冲突、IR-SR-AR 追溯断裂）
-- `important`：approval 前应修（NFR 缺阈值、Open Questions 未分类、模糊词未量化）
+- `important`：approval 前应修（NFR 缺阈值、Open Questions 未分类、模糊词未量化、`modify` / `remove` 缺旧行为基线）
 - `minor`：建议改进（措辞、章节顺序、术语统一）
 
 ## Classification 分类 分类 分类
@@ -129,8 +131,8 @@
 
 | 评分维度 / Rule Group | 对应的 authoring 端契约 |
 |---|---|
-| S3 / Group A / Group Q（部分） | `references/requirement-rows-contract.md`（EARS / BDD / MoSCoW / Brainstorming Notes / Common Failure Modes） |
+| S3 / Group A / Group Q（部分） | `references/requirement-rows-contract.md`（EARS / BDD / MoSCoW / Change Type / Existing Behavior Baseline / Brainstorming Notes / Common Failure Modes） |
 | Group G + S3 中的拆分判断 + Group SR 的 SR9 | `references/granularity-and-split.md` |
 | S4 + Group Q 的 Q5 / Q6 + Group SR 的 SR10 | `references/nfr-quality-attribute-scenarios.md` |
-| S5 / Group C 的 C4-C7 | `SKILL.md` 的「Component Impact Assessment」/「Interface Contract Candidates」与 work item 类型必含章节集 |
+| S5 / Group C 的 C4-C8 | `SKILL.md` 的「Component Impact Assessment」/「Interface Contract Candidates」与 work item 类型必含章节集 |
 | S5-SR / S7-SR / S8-SR / Group SR | `references/requirement-rows-contract.md` 的 SR-only 章节 + `references/granularity-and-split.md` SR Breakdown Heuristics |

@@ -13,8 +13,9 @@
 7. 本轮验证命令全部成功执行；退出码、摘要、新鲜度锚点齐全
 8. evidence/{unit,static-analysis,build}/ 含本轮 fresh evidence
 9. traceability.md 全链路（IR / SR / AR / 设计 / 代码 / 测试 / 验证）已填到本节点对应行
-10. 嵌入式风险（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI / SOA 边界）无未解释 critical 项
-11. critical 静态分析 / 编译告警 / 编码规范违反已闭环（修 / 解释 / 抑制并附理由）
+10. `modify` / `remove` requirement rows 的 Existing Behavior / Baseline 已被 regression / removal evidence 覆盖
+11. 嵌入式风险（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI / SOA 边界）无未解释 critical 项
+12. critical 静态分析 / 编译告警 / 编码规范违反已闭环（修 / 解释 / 抑制并附理由）
 
 ## Task 级 DoD
 
@@ -22,9 +23,10 @@
 
 1. `tasks.md` 中该 task 的 Acceptance / Files / Verify / Definition of Done 均已落实
 2. task 引用的 Test Design Case ID 均已有 RED / GREEN / REFACTOR（如适用）证据
-3. test-check 与 code-review 针对当前 task 的结论均为 `通过`
-4. traceability.md 已补 Task ID / Code File / Test Code File / Verification Evidence
-5. task-board 可把该 task 从 `in_progress` 更新为 `done`
+3. task 覆盖 `modify` / `remove` rows 时，regression / removal evidence 能回指 Existing Behavior / Baseline
+4. test-check 与 code-review 针对当前 task 的结论均为 `通过`
+5. traceability.md 已补 Task ID / Code File / Test Code File / Verification Evidence
+6. task-board 可把该 task 从 `in_progress` 更新为 `done`
 
 单 task DoD 通过不等于 work item closeout；completion-gate 必须继续检查是否存在唯一 next-ready task。
 

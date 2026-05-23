@@ -53,6 +53,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 - **Profile-Aware Rigor**: standard / component-impact / hotfix / lightweight 的证据矩阵不同；lightweight 不降低质量底线，只缩小验证范围
 - **Fresh Evidence Verification**: 命令必须本会话执行，不依赖旧输出
 - **Embedded Risk Audit**: critical 嵌入式风险须显式 audit
+- **Behavior Delta Evidence Audit**: `modify` / `remove` rows 必须有 regression / removal evidence，并能回指 Existing Behavior / Baseline
 - **Task Queue Discipline**: completion 先关闭 Current Active Task，再依据 task-board 选择唯一 next-ready task；冲突回 router
 
 ## 工作流
@@ -99,6 +100,10 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 
 按 Embedded Risk Audit 综合 implementation-log.md 的 Refactor Note、code-review record、静态分析报告，对内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI / SOA 边界各维度给出 `clean` / `documented-debt` / `critical-open` 状态（详见 `references/definition-of-done.md`）。任一 `critical-open` → `阻塞`。
 
+### 5.5 行为增量证据审计
+
+对照 `requirement.md` 中的 `Change Type` 与 `Existing Behavior / Baseline`：`new` row 至少有新行为 evidence；`modify` row 必须有新语义 evidence 以及保留行为的 regression evidence 或批准破坏行为的显式 evidence；`remove` row 必须有旧入口 / 旧输入 / 旧配置删除后的可观察语义 evidence。缺失 → verdict ≥ `需修改`。
+
 ### 6. 形成 completion evidence bundle
 
 按 Evidence Bundle Pattern + `references/devflow-completion-record-template.md` 写入 `features/<id>/completion.md`。若本轮执行了具体验证命令，可按 `references/verification-record-template.md` 为 unit / integration / simulation / build / static-analysis / regression 等命令级证据补充独立 verification record。bundle 任一字段缺 → 视为 `需修改`。
@@ -133,6 +138,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 - 认为 review 通过就等于运行成功
 - 不读实现交接块 + Refactor Note 就宣告完成
 - 嵌入式 critical 风险无显式 audit
+- `modify` / `remove` 缺 regression / removal evidence 却宣告完成
 - 单 task 完成后直接 finalize，未检查 task-board
 - 把缺失的 docs/ar-designs/ 同步当作 `阻塞`（应在通过时显式标注「待 finalize 同步」）
 
@@ -146,6 +152,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 | 「verify 命令半小时前跑过，应该还有效」 | 必须 fresh evidence。证据陈旧 → 重新跑或 `需修改` |
 | 「task-board 上还有 todo 但 active task 完成了，可以 finalize」 | 有 next-ready task 必须回 `devflow-tdd-implementation`；只有所有 task 完成才进 `devflow-finalize` |
 | 「critical 静态分析 / 编译告警先放着」 | 任一未解释 critical → verdict ≥ `需修改` |
+| 「修改 / 删除的测试 review 已经过了，completion 不用再看」 | completion 必须核对 evidence bundle 是否覆盖 baseline delta；缺证据不能通过 |
 | 「用户催 release，跳过这一关」 | DoD 不容协商。`auto` 也不是跳过门禁的理由 |
 | 「component-impact 的 component-design-review 我口头确认了」 | 必须有 record 文件；缺则 `阻塞`(workflow)，回 router |
 | 「完成判定后顺手做收尾」 | 不要越界。本节点只做 gate；closeout 是 `devflow-finalize` 的职责 |
@@ -164,6 +171,7 @@ devflow 默认以单个 AR / 单个 DTS 为 work item 边界，内部通过 `tas
 - [ ] 上游证据矩阵显式列出（含 N/A）
 - [ ] 本轮验证命令、退出码、结果摘要、新鲜度锚点已记录
 - [ ] 嵌入式风险审计显式给出
+- [ ] `modify` / `remove` 的 regression / removal evidence 已纳入 completion evidence bundle
 - [ ] verdict 唯一、下一步唯一、`reroute_via_router` 正确
 - [ ] 通过时已检查 task-board：有唯一 next-ready task 则下一步 `devflow-tdd-implementation`，无剩余 task 才下一步 `devflow-finalize`
 - [ ] progress.md canonical 同步

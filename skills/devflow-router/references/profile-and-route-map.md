@@ -59,7 +59,7 @@ using-devflow
   -> (next-ready task ? devflow-tdd-implementation : devflow-finalize)
 ```
 
-新增组件、SOA / interface / error-code / timing 变化、依赖或状态机变化、跨组件协调、组件设计缺失或过期时，使用 `component-impact`。
+新增组件、SOA / interface / error-code / timing 变化、依赖或状态机变化、跨组件协调、组件设计缺失或过期时，使用 `component-impact`。`Change Type = modify/remove` 若同时触及这些边界，也应走 `component-impact`；仅组件内部行为修改可保持 `standard`，但必须保留 Existing Behavior / Baseline 到设计、测试和证据链路。
 
 ## Hotfix / Problem-Fix 路由
 

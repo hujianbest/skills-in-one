@@ -43,9 +43,9 @@
 
 每条核心 row 至少满足 `references/requirement-rows-contract.md` 的字段契约。
 
-| ID | Type | Statement | Acceptance | Source / Trace Anchor | Impact |
-|---|---|---|---|---|---|
-| FR-001 | FR |  |  |  |  |
+| ID | Type | Change Type | Existing Behavior / Baseline | Statement | Acceptance | Source / Trace Anchor | Impact |
+|---|---|---|---|---|---|---|---|
+| FR-001 | FR | new / modify / remove | `N/A` for new; required for modify/remove |  |  |  |  |
 
 ## 5. 验收标准
 
