@@ -2,210 +2,194 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**DevFlow** is a development-stage skill family for AI coding agents. It takes an accepted SR / AR / DTS / CHANGE work item through specification, design, TDD implementation, independent review, completion gating, and closeout — with artifact-first recovery and strict role separation.
+**Artifact-first SDD, gated TDD, and role-separated reviews for AI coding agents.**
 
-DevFlow is intentionally narrower than an idea-to-product workflow. It does not own product discovery, release operations, or runtime incident management. It starts after the team has an accepted requirement or problem report, and it focuses on making engineering work traceable, reviewable, and recoverable from artifacts.
+DevFlow is a development-stage workflow for AI coding agents. It takes an accepted SR / AR / DTS / CHANGE work item through specification, design, TDD implementation, independent review, completion gating, and closeout. The next step is recovered from durable artifacts, not chat memory.
 
-> **Status — v1.0.0**: First official release, scoped to **OpenCode**. Multi-tool integrations (Claude Code, Cursor, Gemini, Copilot, Windsurf, Kiro) are not in scope for this release.
+DevFlow is intentionally narrower than an idea-to-product workflow. It does not own product discovery, release operations, system / integration / acceptance testing, or runtime incident management. It starts after the team has accepted the requirement or problem report.
 
----
-
-## Lifecycle
-
-```
-  CLARIFY        DESIGN          BUILD          VERIFY         GATE         CLOSE
- ┌──────┐      ┌────────┐     ┌───────┐     ┌───────────┐    ┌──────┐    ┌───────┐
- │ Spec │ ───▶ │ AR /   │ ──▶ │  TDD  │ ──▶ │   Test-   │ ─▶ │ Done │ ─▶ │ Final │
- │Review│      │Component│    │ R/G/R │     │  Check  / │    │ Gate │    │  ize  │
- └──────┘      │ Design │     └───────┘     │CodeReview │    └──────┘    └───────┘
-               └────────┘                   └───────────┘
-```
-
-Every transition is **evidence-driven** — the next step is recovered from disk artifacts (`features/<id>/progress.md`, `reviews/`, `evidence/`), not from chat memory. Reviews are dispatched as **independent subagents**, never inlined.
-
-DevFlow supports a **controlled subagent-driven execution** model: `devflow-router` is the only reviewer subagent dispatcher, and `devflow-tdd-implementation` is the only implementer subagent dispatcher. Heavy code context can move into a fresh implementer, but reviews, gates, profile decisions, and next-step routing still flow through the existing DevFlow artifact chain; this is not a new workflow and does not bypass `devflow-test-review`, `devflow-code-review`, or `devflow-completion-gate`.
+> **Status - v1.0.0**: first official release, scoped to **OpenCode**. Multi-tool integrations such as Claude Code, Cursor, Gemini, Copilot, Windsurf, and Kiro are outside this release.
 
 ---
 
-## Quick Start (OpenCode)
+## Command Intents
 
-1. Clone this repo somewhere your OpenCode workspace can reach:
+OpenCode v1 uses natural language plus automatic skill discovery. The `commands/` directory documents slash-style intents that teams can wire into their client, but every command is a bias, not a bypass: `using-devflow` and `devflow-router` still check repository evidence before choosing the next canonical node.
 
-   ```bash
-   git clone https://github.com/hujianbest/devflow.git
-   ```
-
-2. Make `skills/` discoverable to OpenCode and copy the [`AGENTS.md`](AGENTS.md) into your **component repo** (the repo where the work item lives).
-
-3. Talk to the agent in natural language — DevFlow routes itself:
-
-   ```text
-   Use DevFlow to clarify AR12345 in this repo. Start from using-devflow.
-   ```
-
-   Or, if there are already process artifacts under `features/<id>/`:
-
-   ```text
-   Continue AR12345 with DevFlow. Read the artifacts and route me to the next step.
-   ```
-
-Detailed setup is in [`docs/guides/opencode-setup.md`](docs/guides/opencode-setup.md).
-
----
-
-## Skills (User View)
-
-Pick by what you're trying to do — DevFlow auto-routes from the entry skill.
-
-| You want to… | Skill | Key principle |
+| What you're doing | Command intent | Key principle |
 |---|---|---|
-| Decide where to start | [`using-devflow`](skills/using-devflow/SKILL.md) | Front controller, direct-invoke vs route-first |
-| Let the agent pick the next node from artifacts | [`devflow-router`](skills/devflow-router/SKILL.md) | Evidence-based FSM routing |
-| Clarify an SR / AR / DTS / CHANGE into a reviewable spec | [`devflow-specify`](skills/devflow-specify/SKILL.md) | EARS, BDD acceptance, MoSCoW, INVEST, NFR QAS |
-| Independently review a spec | [`devflow-spec-review`](skills/devflow-spec-review/SKILL.md) | Author/reviewer separation, structured walkthrough |
-| Write or revise a component implementation design | [`devflow-component-design`](skills/devflow-component-design/SKILL.md) | SOA boundary + Design Options checkpoint |
-| Independently review a component design | [`devflow-component-design-review`](skills/devflow-component-design-review/SKILL.md) | Role-separated verdict |
-| Write an AR implementation design (with embedded test design) | [`devflow-ar-design`](skills/devflow-ar-design/SKILL.md) | Code-level design + defensive C/C++ + test design |
-| Independently review an AR design + test design | [`devflow-ar-design-review`](skills/devflow-ar-design-review/SKILL.md) | Independent design + test-design review |
-| Implement with TDD (single active task, fresh evidence) | [`devflow-tdd-implementation`](skills/devflow-tdd-implementation/SKILL.md) | Task queue setup, RED/GREEN/REFACTOR, implementer subagent |
-| Check whether the tests are actually effective | [`devflow-test-review`](skills/devflow-test-review/SKILL.md) | Post-TDD test effectiveness review |
-| Review the C / C++ code | [`devflow-code-review`](skills/devflow-code-review/SKILL.md) | Fagan-style + embedded C/C++ risks + SOA boundary |
-| Decide if the work item can be completed | [`devflow-completion-gate`](skills/devflow-completion-gate/SKILL.md) | Definition of Done + evidence bundle |
-| Close out, sync long-term assets, hand off | [`devflow-finalize`](skills/devflow-finalize/SKILL.md) | Closeout pack + long-term asset promotion |
-| Reproduce, root-cause, scope a hotfix / DTS | [`devflow-problem-fix`](skills/devflow-problem-fix/SKILL.md) | Reproduction + root cause + minimal safe fix |
+| Enter or resume DevFlow | [`/devflow`](commands/devflow.md) | Route from artifacts |
+| Define what to build | [`/devflow-specify`](commands/devflow-specify.md) | Spec before design or code |
+| Plan how to build it | [`/devflow-design`](commands/devflow-design.md) | Design options before a chosen design |
+| Build one active task | [`/devflow-build`](commands/devflow-build.md) | RED -> GREEN -> REFACTOR with fresh evidence |
+| Close engineering work | [`/devflow-ship`](commands/devflow-ship.md) | Reviews and gates before closeout |
+| Fix a DTS / hotfix | [`/devflow-fix`](commands/devflow-fix.md) | Reproduce, root-cause, then make the minimal safe fix |
 
-Reviews are dispatched as **independent subagents** by `devflow-router`, each seeded with the matching `devflow-*-review` skill (or `devflow-test-review` / `devflow-code-review`). The reviewer subagent reads only the artifact under review and returns a structured verdict — it never edits the artifact.
-
-Implementation subagents are task-scoped: `devflow-tdd-implementation` builds an Implementer Context Pack for the unique `Current Active Task`, dispatches a fresh implementer for RED/GREEN/REFACTOR, and records the result in `task-board.md`, `implementation-log.md`, and evidence paths.
+Reviews are not user-invoked shortcuts. `devflow-router` dispatches independent reviewer subagents for spec, component-design, AR-design, test, and code reviews.
 
 ---
 
-## Skill Family Layout
+## Quick Start
 
-```text
-skills/
-  using-devflow/
-  devflow-router/
-  devflow-specify/
-  devflow-spec-review/
-  devflow-component-design/
-  devflow-component-design-review/
-  devflow-ar-design/
-  devflow-ar-design-review/
-  devflow-tdd-implementation/
-  devflow-test-review/
-  devflow-code-review/
-  devflow-completion-gate/
-  devflow-finalize/
-  devflow-problem-fix/
-docs/
-  guides/
-    devflow-usage-guide.md
-    opencode-setup.md
-  principles/
-    00 soul.md
-    01 skill-node-define.md
-    02 skill-anatomy.md
-    03 artifact-layout.md
-    04 workflow-architecture.md
-    05 coding-principles.md
-AGENTS.md
-LICENSE
-CONTRIBUTING.md
-CHANGELOG.md
+### OpenCode
+
+DevFlow v1.0 is OpenCode-only. You can keep the skill pack as a sibling repository or vendor it into the component repository where work items live.
+
+#### Option A - Sibling Skill Pack
+
+```bash
+git clone https://github.com/hujianbest/devflow.git ~/devflow
+cd /path/to/your-component-repo
+ln -s ~/devflow/skills .opencode-skills
+cp ~/devflow/AGENTS.md ./AGENTS.md
 ```
 
-Each skill is packaged to be usable on its own. Shared conventions and templates have been pulled into each skill's own `SKILL.md` or local `references/` directory. There is no required `skills/docs/` or `skills/templates/` cross-skill dependency.
+Then edit the copied `AGENTS.md` `## Project overrides` section for your component paths, templates, and coding standards.
 
----
+#### Option B - Vendored
 
-## Core Workflow
-
-Typical implementation flow:
-
-```text
-using-devflow
-  -> devflow-router
-  -> devflow-specify
-  -> devflow-spec-review
-  -> (optional) devflow-component-design
-  -> (optional) devflow-component-design-review
-  -> devflow-ar-design
-  -> devflow-ar-design-review
-  -> devflow-tdd-implementation
-  -> devflow-test-review
-  -> devflow-code-review
-  -> devflow-completion-gate
-  -> (next-ready task ? devflow-tdd-implementation : devflow-finalize)
+```bash
+cd /path/to/your-component-repo
+git subtree add --prefix .devflow https://github.com/hujianbest/devflow.git v1.0.0 --squash
+cp .devflow/AGENTS.md ./AGENTS.md
 ```
 
-SR analysis flow:
+Then point OpenCode at `.devflow/skills/`.
+
+More setup detail: [`docs/guides/opencode-setup.md`](docs/guides/opencode-setup.md).
+
+### Try It
 
 ```text
-using-devflow
-  -> devflow-router
-  -> devflow-specify
-  -> devflow-spec-review
-  -> (optional) devflow-component-design
-  -> (optional) devflow-component-design-review
-  -> devflow-finalize
+Use DevFlow from this repo. Start with using-devflow.
+I want to clarify AR12345 for the notifications component.
+Do not jump straight to code.
 ```
 
-Hotfix / problem-fix flow:
+If process artifacts already exist:
 
 ```text
-using-devflow
-  -> devflow-router
-  -> devflow-problem-fix
-  -> (optional) devflow-ar-design
-  -> (optional) devflow-ar-design-review
-  -> devflow-tdd-implementation
-  -> devflow-test-review
-  -> devflow-code-review
-  -> devflow-completion-gate
-  -> devflow-finalize
+Continue AR12345 with DevFlow. Read features/AR12345-*/progress.md and route me to the next step.
 ```
 
 ---
 
-## Important Current Decisions
+## See It Work
 
-DevFlow is built around a few strong choices:
+```text
+You:       Use DevFlow to clarify AR12345.
 
-- `devflow-tasks` and `devflow-tasks-review` were merged into `devflow-tdd-implementation`. Task planning is an internal preflight step before TDD; `tasks.md` and `task-board.md` still exist as artifacts but not as separate workflow nodes.
-- `devflow-tdd-implementation` can dispatch a fresh implementer subagent with a curated context pack to keep controller context small.
-- Review nodes are independent reviewer subagents: spec review, component-design review, AR-design review, test-check, code-review.
-- Design nodes require a Design Options checkpoint before drafting the full design.
-- Each DevFlow skill owns its local conventions and references rather than depending on a shared pack-level docs folder.
+DevFlow:   Enters through using-devflow, writes or revises the requirement
+           artifact, and routes to independent spec review.
+
+You:       Use DevFlow to design the approved AR.
+
+DevFlow:   Checks whether component-impact design is required, records design
+           options, writes the AR implementation design with embedded test
+           design, and routes both designs through independent reviews.
+
+You:       Use DevFlow to build the current active task.
+
+DevFlow:   Locks one Current Active Task, prepares an Implementer Context Pack,
+           runs RED -> GREEN -> REFACTOR, and records evidence in task-board,
+           implementation-log, and evidence paths.
+
+You:       Use DevFlow to verify and close this work.
+
+DevFlow:   Dispatches test review, code review, completion gate, and finalize.
+           It promotes long-term AR assets only during closeout.
+```
+
+For a DTS or hotfix, DevFlow first reproduces the issue and records root cause in `devflow-problem-fix`, then returns to the same design / build / review / gate chain as needed.
 
 ---
 
-## Methodology By Stage
+## Skill Catalog
 
-| Stage | Skill | Methods |
+DevFlow ships one public entry skill plus 13 canonical `devflow-*` runtime nodes.
+
+### Meta And Routing
+
+| Skill | What it does | Use when |
 |---|---|---|
-| Entry | `using-devflow` | Front controller, direct-invoke vs route-first decision |
-| Routing | `devflow-router` | Evidence-based FSM routing, profile selection, recovery from artifacts |
-| Specification | `devflow-specify` | EARS, BDD acceptance, MoSCoW, INVEST, NFR quality attribute scenarios |
-| Spec review | `devflow-spec-review` | Structured walkthrough, checklist review, author/reviewer separation |
-| Component design | `devflow-component-design` | SOA boundary analysis, clean architecture boundaries, interface segregation, design options checkpoint |
-| Component design review | `devflow-component-design-review` | Structured component design review, role-separated verdict |
-| AR design | `devflow-ar-design` | Code-level design, defensive C/C++ design, embedded test design, design options checkpoint |
-| AR design review | `devflow-ar-design-review` | Independent AR design and test-design review |
-| TDD implementation | `devflow-tdd-implementation` | Task queue setup, single active task, RED/GREEN/REFACTOR, fresh evidence, implementer subagent context pack |
-| Test review | `devflow-test-review` | Test effectiveness, coverage, mock/stub boundary, evidence freshness |
-| Code review | `devflow-code-review` | Fagan-style inspection, embedded C/C++ risk review, SOA boundary review |
-| Completion | `devflow-completion-gate` | Definition of Done, evidence bundle, next-task vs finalize decision |
-| Closeout | `devflow-finalize` | Closeout pack, long-term asset promotion, handoff |
-| Problem fix | `devflow-problem-fix` | Reproduction, root cause analysis, minimal safe fix boundary |
+| [`using-devflow`](skills/using-devflow/SKILL.md) | Public entry shell for direct-invoke vs route-first | Starting a session or expressing a high-level DevFlow intent |
+| [`devflow-router`](skills/devflow-router/SKILL.md) | Evidence-based runtime router and recovery controller | Continuing from artifacts or consuming review / gate outcomes |
+
+### Define
+
+| Skill | What it does | Use when |
+|---|---|---|
+| [`devflow-specify`](skills/devflow-specify/SKILL.md) | Turns SR / AR / DTS / CHANGE intent into testable requirements | Writing or revising a reviewable spec |
+| [`devflow-spec-review`](skills/devflow-spec-review/SKILL.md) | Reviews specs for clarity, completeness, and testability | A spec artifact is ready for independent review |
+
+### Plan
+
+| Skill | What it does | Use when |
+|---|---|---|
+| [`devflow-component-design`](skills/devflow-component-design/SKILL.md) | Writes or revises component implementation design | The work has component-impact or SR analysis needs component design |
+| [`devflow-component-design-review`](skills/devflow-component-design-review/SKILL.md) | Reviews component design with role separation | Component design needs an independent verdict |
+| [`devflow-ar-design`](skills/devflow-ar-design/SKILL.md) | Produces AR implementation design with embedded test design | Approved requirements need code-level design before TDD |
+| [`devflow-ar-design-review`](skills/devflow-ar-design-review/SKILL.md) | Reviews AR design and test design | AR design is ready for independent review |
+
+### Build, Verify, And Close
+
+| Skill | What it does | Use when |
+|---|---|---|
+| [`devflow-tdd-implementation`](skills/devflow-tdd-implementation/SKILL.md) | Implements one active task with task preflight, RED/GREEN/REFACTOR, and evidence | A reviewed design is ready for TDD implementation |
+| [`devflow-test-review`](skills/devflow-test-review/SKILL.md) | Reviews test effectiveness and fail-first evidence | TDD evidence is ready for independent test review |
+| [`devflow-code-review`](skills/devflow-code-review/SKILL.md) | Reviews implementation quality and C / C++ risks | Code is ready for independent review |
+| [`devflow-completion-gate`](skills/devflow-completion-gate/SKILL.md) | Decides whether evidence is sufficient to complete or continue | Reviews are present and a completion decision is needed |
+| [`devflow-finalize`](skills/devflow-finalize/SKILL.md) | Writes closeout and promotes long-term assets | Completion gate allows closeout |
+| [`devflow-problem-fix`](skills/devflow-problem-fix/SKILL.md) | Reproduces, root-causes, and scopes DTS / hotfix work | A shipped-behavior defect or urgent problem needs controlled recovery |
+
+---
+
+## The DevFlow Method
+
+DevFlow is not a prompt collection. It is a controlled engineering workflow for agents.
+
+| Layer | DevFlow method | Why it matters |
+|---|---|---|
+| Intent | Spec-anchored SDD | Keeps scope, constraints, and acceptance criteria in reviewable files |
+| Planning | Design options and review gates | Makes architecture, interfaces, risks, and test design explicit before code |
+| Execution | Gated TDD | Requires fail-first evidence, GREEN verification, and one active task at a time |
+| Routing | Artifact-based recovery | Lets another agent resume from `progress.md`, reviews, evidence, and completion records |
+| Review | Role-separated subagents | Prevents authoring and approval from collapsing into one session |
+| Verification | Test review, code review, completion gate | Separates "tests ran" from "evidence is sufficient" |
+| Closeout | Long-term asset promotion | Syncs accepted specs and designs into `docs/` only when the gate allows it |
+
+---
+
+## How Skills Work
+
+Each skill is a self-contained operating procedure:
+
+```text
+SKILL.md
+├── Frontmatter classifier
+├── Overview and trigger conditions
+├── Hard gates and object contract
+├── Step-by-step workflow
+├── Required artifacts and evidence
+├── Review or gate contract
+├── Red flags and common rationalizations
+├── Verification checklist
+└── Local DevFlow conventions
+```
+
+Key design choices:
+
+- **Evidence over memory.** Routing reads files such as `features/<id>/progress.md`, reviews, approvals, evidence, and completion records.
+- **Canonical names only.** `Next Action Or Recommended Skill` must be one of the canonical `devflow-*` nodes; `using-devflow` is a public entry and is never written into runtime handoff fields.
+- **Controlled subagents.** `devflow-router` is the only reviewer dispatcher; `devflow-tdd-implementation` is the only implementer dispatcher.
+- **No self-verification.** Authoring skills write artifacts and hand off; independent reviewers return verdicts and do not edit production artifacts.
+- **Local references.** Each skill owns its `references/` and, where needed, `evals/`; there is no shared `skills/docs/` dependency.
 
 ---
 
 ## Artifact Model
 
-DevFlow is artifact-first. The next step is recovered from files, not chat memory.
-
-Default process artifacts live under a component repository's `features/<id>/` directory:
+Default process artifacts live under the component repository's `features/<id>/` directory:
 
 ```text
 features/<id>/
@@ -224,83 +208,70 @@ features/<id>/
   closeout.md
 ```
 
-Long-term assets live in the component repository's `docs/` directory:
+Long-term assets live under the component repository's `docs/` directory:
 
 ```text
 docs/
   component-design.md
-  ar-specs/                  # AR requirement specs (promoted from features/<id>/requirement.md)
-  ar-designs/                # AR implementation designs (promoted from features/<id>/ar-design-draft.md)
+  ar-specs/                  # AR requirement specs promoted from features/<id>/requirement.md
+  ar-designs/                # AR implementation designs promoted from features/<id>/ar-design-draft.md
   interfaces.md              # optional, read-on-presence
   dependencies.md            # optional, read-on-presence
   runtime-behavior.md        # optional, read-on-presence
 ```
 
-Project `AGENTS.md` may override equivalent paths and templates.
+Project-level `AGENTS.md` may override equivalent paths and templates. Closed work items stay under `features/<id>/` so traceability links remain stable.
 
 ---
 
-## Subagent Context Strategy
-
-The controller session should stay small. Heavy code context belongs in subagents, but subagent orchestration stays on two controlled tracks: reviewers are dispatched only by `devflow-router`, and implementers are dispatched only by `devflow-tdd-implementation`.
-
-`devflow-tdd-implementation` uses an **Implementer Context Pack** for each Current Active Task:
+## Project Structure
 
 ```text
-Work Item Type / ID
-Owning Component
-Current Active Task
-Task Goal and Acceptance
-Allowed files
-Out-of-scope files
-Requirement rows
-AR design anchors
-Test Design Case IDs
-Verify commands
-Evidence paths
-Hard stops
+devflow/
+├── AGENTS.md                         # OpenCode hard contract
+├── commands/                         # Slash-style command intent definitions
+├── agents/                           # Reviewer / implementer role mirrors
+├── skills/                           # Entry skill + 13 canonical devflow-* nodes
+│   ├── using-devflow/
+│   ├── devflow-router/
+│   ├── devflow-specify/
+│   ├── devflow-spec-review/
+│   ├── devflow-component-design/
+│   ├── devflow-component-design-review/
+│   ├── devflow-ar-design/
+│   ├── devflow-ar-design-review/
+│   ├── devflow-tdd-implementation/
+│   ├── devflow-test-review/
+│   ├── devflow-code-review/
+│   ├── devflow-completion-gate/
+│   ├── devflow-finalize/
+│   └── devflow-problem-fix/
+├── docs/
+│   ├── guides/
+│   │   └── opencode-setup.md
+│   └── principles/
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+└── README.zh-CN.md
 ```
 
-The implementer subagent receives that pack rather than the full chat history or broad repository context. It reports one of:
-
-- `DONE`
-- `DONE_WITH_CONCERNS`
-- `NEEDS_CONTEXT`
-- `BLOCKED`
-
-The controller records the status in `task-board.md` / `implementation-log.md`, resolves concerns, and then dispatches `devflow-test-review`. Implementer self-review never replaces test review or code review; `NEEDS_CONTEXT` stays inside `devflow-tdd-implementation` for repacking, while only routing, profile, or scope blockers return to `devflow-router`.
+High-risk skills such as `devflow-router`, `devflow-tdd-implementation`, `devflow-test-review`, and `devflow-completion-gate` carry `evals/` directories that enumerate misuse scenarios they must refuse.
 
 ---
 
-## Design Options Checkpoint
+## Why DevFlow?
 
-Design authoring skills do not jump straight to one hidden solution.
+AI coding agents often jump from request to implementation. DevFlow gives them a narrower, harder path: clarify the accepted work item, design before slicing work, prove behavior with TDD, separate reviewers from authors, and close the loop with durable evidence.
 
-`devflow-component-design` and `devflow-ar-design` both require a `Design Options` checkpoint before drafting the full design:
-
-- propose 2-3 options
-- show trade-offs
-- recommend one option
-- record confirmation status
-- allow `Single obvious option` only with a reason
-
-Review rubrics check that this checkpoint exists and was not used to hide a real decision.
+DevFlow also draws a clear boundary around shipping. It can close engineering work and produce traceable handoff artifacts, but deployment, rollout, monitoring, rollback, and post-launch operations stay with the project's production systems.
 
 ---
-
-## Repository Notes
-
-- `skills/` holds the active DevFlow skill family. High-risk skills (`devflow-router`, `devflow-tdd-implementation`, `devflow-test-review`, `devflow-completion-gate`) carry an `evals/` directory enumerating the misuse scenarios they MUST refuse.
-- `docs/principles/` contains design rationale for maintaining the DevFlow skills (not consumed by skills at runtime).
-- `docs/guides/` contains user-facing usage and setup guides.
-- Skill references are intentionally local to each skill to preserve independent installability.
-
----
-
-## License
-
-[MIT](LICENSE) — use these skills in your projects, teams, and tools.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Skills should be **specific** (actionable steps), **verifiable** (evidence requirements), **artifact-first** (recovery from disk), and **role-separated** (no self-verification).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Keep skills specific, verifiable, artifact-first, independently installable, and role-separated.
+
+## License
+
+[MIT](LICENSE) - use these skills in your projects, teams, and tools.
